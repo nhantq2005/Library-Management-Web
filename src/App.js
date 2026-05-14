@@ -1,25 +1,26 @@
-import logo from './logo.svg';
-import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Auth from './screens/Auth/Auth';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import PageNotFound from './screens/Exception/PageNotFound';
+import Home from './screens/Home/Home';
+import { useReducer } from 'react';
+import MyUserReducer from './reducers/MyUserReducer';
+import { MyUserContext } from './configs/Context';
 
-function App() {
+const App = () => {
+  const [user, dispatch] = useReducer(MyUserReducer, null);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <MyUserContext.Provider value={[user, dispatch]}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login" element={<Auth page="login" />} />
+          <Route path="/register" element={<Auth page="register" />} />
+          <Route path="/" element={<Home />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Routes>
+      </BrowserRouter>
+    </MyUserContext.Provider>
   );
-}
+};
 
 export default App;
