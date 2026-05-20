@@ -4,11 +4,17 @@ export const endpoints = {
     'login': '/login',
     'register': '/users',
     'current-user': '/secure/profile',
+    'overdue-documents': '/stats/secure/overdue-documents',
+    'categories-stats': '/stats/secure/categories',
+    'user-majors-stats': '/stats/secure/user-majors',
+    'authors-stats': '/stats/secure/authors',
+    'reviews-stats': '/stats/secure/reviews',
+    'documents': '/documents',
 }
 
 export const authApi = (token) => {
     return axios.create({
-        baseURL: 'http://localhost:8080/eLibrary/api/',
+        baseURL: 'http://localhost:8080/eLibrary_war/api/',
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -16,5 +22,5 @@ export const authApi = (token) => {
 }
 
 export default axios.create({
-    baseURL: 'http://localhost:8080/eLibrary/api/'
+    baseURL: 'http://localhost:8080/eLibrary_war/api/'
 })
