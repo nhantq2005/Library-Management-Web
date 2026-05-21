@@ -53,10 +53,10 @@ const login = async (e) => {
                 setLoading(true);
                 
                 let res = await Apis.post(endpoints['login'], {...user});
-                cookies.save('token', res.data.token);
-                
+                cookies.save('token', res.data.token, { path: '/' });
                 
                 let u = await authApi(res.data.token).get(endpoints['current-user']);
+                cookies.save('user', u.data, { path: '/' });
                 console.info(u.data);
 
                 dispatch({"type": "LOGIN", "payload": u.data});
