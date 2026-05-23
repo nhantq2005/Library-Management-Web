@@ -1,4 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
+<<<<<<< HEAD
 import Auth from './screens/Auth/Auth';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PageNotFound from './screens/Exception/PageNotFound';
@@ -6,6 +7,25 @@ import Home from './screens/Home/Home';
 import { useReducer, useEffect } from 'react';
 import MyUserReducer from './reducers/MyUserReducer';
 import { MyUserContext } from './configs/Context';
+=======
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useReducer } from 'react';
+
+// --- Import Components & Screens ---
+import Header from './components/Header';
+import Footer from './components/Footer';
+import Auth from './screens/Auth/Auth';
+import Home from './screens/Home/Home';
+import DocumentDetails from './screens/Document/DocumentDetails';
+import PageNotFound from './screens/Exception/PageNotFound';
+import Cart from './screens/Cart/Cart';
+import MyUserReducer from './reducers/MyUserReducer'; 
+import { MyCartBorrowContext, MyCartBuyContext, MyUserContext } from './configs/Context';
+import MyCartBorrowReducer from './reducers/MyCartBorrowReducer';
+import MyCartBuyReducer from './reducers/MyCartBuyReducer';
+import cookies from 'react-cookies'
+import MyDocuments from './screens/Document/MyDocuments';
+>>>>>>> f86c05f6bc34e8b33b396be99ba7cba5293725d0
 
 import LibrarianDashboard from './screens/Librarian/LibrarianDashboard';
 import AddUpdateDocument from './screens/Librarian/AddUpdateDocument';
@@ -18,21 +38,25 @@ import ManageCategory from './screens/Librarian/ManageCategory';
 import BorrowStats from './screens/Librarian/BorrowStats';
 
 const App = () => {
-  const [user, dispatch] = useReducer(MyUserReducer, null);
-  // const navigate = useNavigate();
-
-// const isLibrarian = user && (user.role === 'ROLE_LIBRARIAN' || user.userRole === 'ROLE_LIBRARIAN');
+  const [user, dispatchUser] = useReducer(MyUserReducer, cookies.load('user') || null);
+  const [cartBuy, dispatchCartBuy] = useReducer(MyCartBuyReducer, { totalQuantity: 0, totalAmount: 0 });
+  const [cartBorrow, dispatchCartBorrow] = useReducer(MyCartBorrowReducer, { totalQuantity: 0 });
 
   return (
-    <MyUserContext.Provider value={[user, dispatch]}>
-      <BrowserRouter>
-      {/* {isLibrarian && <Navigate to="/librarian" replace />} */}
-        <Routes>
-          <Route path="/login" element={<Auth page="login" />} />
-          <Route path="/register" element={<Auth page="register" />} />
-          <Route path="/" element={<Home />} />
-          <Route path="*" element={<PageNotFound />} />
-          <Route path="/librarian" element={<Base />}>
+    <MyUserContext.Provider value={[user, dispatchUser]}>
+      <MyCartBuyContext.Provider value={[cartBuy, dispatchCartBuy]}>
+        <MyCartBorrowContext.Provider value={[cartBorrow, dispatchCartBorrow]}>
+          
+          <BrowserRouter>
+            <Header />
+            <Routes>
+              <Route path="/login" element={<Auth page="login" />} />
+              <Route path="/register" element={<Auth page="register" />} />
+              <Route path="/" element={<Home />} />
+              <Route path="/documents/:documentId" element={<DocumentDetails />} />
+              <Route path="/cart" element={<Cart />} />
+              <Route path="/my-documents" element={<MyDocuments/>} />
+              <Route path="/librarian" element={<Base />}>
             <Route index element={<LibrarianDashboard />} />
             <Route path="manage-document" element={<ManageDocument />} />
             <Route path="stats" element={<BorrowStats />} />
@@ -42,8 +66,13 @@ const App = () => {
             <Route path="messages" element={<Message />} />
             <Route path="edit-document/:id" element={<AddUpdateDocument />} />
           </Route>
-        </Routes>
-      </BrowserRouter>
+              <Route path="*" element={<PageNotFound />} />
+            </Routes>
+            <Footer />
+          </BrowserRouter>
+
+        </MyCartBorrowContext.Provider>
+      </MyCartBuyContext.Provider>
     </MyUserContext.Provider>
   );
 };
