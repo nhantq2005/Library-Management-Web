@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import './SideBar.css';
-import { MdOutlineDashboard, MdOutlineDocumentScanner, MdDashboard, MdDocumentScanner, MdCategory, MdOutlineCategory, MdPayments, MdOutlinePayments, MdOutlineLogout } from 'react-icons/md';
+import { MdOutlineDashboard, MdOutlineDocumentScanner, MdDashboard, MdDocumentScanner, MdCategory, MdOutlineCategory, MdPayments, MdOutlinePayments, MdOutlineLogout, MdOutlineMessage, MdMessage, MdLocalLibrary } from 'react-icons/md';
 import { FaBookReader } from 'react-icons/fa';
 import { BiBookReader } from 'react-icons/bi';
 
@@ -45,15 +45,66 @@ const SideBar = () => {
       selected: currentPath === '/librarian/payment-stats',
       link: '/librarian/payment-stats',
       selectedIcon: <MdPayments size={24} />
+    },
+    {
+      label: 'Tin nhắn',
+      icon: <MdOutlineMessage size={24} />,
+      selected: currentPath === '/librarian/messages',
+      link: '/librarian/messages',
+      selectedIcon: <MdMessage size={24} />
     }
   ]
 
   return (
     <nav className="sidebar-container">
       {/* Header & Profile */}
-      <div className="sidebar-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      {/* <div className="sidebar-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
         <h2 className="sidebar-logo">eLibrary</h2>
+      </div> */}
+
+<div 
+        className="sidebar-header" 
+        style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          padding: '24px 20px',
+          borderBottom: '1px solid #e2e8f0', // Đường kẻ ngang mờ ngăn cách với menu
+          marginBottom: '20px'
+        }}
+      >
+        {/* Khung Icon Logo */}
+        <div 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            backgroundColor: '#4f46e5', // Màu xanh Indigo chủ đạo
+            color: 'white',
+            width: '38px', 
+            height: '38px', 
+            borderRadius: '10px',
+            marginRight: '12px',
+            boxShadow: '0 4px 10px rgba(79, 70, 229, 0.3)' // Đổ bóng nhẹ cho icon
+          }}
+        >
+          <MdLocalLibrary size={22} />
+        </div>
+        
+        {/* Chữ Logo cách điệu */}
+        <h2 
+          className="sidebar-logo" 
+          style={{ 
+            margin: 0, 
+            fontSize: '1.6rem', 
+            fontWeight: '800', 
+            letterSpacing: '-0.5px' 
+          }}
+        >
+          <span style={{ color: '#1e293b' }}>e</span>
+          <span style={{ color: '#4f46e5' }}>Library</span>
+        </h2>
       </div>
+
       {/* Main Navigation */}
       <ul className="nav-menu">
         {navItems.map((item, index) => (

@@ -9,7 +9,11 @@ export const endpoints = {
     'user-majors-stats': '/stats/secure/user-majors',
     'authors-stats': '/stats/secure/authors',
     'reviews-stats': '/stats/secure/reviews',
+    'buy': '/secure/buys',
     'documents': '/documents',
+    'categories': '/categories',
+    'secure-categories': '/secure/categories',
+    'delete-document': (documentId) => `/documents/${documentId}`,
 }
 
 export const authApi = (token) => {

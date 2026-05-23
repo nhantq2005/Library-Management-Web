@@ -1,51 +1,90 @@
 import { useEffect, useState } from "react";
-import Apis, { endpoints } from "../../configs/Apis";
+import Apis, { authApi, endpoints } from "../../configs/Apis";
 import { Table, Spinner, Button, Form, InputGroup } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { MdDeleteOutline } from "react-icons/md";
+import { FaRegEdit } from "react-icons/fa";
+import LoadMoreButton from "../../components/LoadMoreButton";
+import EditButton from "../../components/EditButton";
+import DeleteButton from "../../components/DeleteButton";
 
 const ManageDocument = () => {
     const [docs, setDocs] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
-    
-    // State để kiểm tra xem Backend còn dữ liệu để tải thêm không
-    const [hasMore, setHasMore] = useState(true); 
-    
+    const [hasMore, setHasMore] = useState(true);
+    const [query, setSearchParams] = useSearchParams();
+    const kwParam = query.get("kw") || "";
+    const [searchInput, setSearchInput] = useState(kwParam);
     const navigate = useNavigate();
 
-    const loadDocuments = async () => {
-        try {
-            // Chỉ hiện loading xoay xoay ở lần đầu tải trang, các lần bấm "Tải thêm" sẽ không bị giật lốm đốm
-            if (page === 1) setLoading(true); 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (kwParam !== searchInput.trim()) {
+                setPage(1); 
+                setHasMore(true);
+                setSearchParams(prev => {
+                    const params = new URLSearchParams(prev);
+                    if (searchInput.trim()) {
+                        params.set("kw", searchInput.trim());
+                    } else {
+                        params.delete("kw");
+                    }
+                    return params;
+                });
+            }
+        }, 300);
+        return () => clearTimeout(timer);
+    }, [searchInput, kwParam, setSearchParams]);
 
-            let res;
-            if(page !== 1) {
-                res = await Apis.get(`${endpoints['documents']}?page=${page}`);
-                // Nếu trang tiếp theo không có dữ liệu (mảng rỗng), ẩn nút tải thêm
+    useEffect(() => {
+        const loadDocuments = async () => {
+            try {
+                if (page === 1) setLoading(true);
+
+                let url = `${endpoints['documents']}?page=${page}`;
+                if (kwParam) {
+                    url += `&kw=${kwParam}`;
+                }
+
+                let res = await Apis.get(url);
+                
                 if (res.data.length === 0) {
                     setHasMore(false);
                 } else {
-                    setDocs(prev => [...prev, ...res.data]); // Nối thêm dữ liệu
+                    setHasMore(true);
                 }
-            } else {
-                res = await Apis.get(endpoints['documents']);
-                setDocs(res.data);
-                if (res.data.length === 0) setHasMore(false);
+
+                if (page === 1) {
+                    setDocs(res.data);
+                } else {
+                    setDocs(prev => [...prev, ...res.data]);
+                }
+            } catch (ex) {
+                console.error("Lỗi khi tải tài liệu:", ex);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error("Lỗi khi tải dữ liệu Tài liệu:", error);
-        } finally {
-            setLoading(false);
-        }
-    }
+        };
 
-    useEffect(() => {
         loadDocuments();
-    }, [page]);
+    }, [page, kwParam]);
 
-    // Lọc danh sách theo từ khóa tìm kiếm
-    const filteredDocs = docs.filter(d => d.title.toLowerCase().includes(search.toLowerCase()));
+    // 3. XỬ LÝ XÓA TÀI LIỆU
+    const deleteDocument = async (id) => {
+        if (window.confirm("Bạn có chắc chắn muốn xóa tài liệu này không?")) {
+            try {
+                const res = await authApi(localStorage.getItem("token")).delete(endpoints['delete-document'](id));
+                setDocs(prevDocs => prevDocs.filter(doc => doc.id !== id));
+                if (res.status === 204) {
+                    alert("Xóa thành công!");
+                }
+            } catch (error) {
+                console.error("Lỗi khi xóa tài liệu:", error);
+                alert("Có lỗi xảy ra khi xóa tài liệu!");
+            }
+        }
+    };
 
     return (
         <div style={{ padding: '32px', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
@@ -106,8 +145,8 @@ const ManageDocument = () => {
                             color: '#334155'
                         }}
                         placeholder="Tìm kiếm theo tên tài liệu..."
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
+                        value={searchInput}
+                        onChange={e => setSearchInput(e.target.value)}
                     />
                 </InputGroup>
 
@@ -127,13 +166,13 @@ const ManageDocument = () => {
                                     <th className="border-0 py-3">Tác giả</th>
                                     <th className="border-0 py-3">Danh mục</th>
                                     <th className="border-0 py-3">Giá (VNĐ)</th>
-                                    <th className="border-0 py-3" style={{ borderRadius: '0 8px 8px 0' }}>Loại</th>
+                                    <th className="border-0 py-3">Loại</th>
+                                    <th className="border-0 py-3 text-center" style={{ borderRadius: '0 8px 8px 0' }}>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* Sử dụng filteredDocs để render tất cả dữ liệu (đã lọc theo tìm kiếm) */}
-                                {filteredDocs && filteredDocs.length > 0 ? (
-                                    filteredDocs.map((d) => (
+                                {docs.length > 0 ? (
+                                    docs.map((d) => (
                                         <tr key={d.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
                                             <td className="px-3 text-muted fw-semibold">{d.id}</td>
                                             <td>
@@ -171,16 +210,25 @@ const ManageDocument = () => {
                                             </td>
                                             <td>
                                                 {d.isPremium ? (
-                                                    <span className="badge rounded-pill px-3 py-1.5 fw-semibold" style={{ backgroundColor: '#fef08a', color: '#854d0e', fontSize: '0.8rem', border: '1px solid #fef08a' }}>Premium</span>
+                                                    <span className="badge rounded-pill px-3 py-1.5 fw-semibold" style={{ backgroundColor: '#fef08a', color: '#854d0e', fontSize: '0.8rem', border: '1px solid #fef08a' }}>Có phí</span>
                                                 ) : (
-                                                    <span className="badge rounded-pill bg-light text-muted border px-3 py-1.5 fw-medium" style={{ fontSize: '0.8rem' }}>Thường</span>
+                                                    <span className="badge rounded-pill bg-light text-muted border px-3 py-1.5 fw-medium" style={{ fontSize: '0.8rem' }}>Miễn phí</span>
                                                 )}
+                                            </td>
+                                            
+                                            {/* CỘT HÀNH ĐỘNG MỚI THÊM */}
+                                            <td>
+                                                <div className="d-flex justify-content-center gap-2">
+                                                    <EditButton onClick={() => navigate(`/librarian/edit-document/${d.id}`)} />
+
+                                                    <DeleteButton onClick={() => deleteDocument(d.id)} />
+                                                </div>
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="7" className="text-center py-5 text-muted">
+                                        <td colSpan="8" className="text-center py-5 text-muted">
                                             <div className="fs-4 mb-2">📭</div>
                                             Không tìm thấy dữ liệu tài liệu nào phù hợp.
                                         </td>
@@ -189,33 +237,12 @@ const ManageDocument = () => {
                             </tbody>
                         </Table>
 
-                        {/* NÚT TẢI THÊM: Chỉ hiện nếu vẫn còn dữ liệu từ Backend */}
-                        {hasMore && filteredDocs.length > 0 && search === "" && (
-                            <div className="d-flex justify-content-center mt-4">
-                                <Button
-                                    variant="none"
-                                    className="fw-semibold px-4 py-2 shadow-sm"
-                                    style={{
-                                        color: '#4f46e5',
-                                        border: '1px solid #e2e8f0',
-                                        backgroundColor: '#ffffff',
-                                        borderRadius: '10px',
-                                        fontSize: '0.9rem',
-                                        transition: 'all 0.2s ease',
-                                    }}
-                                    onMouseOver={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#f8fafc';
-                                        e.currentTarget.style.borderColor = '#4f46e5';
-                                    }}
-                                    onMouseOut={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#ffffff';
-                                        e.currentTarget.style.borderColor = '#e2e8f0';
-                                    }}
-                                    onClick={() => setPage(prev => prev + 1)} 
-                                >
-                                    Tải thêm trang tiếp theo...
-                                </Button>
-                            </div>
+                        {/* NÚT TẢI THÊM */}
+                        {hasMore && docs.length > 0 && (
+                            <LoadMoreButton
+                                onClick={() => setPage(prev => prev + 1)}
+                                isLoading={loading}
+                            />
                         )}
                     </>
                 )}
@@ -225,3 +252,4 @@ const ManageDocument = () => {
 }
 
 export default ManageDocument;
+                                        

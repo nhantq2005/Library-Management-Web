@@ -1,17 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Button, Row, Col, Spinner, Alert, InputGroup, Modal } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import Apis, { authApi, endpoints } from '../../configs/Apis';
 
 const AddUpdateDocument = () => {
     const navigate = useNavigate();
+    const { id } = useParams(); // Lấy ID từ URL nếu đang ở trang Edit
+    const isUpdate = !!id; // Biến cờ kiểm tra trạng thái cập nhật hay thêm mới
+
     const [loading, setLoading] = useState(false);
+    const [fetching, setFetching] = useState(isUpdate);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     
-    // State lưu danh sách
+    // State lưu danh sách dropdown & checkbox
     const [categories, setCategories] = useState([]);
     const [authors, setAuthors] = useState([]);
+    const [tags, setTags] = useState([]); // Mới thêm state cho Tags
 
     // State Modal Tạo Danh mục
     const [showCatModal, setShowCatModal] = useState(false);
@@ -27,25 +32,59 @@ const AddUpdateDocument = () => {
         quantity: 1,
         isPremium: false,
         categoryId: '',
-        authorId: '' 
+        authorIds: [], // Chuyển thành mảng
+        tagIds: []     // Thêm mảng tagIds
     });
 
     const imageRef = useRef();
     const fileRef = useRef();
-    const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsaWJyYXJpYW4wMSIsInJvbGUiOiJST0xFX0xJQlJBUklBTiIsImV4cCI6MTc3OTM2NDY4OCwiaWF0IjoxNzc5Mjc4Mjg4fQ.U-Pmd35Ezcc1g_B0ErtYYZdQSA2Rb6qLj3O7MG2Vpn4";
+    
+    // Lưu ý: Thay TOKEN bằng cơ chế lấy từ Context/LocalStorage thực tế
+    const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsaWJyYXJpYW4wMSIsInJvbGUiOiJST0xFX0xJQlJBUklBTiIsImV4cCI6MTc3OTU2Njk3MSwiaWF0IjoxNzc5NDgwNTcxfQ.6I3wLNVu_Mv87GJ3VAZ0SngQLBiihcJg1KyqnwIlPH4";
 
     useEffect(() => {
-        const loadDropdownData = async () => {
+        const loadInitData = async () => {
             try {
-                // Thay bằng API thật của bạn
+                // TODO: Thay bằng các API lấy danh sách thực tế của bạn
                 setCategories([{ id: 1, name: 'Khoa học Máy tính' }, { id: 2, name: 'Vật lý' }]);
                 setAuthors([{ id: 1, name: 'Isaac Newton' }, { id: 2, name: 'Alan Turing' }]);
+                setTags([{ id: 1, name: 'Lập trình' }, { id: 2, name: 'AI/ML' }, { id: 3, name: 'Cơ sở dữ liệu' }]);
+
+                // Nếu là trạng thái Cập nhật, lấy dữ liệu tài liệu cũ
+                if (isUpdate) {
+                    // let res = await Apis.get(`${endpoints['documents']}/${id}`);
+                    // Dữ liệu mock:
+                    const res = {
+                        data: {
+                            id: id, title: 'Tài liệu mẫu đang edit', description: 'Mô tả mẫu',
+                            publishYear: 2024, price: 50000, quantity: 10, isPremium: true,
+                            category: { id: 1 }, 
+                            authors: [{ id: 1 }], 
+                            tags: [{ id: 1 }, { id: 2 }]
+                        }
+                    };
+                    
+                    setFormData({
+                        title: res.data.title,
+                        description: res.data.description,
+                        publishYear: res.data.publishYear,
+                        price: res.data.price,
+                        quantity: res.data.quantity,
+                        isPremium: res.data.isPremium,
+                        categoryId: res.data.category ? res.data.category.id : '',
+                        authorIds: res.data.authors ? res.data.authors.map(a => a.id) : [],
+                        tagIds: res.data.tags ? res.data.tags.map(t => t.id) : []
+                    });
+                }
             } catch (err) {
-                console.error("Lỗi tải danh mục:", err);
+                console.error("Lỗi khởi tạo dữ liệu:", err);
+                setError("Không thể tải thông tin hệ thống. Vui lòng tải lại trang.");
+            } finally {
+                setFetching(false);
             }
         };
-        loadDropdownData();
-    }, []);
+        loadInitData();
+    }, [id, isUpdate]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -55,12 +94,27 @@ const AddUpdateDocument = () => {
         });
     };
 
+    // Hàm xử lý khi check/uncheck danh sách Tác giả hoặc Tag
+    const handleCheckboxChange = (e, field) => {
+        const value = parseInt(e.target.value);
+        const checked = e.target.checked;
+        
+        setFormData(prev => {
+            const currentList = prev[field];
+            return {
+                ...prev,
+                [field]: checked 
+                    ? [...currentList, value] 
+                    : currentList.filter(item => item !== value)
+            };
+        });
+    };
+
     const handleCreateCategory = async () => {
         if (!newCategoryName.trim()) return;
         setCatLoading(true);
         try {
-            // Mock API chờ 1 giây
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Mock API delay
             const newCat = { id: Date.now(), name: newCategoryName }; 
             
             setCategories([...categories, newCat]);
@@ -83,26 +137,61 @@ const AddUpdateDocument = () => {
 
         try {
             let form = new FormData();
-            for (let key in formData) {
-                form.append(key, formData[key]);
+            
+            // Đưa các fields văn bản vào form
+            form.append('title', formData.title);
+            form.append('description', formData.description);
+            form.append('publishYear', formData.publishYear);
+            form.append('price', formData.price);
+            form.append('quantity', formData.quantity);
+            form.append('isPremium', formData.isPremium);
+            form.append('categoryId', formData.categoryId);
+            
+            // Xử lý chuỗi ID (Backend đang dùng split(","))
+            if (formData.authorIds.length > 0) {
+                form.append('authorIds', formData.authorIds.join(','));
             }
-            if (imageRef.current.files[0]) form.append('image', imageRef.current.files[0]);
-            else { setError('Vui lòng chọn ảnh bìa tài liệu'); setLoading(false); return; }
+            if (formData.tagIds.length > 0) {
+                form.append('tagIds', formData.tagIds.join(','));
+            }
 
-            if (fileRef.current.files[0]) form.append('file', fileRef.current.files[0]);
-            else { setError('Vui lòng chọn file nội dung tài liệu (.pdf, .doc)'); setLoading(false); return; }
+            // Xử lý Ảnh
+            if (imageRef.current.files[0]) {
+                form.append('image', imageRef.current.files[0]);
+            } else if (!isUpdate) {
+                setError('Vui lòng chọn ảnh bìa tài liệu'); setLoading(false); return; 
+            } else {
+                // Bypass Spring boot required @RequestParam nếu là Update
+                form.append('image', new Blob(), ''); 
+            }
 
-            const res = await authApi(TOKEN).post('/secure/documents', form, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            // Xử lý File nội dung
+            if (fileRef.current.files[0]) {
+                form.append('file', fileRef.current.files[0]);
+            } else if (!isUpdate) {
+                setError('Vui lòng chọn file nội dung tài liệu (.pdf, .doc)'); setLoading(false); return; 
+            } else {
+                form.append('file', new Blob(), ''); 
+            }
+
+            let res;
+            if (isUpdate) {
+                res = await authApi(TOKEN).put(`/secure/documents/${id}`, form, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            } else {
+                res = await authApi(TOKEN).post('/secure/documents', form, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+            }
 
             if (res.status === 201 || res.status === 200) {
-                setSuccess('Thêm tài liệu thành công!');
+                setSuccess(`${isUpdate ? 'Cập nhật' : 'Thêm'} tài liệu thành công!`);
                 setTimeout(() => navigate('/librarian/manage-document'), 1500);
             }
         } catch (err) {
             console.error(err);
-            setError('Có lỗi xảy ra khi thêm tài liệu. Vui lòng kiểm tra lại!');
+            setError(`Có lỗi xảy ra khi ${isUpdate ? 'cập nhật' : 'thêm'} tài liệu. Vui lòng kiểm tra lại!`);
         } finally {
             setLoading(false);
         }
@@ -112,6 +201,10 @@ const AddUpdateDocument = () => {
     const inputStyle = { backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 16px', fontSize: '0.95rem', color: '#1e293b', boxShadow: 'none' };
     const labelStyle = { fontSize: '0.85rem', fontWeight: '600', color: '#475569', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '8px' };
 
+    if (fetching) {
+        return <div className="text-center py-5 mt-5"><Spinner animation="border" variant="primary" /> Đang tải thông tin...</div>;
+    }
+
     return (
         <div style={{ padding: '32px', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
             <div className="bg-white p-5 rounded-4 shadow-sm border-0" style={{ maxWidth: '950px', margin: '0 auto' }}>
@@ -119,8 +212,12 @@ const AddUpdateDocument = () => {
                 {/* HEADER */}
                 <div className="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
                     <div>
-                        <h3 className="mb-1" style={{ color: '#0f172a', fontWeight: '700', letterSpacing: '-0.02em' }}>✨ Thêm tài liệu mới</h3>
-                        <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>Điền đầy đủ thông tin bên dưới để xuất bản tài liệu vào hệ thống</p>
+                        <h3 className="mb-1" style={{ color: '#0f172a', fontWeight: '700', letterSpacing: '-0.02em' }}>
+                            {isUpdate ? '📝 Cập nhật tài liệu' : '✨ Thêm tài liệu mới'}
+                        </h3>
+                        <p className="text-muted mb-0" style={{ fontSize: '0.95rem' }}>
+                            {isUpdate ? 'Chỉnh sửa thông tin tài liệu hiện có' : 'Điền đầy đủ thông tin bên dưới để xuất bản tài liệu vào hệ thống'}
+                        </p>
                     </div>
                     <Button 
                         variant="none" 
@@ -171,50 +268,71 @@ const AddUpdateDocument = () => {
                             </Form.Group>
 
                             <Form.Group className="mb-4">
-                                <Form.Label style={labelStyle}>Tác giả</Form.Label>
-                                <InputGroup>
-                                    <Form.Select name="authorId" value={formData.authorId} onChange={handleChange} style={{...inputStyle, borderRight: 'none', borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
-                                        <option value="">-- Chọn tác giả --</option>
-                                        {authors.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
-                                    </Form.Select>
-                                    <Button variant="none" style={{ backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', color: '#4f46e5', borderLeft: 'none', borderTopRightRadius: '10px', borderBottomRightRadius: '10px', fontWeight: 'bold' }}>
-                                        + Thêm
-                                    </Button>
-                                </InputGroup>
+                                <Form.Label style={labelStyle}>Tác giả (Có thể chọn nhiều)</Form.Label>
+                                <div className="border rounded-3 p-3" style={{ backgroundColor: '#f8fafc', maxHeight: '140px', overflowY: 'auto', borderColor: '#e2e8f0' }}>
+                                    {authors.map(a => (
+                                        <Form.Check 
+                                            key={a.id}
+                                            type="checkbox"
+                                            label={a.name}
+                                            value={a.id}
+                                            checked={formData.authorIds.includes(a.id)}
+                                            onChange={(e) => handleCheckboxChange(e, 'authorIds')}
+                                            className="mb-1 text-muted"
+                                        />
+                                    ))}
+                                    {authors.length === 0 && <span className="text-muted fst-italic">Chưa có tác giả</span>}
+                                </div>
                             </Form.Group>
 
-                            <Form.Group className="mb-4 p-3 rounded-4" style={{ backgroundColor: formData.isPremium ? '#fefce8' : '#f8fafc', border: formData.isPremium ? '1px dashed #eab308' : '1px dashed #cbd5e1', transition: 'all 0.3s' }}>
-                                <Form.Check 
-                                    type="switch"
-                                    id="premium-switch"
-                                    name="isPremium"
-                                    label={<span className="fw-bold ms-2" style={{ color: formData.isPremium ? '#854d0e' : '#64748b' }}>Tài liệu Premium (Có phí)</span>}
-                                    checked={formData.isPremium}
-                                    onChange={handleChange}
-                                    className="d-flex align-items-center"
-                                />
-                                <p className="text-muted mt-2 mb-0" style={{ fontSize: '0.8rem', marginLeft: '45px' }}>Chỉ những người dùng đã thanh toán mới có thể mượn/đọc tài liệu này.</p>
+                            <Form.Group className="mb-4">
+                                <Form.Label style={labelStyle}>Nhãn / Tags</Form.Label>
+                                <div className="border rounded-3 p-3" style={{ backgroundColor: '#f8fafc', maxHeight: '140px', overflowY: 'auto', borderColor: '#e2e8f0' }}>
+                                    {tags.map(t => (
+                                        <Form.Check 
+                                            key={t.id}
+                                            type="checkbox"
+                                            label={t.name}
+                                            value={t.id}
+                                            checked={formData.tagIds.includes(t.id)}
+                                            onChange={(e) => handleCheckboxChange(e, 'tagIds')}
+                                            className="mb-1 text-muted"
+                                        />
+                                    ))}
+                                </div>
                             </Form.Group>
                         </Col>
                     </Row>
 
                     <Row className="mb-4">
-                        <Col md={4}>
+                        <Col md={3}>
                             <Form.Group className="mb-4">
                                 <Form.Label style={labelStyle}>Năm xuất bản</Form.Label>
                                 <Form.Control type="number" name="publishYear" value={formData.publishYear} onChange={handleChange} style={inputStyle}/>
                             </Form.Group>
                         </Col>
-                        <Col md={4}>
+                        <Col md={3}>
                             <Form.Group className="mb-4">
                                 <Form.Label style={labelStyle}>Số lượng (Bản cứng)</Form.Label>
                                 <Form.Control type="number" name="quantity" min="0" value={formData.quantity} onChange={handleChange} style={inputStyle}/>
                             </Form.Group>
                         </Col>
-                        <Col md={4}>
-                            <Form.Group className="mb-4">
-                                <Form.Label style={labelStyle}>Giá mượn/Mua (VNĐ)</Form.Label>
-                                <Form.Control type="number" name="price" min="0" value={formData.price} onChange={handleChange} disabled={!formData.isPremium} style={inputStyle}/>
+                        <Col md={6}>
+                            <Form.Group className="mb-4 p-3 rounded-4 h-100" style={{ backgroundColor: formData.isPremium ? '#fefce8' : '#f8fafc', border: formData.isPremium ? '1px dashed #eab308' : '1px dashed #cbd5e1', transition: 'all 0.3s' }}>
+                                <div className="d-flex justify-content-between align-items-center">
+                                    <Form.Check 
+                                        type="switch"
+                                        id="premium-switch"
+                                        name="isPremium"
+                                        label={<span className="fw-bold ms-2" style={{ color: formData.isPremium ? '#854d0e' : '#64748b' }}>Premium (Có phí)</span>}
+                                        checked={formData.isPremium}
+                                        onChange={handleChange}
+                                    />
+                                    <div className="d-flex align-items-center gap-2">
+                                        <Form.Control type="number" name="price" placeholder="Nhập giá tiền..." min="0" value={formData.price} onChange={handleChange} disabled={!formData.isPremium} style={{...inputStyle, padding: '8px 12px', width: '150px'}}/>
+                                        <span className="fw-semibold text-muted">VNĐ</span>
+                                    </div>
+                                </div>
                             </Form.Group>
                         </Col>
                     </Row>
@@ -224,19 +342,23 @@ const AddUpdateDocument = () => {
                     <Row className="mb-5">
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label style={labelStyle}>📸 Ảnh bìa tài liệu <span className="text-danger">*</span></Form.Label>
+                                <Form.Label style={labelStyle}>📸 Ảnh bìa tài liệu {!isUpdate && <span className="text-danger">*</span>}</Form.Label>
                                 <div className="p-3 text-center rounded-4" style={{ border: '2px dashed #cbd5e1', backgroundColor: '#f8fafc' }}>
                                     <Form.Control type="file" accept="image/*" ref={imageRef} className="shadow-none border-0 bg-transparent w-100" />
-                                    <small className="text-muted d-block mt-2">Định dạng hỗ trợ: JPG, PNG, WEBP</small>
+                                    <small className="text-muted d-block mt-2">
+                                        {isUpdate ? 'Bỏ trống nếu muốn giữ nguyên ảnh cũ. Hỗ trợ: JPG, PNG' : 'Định dạng hỗ trợ: JPG, PNG, WEBP'}
+                                    </small>
                                 </div>
                             </Form.Group>
                         </Col>
                         <Col md={6}>
                             <Form.Group>
-                                <Form.Label style={labelStyle}>📄 File nội dung <span className="text-danger">*</span></Form.Label>
+                                <Form.Label style={labelStyle}>📄 File nội dung {!isUpdate && <span className="text-danger">*</span>}</Form.Label>
                                 <div className="p-3 text-center rounded-4" style={{ border: '2px dashed #cbd5e1', backgroundColor: '#f8fafc' }}>
                                     <Form.Control type="file" accept=".pdf,.doc,.docx" ref={fileRef} className="shadow-none border-0 bg-transparent w-100" />
-                                    <small className="text-muted d-block mt-2">Định dạng hỗ trợ: PDF, DOCX</small>
+                                    <small className="text-muted d-block mt-2">
+                                        {isUpdate ? 'Bỏ trống nếu muốn giữ nguyên file cũ. Hỗ trợ: PDF, DOCX' : 'Định dạng hỗ trợ: PDF, DOCX'}
+                                    </small>
                                 </div>
                             </Form.Group>
                         </Col>
@@ -255,7 +377,7 @@ const AddUpdateDocument = () => {
                             onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#4f46e5'; e.currentTarget.style.transform = 'translateY(0)'; }}
                         >
                             {loading ? <Spinner size="sm" animation="border" className="me-2" /> : null}
-                            🚀 Xuất bản tài liệu
+                            {isUpdate ? '💾 Lưu thay đổi' : '🚀 Xuất bản tài liệu'}
                         </Button>
                     </div>
                 </Form>
