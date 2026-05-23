@@ -1,17 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-<<<<<<< HEAD
-import Auth from './screens/Auth/Auth';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import PageNotFound from './screens/Exception/PageNotFound';
-import Home from './screens/Home/Home';
-import { useReducer, useEffect } from 'react';
-import MyUserReducer from './reducers/MyUserReducer';
-import { MyUserContext } from './configs/Context';
-=======
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useReducer } from 'react';
-
-// --- Import Components & Screens ---
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Auth from './screens/Auth/Auth';
@@ -25,11 +14,8 @@ import MyCartBorrowReducer from './reducers/MyCartBorrowReducer';
 import MyCartBuyReducer from './reducers/MyCartBuyReducer';
 import cookies from 'react-cookies'
 import MyDocuments from './screens/Document/MyDocuments';
->>>>>>> f86c05f6bc34e8b33b396be99ba7cba5293725d0
-
 import LibrarianDashboard from './screens/Librarian/LibrarianDashboard';
 import AddUpdateDocument from './screens/Librarian/AddUpdateDocument';
-// import Stats from './screens/Librarian/Stats';
 import PaymentStats from './screens/Librarian/PaymentStats';
 import Base from './screens/Librarian/Base';
 import ManageDocument from './screens/Librarian/ManageDocument';
