@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Chart as ChartJS,  CategoryScale,  LinearScale,  BarElement,  Title,  Tooltip,
-  Legend,  ArcElement,  PointElement,  LineElement,} from 'chart.js';
+  Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip,
+  Legend, ArcElement, PointElement, LineElement,
+} from 'chart.js';
 import { Pie, Bar, Line } from 'react-chartjs-2';
 import './LibrarianDashboard.css';
 import { authApi, endpoints } from '../../configs/Apis';
+import cookies from 'react-cookies'
 
 ChartJS.register(
-  CategoryScale,  LinearScale,  BarElement,  Title,  Tooltip,  Legend,  ArcElement,
-  PointElement,  LineElement);
+  CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, ArcElement,
+  PointElement, LineElement);
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
 
@@ -19,8 +21,6 @@ const LibrarianDashboard = () => {
   const [authorsData, setAuthorsData] = useState([]);
   const [reviewsData, setReviewsData] = useState([]);
   const [loading, setLoading] = useState(true);
-  
-  const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsaWJyYXJpYW4wMSIsInJvbGUiOiJST0xFX0xJQlJBUklBTiIsImV4cCI6MTc3OTU2Njk3MSwiaWF0IjoxNzc5NDgwNTcxfQ.6I3wLNVu_Mv87GJ3VAZ0SngQLBiihcJg1KyqnwIlPH4";
 
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
@@ -30,7 +30,7 @@ const LibrarianDashboard = () => {
 
   const loadOverdueDocs = async () => {
     try {
-      const res = await authApi(TOKEN).get(endpoints['overdue-documents']);
+      const res = await authApi(cookies.load('token')).get(endpoints['overdue-documents']);
       setOverdueDocs(res.data);
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu Tài liệu quá hạn:", error);
@@ -39,7 +39,7 @@ const LibrarianDashboard = () => {
 
   const loadCategoriesStats = async () => {
     try {
-      const res = await authApi(TOKEN).get(endpoints['categories-stats']);
+      const res = await authApi(cookies.load('token')).get(endpoints['categories-stats']);
       setCategoriesData(res.data.map(item => ({ name: item[1], Số_Lượng: item[2] })));
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu Danh mục:", error);
@@ -48,7 +48,7 @@ const LibrarianDashboard = () => {
 
   const loadMajorsStats = async () => {
     try {
-      const res = await authApi(TOKEN).get(endpoints['user-majors-stats']);
+      const res = await authApi(cookies.load('token')).get(endpoints['user-majors-stats']);
       setMajorsData(res.data.map(item => ({ name: item[0] || 'Khác', User: item[1] })));
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu Chuyên ngành:", error);
@@ -57,7 +57,7 @@ const LibrarianDashboard = () => {
 
   const loadAuthorsStats = async () => {
     try {
-      const res = await authApi(TOKEN).get(endpoints['authors-stats']);
+      const res = await authApi(cookies.load('token')).get(endpoints['authors-stats']);
       setAuthorsData(res.data.map(item => ({ name: item[1], Tài_Liệu: item[2] })));
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu Tác giả:", error);
@@ -66,28 +66,23 @@ const LibrarianDashboard = () => {
 
   const loadReviewsStats = async () => {
     try {
-      const res = await authApi(TOKEN).get(endpoints['reviews-stats']);
+      const res = await authApi(cookies.load('token')).get(endpoints['reviews-stats']);
       setReviewsData(res.data.map(item => ({ name: item[1], Đánh_Giá: item[2], Điểm_TB: item[3] })));
     } catch (error) {
       console.error("Lỗi khi tải dữ liệu Đánh giá:", error);
     }
   };
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-      await Promise.all([
-        loadOverdueDocs(),
-        loadCategoriesStats(),
-        loadMajorsStats(),
-        loadAuthorsStats(),
-        loadReviewsStats()
-      ]);
-      setLoading(false);
-    };
-    
-    fetchAllData();
-  }, []);
 
+  useEffect(() => {
+    loadOverdueDocs();
+    loadCategoriesStats();
+    loadMajorsStats();
+    loadAuthorsStats();
+    loadReviewsStats();
+    setLoading(false);
+  }, []);
+  
   if (loading) {
     return <div className="loading-spinner">Đang tải dữ liệu Dashboard...</div>;
   }
@@ -167,12 +162,12 @@ const LibrarianDashboard = () => {
         <div className="chart-card">
           <h3>Số lượng tài liệu theo Tác giả</h3>
           <div style={{ height: '300px', width: '100%' }}>
-            <Bar 
-              data={authorsChartData} 
-              options={{ 
-                ...commonOptions, 
+            <Bar
+              data={authorsChartData}
+              options={{
+                ...commonOptions,
                 indexAxis: 'y'
-              }} 
+              }}
             />
           </div>
         </div>
@@ -180,8 +175,8 @@ const LibrarianDashboard = () => {
         <div className="chart-card">
           <h3>Lượt đánh giá theo Tài liệu</h3>
           <div style={{ height: '300px', width: '100%' }}>
-            <Line 
-              data={reviewsChartData} 
+            <Line
+              data={reviewsChartData}
               options={{
                 ...commonOptions,
                 scales: {
@@ -189,7 +184,7 @@ const LibrarianDashboard = () => {
                     display: false
                   }
                 }
-              }} 
+              }}
             />
           </div>
         </div>

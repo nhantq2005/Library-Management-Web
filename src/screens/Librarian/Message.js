@@ -9,7 +9,6 @@ const Message = () => {
   ]);
   const [input, setInput] = useState("");
   
-  // Ref để xử lý tự động cuộn xuống tin nhắn mới nhất
   const messageEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -27,40 +26,41 @@ const Message = () => {
     setInput("");
   };
 
-  // Định nghĩa style tái sử dụng nội bộ
+  // --- LUMINA DESIGN SYSTEM STYLES ---
   const styles = {
     container: {
-      // padding: "32px",
-      backgroundColor: "#f8fafc",
+      backgroundColor: "#F9FAFB",
       minHeight: "calc(100vh - 64px)",
       display: "flex",
       justifyContent: "center",
-      alignItems: "center"
+      alignItems: "center",
+      padding: "32px",
+      fontFamily: "'Inter', sans-serif"
     },
     card: {
       width: "100%",
       maxWidth: "750px",
       height: "600px",
-      border: "0",
-      borderRadius: "16px",
-      boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+      border: "1px solid #E5E7EB", // Viền mảnh Lumina
+      borderRadius: "4px",
+      boxShadow: "none", // Bỏ bóng đổ
       display: "flex",
       flexDirection: "column",
       overflow: "hidden"
     },
     header: {
-      backgroundColor: "#ffffff",
-      borderBottom: "1px solid #f1f5f9",
-      padding: "18px 24px"
+      backgroundColor: "#FFFFFF",
+      borderBottom: "1px solid #E5E7EB",
+      padding: "16px 24px"
     },
     chatBody: {
       flex: 1,
       overflowY: "auto",
       padding: "24px",
-      backgroundColor: "#f8fafc",
+      backgroundColor: "#FFFFFF",
       display: "flex",
       flexDirection: "column",
-      gap: "16px"
+      gap: "20px"
     },
     bubbleRow: (isMe) => ({
       display: "flex",
@@ -68,48 +68,43 @@ const Message = () => {
       width: "100%"
     }),
     bubble: (isMe) => ({
-      maxWidth: "100%",
-      padding: "12px 18px",
-      borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
-      backgroundColor: isMe ? "#4f46e5" : "#ffffff",
-      color: isMe ? "#ffffff" : "#1e293b",
-      boxShadow: isMe ? "0 4px 12px rgba(79, 70, 229, 0.25)" : "0 2px 8px rgba(0, 0, 0, 0.02)",
-      border: isMe ? "none" : "1px solid #e2e8f0"
+      maxWidth: "85%",
+      padding: "10px 16px",
+      borderRadius: "4px", // Góc bo vuông vức
+      backgroundColor: isMe ? "#1D559F" : "#F9FAFB",
+      color: isMe ? "#FFFFFF" : "#111827",
+      border: isMe ? "none" : "1px solid #E5E7EB",
+      fontSize: "0.875rem"
     }),
     senderName: {
-      fontSize: "0.75rem",
-      fontWeight: "700",
-      color: "#64748b",
+      fontSize: "0.7rem",
+      fontWeight: "600",
+      color: "#6B7280",
       marginBottom: "4px",
       display: "block",
       textTransform: "uppercase",
-      letterSpacing: "0.5px"
-    },
-    messageContent: {
-      fontSize: "0.95rem",
-      margin: 0,
-      lineHeight: "1.45"
+      letterSpacing: "0.05em"
     },
     footer: {
-      backgroundColor: "#ffffff",
-      borderTop: "1px solid #f1f5f9",
+      backgroundColor: "#FFFFFF",
+      borderTop: "1px solid #E5E7EB",
       padding: "16px 24px"
     },
     input: {
-      backgroundColor: "#f1f5f9",
-      border: "none",
-      borderRadius: "12px",
-      padding: "12px 20px",
-      fontSize: "0.95rem",
+      backgroundColor: "#F9FAFB",
+      border: "1px solid #E5E7EB",
+      borderRadius: "4px",
+      padding: "10px 14px",
+      fontSize: "0.875rem",
       boxShadow: "none"
     },
     sendButton: {
-      backgroundColor: "#4f46e5",
+      backgroundColor: "#1D559F",
       border: "none",
-      borderRadius: "12px",
+      borderRadius: "4px",
       padding: "0 24px",
-      fontWeight: "600",
-      boxShadow: "0 4px 12px rgba(79, 70, 229, 0.2)",
+      fontWeight: "500",
+      fontSize: "0.875rem",
       transition: "all 0.2s"
     }
   };
@@ -121,17 +116,17 @@ const Message = () => {
         <Card.Header style={styles.header}>
           <div className="d-flex align-items-center gap-3">
             <div 
-              style={{ width: "42px", height: "42px", backgroundColor: "#e0e7ff", color: "#4f46e5", borderRadius: "50%" }}
-              className="d-flex align-items-center justify-content-center fw-bold shadow-sm"
+              style={{ width: "36px", height: "36px", backgroundColor: "#EFF6FF", color: "#1D559F", borderRadius: "4px" }}
+              className="d-flex align-items-center justify-content-center fw-bold"
             >
               💬
             </div>
             <div>
-              <h5 className="mb-0 fw-bold" style={{ color: "#0f172a" }}>Hỗ trợ trực tuyến</h5>
-              <small className="text-success d-flex align-items-center gap-1 fw-medium">
-                <span style={{ width: "8px", height: "8px", backgroundColor: "#10b981", borderRadius: "50%", display: "inline-block" }}></span>
+              <h5 className="mb-0 fw-bold" style={{ color: "#111827", fontSize: "1rem" }}>Hỗ trợ trực tuyến</h5>
+              <div className="d-flex align-items-center gap-2" style={{ fontSize: "0.75rem", color: "#059669" }}>
+                <span style={{ width: "6px", height: "6px", backgroundColor: "#10B981", borderRadius: "50%" }}></span>
                 Đang hoạt động
-              </small>
+              </div>
             </div>
           </div>
         </Card.Header>
@@ -143,17 +138,14 @@ const Message = () => {
             return (
               <div key={idx} style={styles.bubbleRow(isMe)}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: isMe ? "flex-end" : "flex-start" }}>
-                  {/* Không cần hiển thị tên "Bạn" liên tục để UI gọn hơn, chỉ hiện tên đối phương */}
                   {!isMe && <span style={styles.senderName}>{msg.sender}</span>}
-                  
                   <div style={styles.bubble(isMe)}>
-                    <p style={styles.messageContent}>{msg.content}</p>
+                    <p style={{ margin: 0, lineHeight: "1.5" }}>{msg.content}</p>
                   </div>
                 </div>
               </div>
             );
           })}
-          {/* Điểm neo để tự động cuộn */}
           <div ref={messageEndRef} />
         </Card.Body>
 
@@ -170,10 +162,10 @@ const Message = () => {
               <Button 
                 type="submit" 
                 style={styles.sendButton}
-                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = "#4338ca"; }}
-                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "#4f46e5"; }}
+                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = "#154078"; }}
+                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = "#1D559F"; }}
               >
-                Gửi ✨
+                Gửi
               </Button>
             </InputGroup>
           </Form>

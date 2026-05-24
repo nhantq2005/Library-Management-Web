@@ -9,13 +9,12 @@ export const endpoints = {
     'user-majors-stats': '/stats/secure/user-majors',
     'authors-stats': '/stats/secure/authors',
     'reviews-stats': '/stats/secure/reviews',
+    'buy-stats': '/stats/secure/buys',
     'buy': '/secure/buys',
     'documents': '/documents',
     'categories': '/categories',
     'secure-categories': '/secure/categories',
     'delete-document': (documentId) => `/documents/${documentId}`,
-    'categories': '/categories',
-    'documents': '/documents',
     "secure-borrows": "/secure/borrows",
     'secure-buy': '/secure/buy',
     'document-details': (docId) => `/documents/${docId}`,
@@ -23,7 +22,11 @@ export const endpoints = {
     'latest-docs': '/documents/latest',
     'trend-docs': '/documents/trend',
     'my-buys': '/secure/buy',
-    'my-borrows': '/secure/borrows'
+    'my-borrows': '/secure/borrows',
+    'tags': '/tags',
+    'authors': '/authors',
+    'add-tag': '/secure/tags',
+    'add-author': '/secure/authors',
 }
 
 export const authApi = (token) => {

@@ -64,6 +64,8 @@ const login = async (e) => {
                 let next = q.get('next');
                 if (next)
                     nav(next);
+                else if (u.data.role === 'ROLE_LIBRARIAN' || u.data.role === 'LIBRARIAN')
+                    nav('/librarian');
                 else
                     nav('/');
             } catch (ex) {

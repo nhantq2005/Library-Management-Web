@@ -1,15 +1,13 @@
-
 import React, { useState, useEffect } from 'react';
-import { Row, Col, Card, Table, Form, Spinner, Badge } from 'react-bootstrap';
+import { Row, Col, Table, Form, Spinner } from 'react-bootstrap';
 import { authApi } from '../../configs/Apis';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 import LoadMoreButton from '../../components/LoadMoreButton';
+import { Cookies } from 'react-cookie';
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
-
-const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsaWJyYXJpYW4wMSIsInJvbGUiOiJST0xFX0xJQlJBUklBTiIsImV4cCI6MTc3OTU2Njk3MSwiaWF0IjoxNzc5NDgwNTcxfQ.6I3wLNVu_Mv87GJ3VAZ0SngQLBiihcJg1KyqnwIlPH4"; // Token hệ thống
 
 const PaymentStats = () => {
     // State
@@ -22,44 +20,44 @@ const PaymentStats = () => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const [statusFilter, setStatusFilter] = useState('');
+    const [error, setError] = useState("");
 
-    // Fetch revenue stats
     const loadRevenueStats = async () => {
-        setStatsLoading(true);
-        try {
-            let url = '/stats/secure/buy-documents';
-            let queryParams = [];
-            if (fromDate) queryParams.push(`fromDate=${fromDate}`);
-            if (toDate) queryParams.push(`toDate=${toDate}`);
-            if (queryParams.length > 0) url += `?${queryParams.join('&')}`;
+    setStatsLoading(true);
+    try {
+        // Gọi đến API backend của bạn
+        let url = '/stats/secure/revenue-by-document';
+        let queryParams = [];
+        if (fromDate) queryParams.push(`fromDate=${fromDate}`);
+        if (toDate) queryParams.push(`toDate=${toDate}`);
+        if (queryParams.length > 0) url += `?${queryParams.join('&')}`;
 
-            const res = await authApi(TOKEN).get(url);
-            setStatsData(res.data || []);
-        } catch (err) {
-            console.error("Lỗi tải thống kê doanh thu thương mại:", err);
-            // Mock data nếu lỗi
-            setStatsData([
-                [1, "Lập trình Java core", 12, 600000],
-                [2, "Cấu trúc dữ liệu & Giải thuật", 8, 480000],
-                [3, "Thiết kế hệ thống phân tán", 15, 1050000],
-                [4, "Nhập môn Trí tuệ nhân tạo", 5, 250000],
-            ]);
-        } finally {
-            setStatsLoading(false);
-        }
-    };
+        // Sử dụng authApi với token
+        const res = await authApi(Cookies.get('token')).get(url);
+        
+        // Cập nhật dữ liệu từ API thay vì mock data
+        setStatsData(res.data || []);
+    } catch (err) {
+        console.error("Lỗi tải thống kê doanh thu:", err);
+        setError("Không thể tải thống kê doanh thu.");
+        setStatsData([]); // Reset về rỗng nếu lỗi
+    } finally {
+        setStatsLoading(false);
+    }
+};
 
     // Fetch transaction history
     const loadTransactionHistory = async () => {
         setTxLoading(true);
         try {
-            let url = `/secure/buy?page=${page}`;
+            let url = `/stats/secure/revenue-by-document`;
             if (statusFilter) url += `&status=${statusFilter}`;
-            const res = await authApi(TOKEN).get(url);
+            const res = await authApi(Cookies.get('token')).get(url);
             setHasMore(!(res.data.length === 0 || res.data.length < 20));
             setTransactions(page === 1 ? res.data : prev => [...prev, ...res.data]);
         } catch (err) {
             console.error("Lỗi tải lịch sử mua tài liệu:", err);
+            setError("Không thể tải lịch sử mua tài liệu.");
         } finally {
             setTxLoading(false);
         }
@@ -89,50 +87,53 @@ const PaymentStats = () => {
             {
                 data: pieAmounts.length > 0 ? pieAmounts : [1],
                 backgroundColor: [
-                    '#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#ef4444',
+                    '#1D559F', '#3B82F6', '#60A5FA', '#93C5FD', '#BFDBFE',
                 ],
                 borderWidth: 1,
+                borderColor: '#FFFFFF',
             },
         ],
     };
-
-    const inputStyle = {
-        backgroundColor: '#fdfdfd',
-        border: '1px solid #e2e8f0',
-        color: '#334155',
-        borderRadius: '10px',
-    };
+    
+    const cardStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px' };
+    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '8px 12px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none' };
+    const thStyle = { padding: '12px 20px', fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' };
+    const tdStyle = { padding: '16px 20px', fontSize: '0.875rem', color: '#111827', verticalAlign: 'middle', borderBottom: '1px solid #E5E7EB' };
+    const badgeStyle = { padding: '4px 8px', borderRadius: '2px', fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-block' };
 
     return (
-        <div style={{ padding: '32px', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
+        <div style={{ padding: '32px 40px', backgroundColor: '#F9FAFB', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
             {/* Title */}
             <div className="mb-4">
-                <h3 style={{ color: '#0f172a', fontWeight: '700', letterSpacing: '-0.02em' }}>
+                <h3 style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem', marginBottom: '4px' }}>
                     Thống kê thanh toán & Thương mại
                 </h3>
+                <p className="mb-0" style={{ fontSize: '0.875rem', color: '#4B5563' }}>
+                    Theo dõi doanh thu, lịch sử mua và hoạt động thanh toán.
+                </p>
             </div>
 
             {/* Summary widgets */}
             <Row className="mb-4">
                 <Col md={6} lg={4}>
-                    <Card className="border-0 shadow-sm p-4 rounded-4 bg-white">
-                        <div className="text-muted text-uppercase fw-bold mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
-                            💰 Tổng Doanh Thu Kinh Doanh
+                    <div style={cardStyle} className="h-100">
+                        <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                            Tổng Doanh Thu Kinh Doanh
                         </div>
-                        <h2 className="fw-bold mb-0 text-success">
-                            {totalRevenue.toLocaleString('vi-VN')} <span className="fs-5">đ</span>
+                        <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#1D559F', margin: 0 }}>
+                            {totalRevenue.toLocaleString('vi-VN')} <span style={{ fontSize: '1rem', fontWeight: '600', color: '#4B5563' }}>VNĐ</span>
                         </h2>
-                    </Card>
+                    </div>
                 </Col>
                 <Col md={6} lg={4}>
-                    <Card className="border-0 shadow-sm p-4 rounded-4 bg-white">
-                        <div className="text-muted text-uppercase fw-bold mb-1" style={{ fontSize: '0.75rem', letterSpacing: '0.5px' }}>
-                            📦 Tổng Số Lượt Mua Thành Công
+                    <div style={cardStyle} className="h-100">
+                        <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
+                            Tổng Số Lượt Mua Thành Công
                         </div>
-                        <h2 className="fw-bold mb-0" style={{ color: '#0f172a' }}>
-                            {totalTransactionsCount} <span className="fs-5">lượt</span>
+                        <h2 style={{ fontSize: '2rem', fontWeight: '700', color: '#111827', margin: 0 }}>
+                            {totalTransactionsCount} <span style={{ fontSize: '1rem', fontWeight: '600', color: '#4B5563' }}>lượt</span>
                         </h2>
-                    </Card>
+                    </div>
                 </Col>
             </Row>
 
@@ -140,64 +141,66 @@ const PaymentStats = () => {
             <Row className="mb-4">
                 {/* Revenue table */}
                 <Col lg={7} className="mb-3 mb-lg-0">
-                    <Card className="border-0 shadow-sm p-4 rounded-4 bg-white h-100">
+                    <div style={cardStyle} className="h-100 d-flex flex-column">
                         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                            <h5 className="fw-bold text-dark mb-0">Doanh thu theo đầu sách</h5>
+                            <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', margin: 0 }}>Doanh thu theo đầu sách</h5>
                             <div className="d-flex gap-2 align-items-center">
                                 <Form.Control
                                     type="date"
                                     value={fromDate}
                                     onChange={e => setFromDate(e.target.value)}
-                                    style={{ ...inputStyle, width: '140px', padding: '6px 12px' }}
+                                    style={{ ...inputStyle, width: '130px' }}
                                 />
-                                <span className="text-muted">-</span>
+                                <span style={{ color: '#9CA3AF' }}>-</span>
                                 <Form.Control
                                     type="date"
                                     value={toDate}
                                     onChange={e => setToDate(e.target.value)}
-                                    style={{ ...inputStyle, width: '140px', padding: '6px 12px' }}
+                                    style={{ ...inputStyle, width: '130px' }}
                                 />
                             </div>
                         </div>
 
                         {statsLoading ? (
-                            <div className="text-center py-5">
-                                <Spinner animation="border" variant="primary" />
+                            <div className="text-center py-5 my-auto">
+                                <Spinner animation="border" style={{ color: '#1D559F' }} />
                             </div>
                         ) : (
-                            <Table responsive hover className="align-middle mb-0">
-                                <thead className="table-light" style={{ fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                                    <tr>
-                                        <th className="border-0">Tên tài liệu</th>
-                                        <th className="border-0 text-center">Số lượt mua</th>
-                                        <th className="border-0 text-end">Tổng tiền (VNĐ)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {statsData.map((item, idx) => (
-                                        <tr key={idx}>
-                                            <td className="fw-semibold text-dark">{item[1]}</td>
-                                            <td className="text-center text-muted">{item[2]}</td>
-                                            <td className="text-end fw-bold text-secondary">{(item[3] || 0).toLocaleString('vi-VN')} đ</td>
-                                        </tr>
-                                    ))}
-                                    {statsData.length === 0 && (
+                            <div style={{ margin: '0 -24px', flexGrow: 1, overflowX: 'auto' }}>
+                                <Table hover responsive className="align-middle mb-0" style={{ borderTop: '1px solid #E5E7EB' }}>
+                                    <thead>
                                         <tr>
-                                            <td colSpan="3" className="text-center py-4 text-muted">
-                                                Không có dữ liệu kinh doanh trong thời gian này
-                                            </td>
+                                            <th style={thStyle}>Tên tài liệu</th>
+                                            <th style={{ ...thStyle, textAlign: 'center' }}>Số lượt mua</th>
+                                            <th style={{ ...thStyle, textAlign: 'right' }}>Tổng tiền (VNĐ)</th>
                                         </tr>
-                                    )}
-                                </tbody>
-                            </Table>
+                                    </thead>
+                                    <tbody>
+                                        {statsData.map((item, idx) => (
+                                            <tr key={idx}>
+                                                <td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>{item[1]}</td>
+                                                <td style={{ ...tdStyle, textAlign: 'center', color: '#4B5563' }}>{item[2]}</td>
+                                                <td style={{ ...tdStyle, textAlign: 'right', fontWeight: '600' }}>{(item[3] || 0).toLocaleString('vi-VN')} đ</td>
+                                            </tr>
+                                        ))}
+                                        {statsData.length === 0 && (
+                                            <tr>
+                                                <td colSpan="3" className="text-center py-5 text-muted" style={{ fontSize: '0.875rem' }}>
+                                                    Không có dữ liệu kinh doanh trong thời gian này
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </Table>
+                            </div>
                         )}
-                    </Card>
+                    </div>
                 </Col>
 
                 {/* Pie chart */}
                 <Col lg={5}>
-                    <Card className="border-0 shadow-sm p-4 rounded-4 bg-white h-100 d-flex flex-column justify-content-between">
-                        <h5 className="fw-bold text-dark mb-3">Tỷ lệ đóng góp doanh thu (Top 5)</h5>
+                    <div style={cardStyle} className="h-100 d-flex flex-column justify-content-between">
+                        <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '24px' }}>Tỷ lệ đóng góp doanh thu (Top 5)</h5>
                         <div style={{ height: '260px', position: 'relative' }} className="d-flex justify-content-center">
                             {statsData.length > 0 ? (
                                 <Pie
@@ -207,23 +210,23 @@ const PaymentStats = () => {
                                         plugins: {
                                             legend: {
                                                 position: 'bottom',
-                                                labels: { boxWidth: 12, font: { size: 11 } },
+                                                labels: { boxWidth: 12, font: { family: 'Inter', size: 11 }, color: '#4B5563' },
                                             },
                                         },
                                     }}
                                 />
                             ) : (
-                                <div className="text-center my-auto text-muted">Chưa có thông số</div>
+                                <div className="text-center my-auto" style={{ color: '#9CA3AF', fontSize: '0.875rem' }}>Chưa có thông số</div>
                             )}
                         </div>
-                    </Card>
+                    </div>
                 </Col>
             </Row>
 
             {/* Transaction history */}
-            <Card className="border-0 shadow-sm p-4 rounded-4 bg-white">
-                <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                    <h5 className="fw-bold text-dark mb-0">Nhật ký giao dịch mua tài liệu</h5>
+            <div style={cardStyle}>
+                <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                    <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', margin: 0 }}>Nhật ký giao dịch mua tài liệu</h5>
                     <Form.Select
                         value={statusFilter}
                         onChange={e => {
@@ -241,60 +244,63 @@ const PaymentStats = () => {
 
                 {txLoading && page === 1 ? (
                     <div className="text-center py-5">
-                        <Spinner animation="border" variant="primary" />
+                        <Spinner animation="border" style={{ color: '#1D559F' }} />
                     </div>
                 ) : (
                     <>
-                        <Table responsive hover className="align-middle">
-                            <thead style={{ backgroundColor: '#f8fafc', color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase' }}>
-                                <tr>
-                                    <th className="border-0 py-3">Ngày GD</th>
-                                    <th className="border-0 py-3">Khách hàng</th>
-                                    <th className="border-0 py-3">Tên tài liệu</th>
-                                    <th className="border-0 py-3">Phương thức</th>
-                                    <th className="border-0 py-3 text-end">Số tiền</th>
-                                    <th className="border-0 py-3 text-center">Trạng thái</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {transactions.map((tx, idx) => (
-                                    <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                        <td className="text-muted">{tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('vi-VN') : '---'}</td>
-                                        <td className="fw-medium">{tx.user?.username || 'Ẩn danh'}</td>
-                                        <td className="fw-semibold text-dark">{tx.document?.title || 'Tài liệu không còn tồn tại'}</td>
-                                        <td>
-                                            <Badge bg="light" className="text-dark border">{tx.paymentMethod || 'VNPay'}</Badge>
-                                        </td>
-                                        <td className="text-end fw-bold text-dark">{(tx.amount || 0).toLocaleString('vi-VN')} đ</td>
-                                        <td className="text-center">
-                                            {tx.status === 'SUCCESS' ? (
-                                                <Badge bg="success-subtle" className="text-success border border-success-subtle px-3 py-1.5 rounded-pill">Thành công</Badge>
-                                            ) : tx.status === 'FAILED' ? (
-                                                <Badge bg="danger-subtle" className="text-danger border border-danger-subtle px-3 py-1.5 rounded-pill">Thất bại</Badge>
-                                            ) : (
-                                                <Badge bg="warning-subtle" className="text-warning border border-warning-subtle px-3 py-1.5 rounded-pill">{tx.status}</Badge>
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                                {transactions.length === 0 && (
+                        <div style={{ margin: '0 -24px' }}>
+                            <Table hover responsive className="align-middle mb-0" style={{ borderTop: '1px solid #E5E7EB' }}>
+                                <thead>
                                     <tr>
-                                        <td colSpan="6" className="text-center py-5 text-muted">
-                                            <div className="fs-3">📬</div>
-                                            Không tìm thấy lịch sử giao dịch nào phù hợp.
-                                        </td>
+                                        <th style={thStyle}>Ngày GD</th>
+                                        <th style={thStyle}>Khách hàng</th>
+                                        <th style={thStyle}>Tên tài liệu</th>
+                                        <th style={thStyle}>Phương thức</th>
+                                        <th style={{ ...thStyle, textAlign: 'right' }}>Số tiền</th>
+                                        <th style={{ ...thStyle, textAlign: 'center' }}>Trạng thái</th>
                                     </tr>
-                                )}
-                            </tbody>
-                        </Table>
+                                </thead>
+                                <tbody>
+                                    {transactions.map((tx, idx) => (
+                                        <tr key={idx}>
+                                            <td style={{ ...tdStyle, color: '#6B7280' }}>{tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('vi-VN') : '---'}</td>
+                                            <td style={{ ...tdStyle, fontWeight: '500' }}>{tx.user?.username || 'Ẩn danh'}</td>
+                                            <td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>{tx.document?.title || 'Tài liệu không còn tồn tại'}</td>
+                                            <td style={tdStyle}>
+                                                <span style={{ ...badgeStyle, backgroundColor: '#F3F4F6', color: '#4B5563' }}>{tx.paymentMethod || 'VNPay'}</span>
+                                            </td>
+                                            <td style={{ ...tdStyle, textAlign: 'right', fontWeight: '600' }}>{(tx.amount || 0).toLocaleString('vi-VN')} đ</td>
+                                            <td style={{ ...tdStyle, textAlign: 'center' }}>
+                                                {tx.status === 'SUCCESS' ? (
+                                                    <span style={{ ...badgeStyle, backgroundColor: '#DCFCE7', color: '#166534' }}>Thành công</span>
+                                                ) : tx.status === 'FAILED' ? (
+                                                    <span style={{ ...badgeStyle, backgroundColor: '#FEE2E2', color: '#991B1B' }}>Thất bại</span>
+                                                ) : (
+                                                    <span style={{ ...badgeStyle, backgroundColor: '#FEF08A', color: '#854D0E' }}>{tx.status}</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {transactions.length === 0 && (
+                                        <tr>
+                                            <td colSpan="6" className="text-center py-5 text-muted" style={{ fontSize: '0.875rem' }}>
+                                                <div className="mb-2" style={{ fontSize: '1.5rem' }}>📬</div>
+                                                Không tìm thấy lịch sử giao dịch nào phù hợp.
+                                            </td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </Table>
+                        </div>
 
-                        {/* Pagination / Load more button */}
                         {hasMore && transactions.length > 0 && (
-                            <LoadMoreButton onClick={() => setPage(prev => prev + 1)} isLoading={txLoading} />
+                            <div className="mt-4">
+                                <LoadMoreButton onClick={() => setPage(prev => prev + 1)} isLoading={txLoading} />
+                            </div>
                         )}
                     </>
                 )}
-            </Card>
+            </div>
         </div>
     );
 };

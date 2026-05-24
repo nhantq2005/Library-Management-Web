@@ -4,8 +4,7 @@ import Apis, { authApi, endpoints } from '../../configs/Apis';
 import LoadMoreButton from '../../components/LoadMoreButton';
 import DeleteButton from '../../components/DeleteButton';
 import EditButton from '../../components/EditButton';
-
-const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJsaWJyYXJpYW4wMSIsInJvbGUiOiJST0xFX0xJQlJBUklBTiIsImV4cCI6MTc3OTU2Njk3MSwiaWF0IjoxNzc5NDgwNTcxfQ.6I3wLNVu_Mv87GJ3VAZ0SngQLBiihcJg1KyqnwIlPH4"; 
+import cookies from 'react-cookies';
 
 const ManageCategory = () => {
     const [categories, setCategories] = useState([]);
@@ -69,13 +68,13 @@ const ManageCategory = () => {
             };
 
             if (currentCategory.id) {
-                const res = await authApi(TOKEN).put(`/secure/categories/${currentCategory.id}`, payload);
+                const res = await authApi(cookies.load('token')).put(`/secure/categories/${currentCategory.id}`, payload);
                 if (res.status === 200) {
                     setCategories(categories.map(c => c.id === currentCategory.id ? res.data : c));
                 }
             } else {
                 // Thêm mới (POST)
-                const res = await authApi(TOKEN).post('/secure/categories', payload);
+                const res = await authApi(cookies.load('token')).post('/secure/categories', payload);
                 if (res.status === 201) {
                     setCategories([res.data, ...categories]);
                 }
@@ -93,7 +92,7 @@ const ManageCategory = () => {
     const handleDelete = async (id) => {
         if (window.confirm("Bạn có chắc chắn muốn xóa danh mục này? Các tài liệu thuộc danh mục có thể bị ảnh hưởng.")) {
             try {
-                const res = await authApi(TOKEN).delete(`/secure/categories/${id}`);
+                const res = await authApi(cookies.load('token')).delete(`/secure/categories/${id}`);
                 if (res.status === 204) {
                     setCategories(categories.filter(c => c.id !== id));
                     alert("Xóa danh mục thành công!");
@@ -105,34 +104,45 @@ const ManageCategory = () => {
         }
     };
 
-    // UI Styles
-    const inputStyle = { backgroundColor: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', fontSize: '0.95rem' };
-    const labelStyle = { fontSize: '0.85rem', fontWeight: '600', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' };
+    // --- LUMINA DESIGN STYLES ---
+    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none', fontFamily: 'Inter, sans-serif' };
+    const labelStyle = { fontSize: '0.75rem', fontWeight: '600', color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', fontFamily: 'Inter, sans-serif' };
+    const thStyle = { padding: '12px 20px', fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' };
+    const tdStyle = { padding: '16px 20px', fontSize: '0.875rem', color: '#111827', verticalAlign: 'middle' };
 
     return (
-        <div style={{ padding: '32px', backgroundColor: '#f8fafc', minHeight: '100vh' }}>
-            <div className="bg-white p-4 rounded-4 shadow-sm border-0">
+        <div style={{ padding: '32px 40px', backgroundColor: '#F9FAFB', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
+            <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px' }}>
                 
                 {/* HEADER */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h3 className="mb-1" style={{ color: '#0f172a', fontWeight: '700', letterSpacing: '-0.02em' }}>
+                        <h3 className="mb-1" style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem' }}>
                             Quản lý Danh mục
                         </h3>
-                        <p className="text-muted mb-0" style={{ fontSize: '0.9rem' }}>
-                            Thêm, sửa, xóa và quản lý các thể loại tài liệu
+                        <p className="mb-0" style={{ fontSize: '0.875rem', color: '#4B5563' }}>
+                            Thêm, sửa, xóa và quản lý các thể loại tài liệu.
                         </p>
                     </div>
                     
                     <Button 
                         variant="none" 
-                        className="text-white d-flex align-items-center gap-2 border-0 fw-semibold shadow-sm"
-                        style={{ backgroundColor: '#4f46e5', padding: '10px 22px', borderRadius: '10px', fontSize: '0.95rem', transition: 'all 0.2s ease' }}
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#4338ca'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#4f46e5'; }}
+                        className="d-flex align-items-center gap-2"
+                        style={{ 
+                            backgroundColor: '#1D559F', 
+                            color: '#FFFFFF',
+                            padding: '10px 20px', 
+                            borderRadius: '4px',
+                            fontSize: '0.875rem',
+                            fontWeight: '500',
+                            border: 'none',
+                            transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#154078'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#1D559F'; }}
                         onClick={() => handleOpenModal()}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                         </svg>
                         Thêm danh mục
@@ -142,34 +152,31 @@ const ManageCategory = () => {
                 {/* BẢNG DỮ LIỆU */}
                 {loading && page === 1 ? (
                     <div className="d-flex justify-content-center py-5">
-                        <Spinner animation="border" variant="primary" />
+                        <Spinner animation="border" style={{ color: '#1D559F' }} />
                     </div>
                 ) : (
-                    <>
-                        <Table hover responsive className="align-middle mb-0">
-                            <thead style={{ backgroundColor: '#f8fafc', color: '#64748b', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    <div style={{ margin: '0 -24px' }}>
+                        <Table hover responsive className="align-middle mb-0" style={{ borderTop: '1px solid #E5E7EB' }}>
+                            <thead>
                                 <tr>
-                                    <th className="border-0 py-3 px-3" style={{ borderRadius: '8px 0 0 8px', width: '10%' }}>ID</th>
-                                    <th className="border-0 py-3" style={{ width: '35%' }}>Tên danh mục</th>
-                                    <th className="border-0 py-3" style={{ width: '40%' }}>Mô tả</th>
-                                    <th className="border-0 py-3 text-center" style={{ borderRadius: '0 8px 8px 0', width: '15%' }}>Hành động</th>
+                                    <th style={{ ...thStyle, width: '10%' }}>ID</th>
+                                    <th style={{ ...thStyle, width: '35%' }}>Tên danh mục</th>
+                                    <th style={{ ...thStyle, width: '40%' }}>Mô tả</th>
+                                    <th style={{ ...thStyle, width: '15%', textAlign: 'center' }}>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {categories.length > 0 ? (
                                     categories.map((c) => (
-                                        <tr key={c.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                            <td className="px-3 text-muted fw-semibold">{c.id}</td>
-                                            <td><span className="fw-semibold text-dark">{c.name}</span></td>
-                                            <td className="text-muted" style={{ fontSize: '0.9rem' }}>
-                                                {c.description || <span className="fst-italic text-black-50">Không có mô tả</span>}
+                                        <tr key={c.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
+                                            <td style={{ ...tdStyle, color: '#6B7280', fontWeight: '500' }}>#{c.id}</td>
+                                            <td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>{c.name}</td>
+                                            <td style={{ ...tdStyle, color: '#4B5563' }}>
+                                                {c.description || <span style={{ fontStyle: 'italic', color: '#9CA3AF' }}>Không có mô tả</span>}
                                             </td>
-                                            <td>
+                                            <td style={{ ...tdStyle, textAlign: 'center' }}>
                                                 <div className="d-flex justify-content-center gap-2">
-                                                    {/* Nút Sửa */}
                                                     <EditButton onClick={() => handleOpenModal(c)} />
-
-                                                    {/* Nút Xóa */}
                                                     <DeleteButton onClick={() => handleDelete(c.id)} />
                                                 </div>
                                             </td>
@@ -177,36 +184,38 @@ const ManageCategory = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="4" className="text-center py-5 text-muted">
-                                            <div className="fs-4 mb-2">📭</div>
+                                        <td colSpan="4" className="text-center py-5 text-muted" style={{ fontSize: '0.875rem', color: '#6B7280' }}>
+                                            <div className="mb-2" style={{ fontSize: '1.5rem' }}>📭</div>
                                             Chưa có danh mục nào.
                                         </td>
                                     </tr>
                                 )}
                             </tbody>
                         </Table>
+                    </div>
+                )}
 
-                        {/* TẢI THÊM */}
-                        {hasMore && categories.length > 0 && (
-                            <LoadMoreButton 
-                                onClick={() => setPage(prev => prev + 1)}
-                                isLoading={loading}
-                            />
-                        )}
-                    </>
+                {/* TẢI THÊM */}
+                {hasMore && categories.length > 0 && (
+                    <div className="mt-4">
+                        <LoadMoreButton 
+                            onClick={() => setPage(prev => prev + 1)}
+                            isLoading={loading}
+                        />
+                    </div>
                 )}
             </div>
 
             {/* MODAL THÊM / SỬA */}
-            <Modal show={showModal} onHide={() => setShowModal(false)} centered contentClassName="border-0 rounded-4 shadow-lg">
+            <Modal show={showModal} onHide={() => setShowModal(false)} centered contentClassName="border-0 shadow-lg" style={{ borderRadius: '4px' }}>
                 <Form onSubmit={handleSaveCategory}>
                     <Modal.Header closeButton className="border-0 pb-0">
-                        <Modal.Title className="fs-5 fw-bold" style={{ color: '#0f172a' }}>
-                            {currentCategory.id ? '📝 Cập nhật danh mục' : '✨ Thêm danh mục mới'}
+                        <Modal.Title className="fs-5 fw-bold" style={{ color: '#111827', fontFamily: 'Inter, sans-serif' }}>
+                            {currentCategory.id ? 'Cập nhật danh mục' : 'Thêm danh mục mới'}
                         </Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="pt-3 pb-4">
-                        {error && <Alert variant="danger" className="py-2 border-0">{error}</Alert>}
+                        {error && <Alert variant="danger" style={{ borderRadius: '4px', fontSize: '0.875rem' }}>{error}</Alert>}
                         
                         <Form.Group className="mb-3">
                             <Form.Label style={labelStyle}>Tên danh mục <span className="text-danger">*</span></Form.Label>
@@ -217,6 +226,7 @@ const ManageCategory = () => {
                                 value={currentCategory.name}
                                 onChange={(e) => setCurrentCategory({...currentCategory, name: e.target.value})}
                                 style={inputStyle}
+                                autoFocus
                             />
                         </Form.Group>
                         
@@ -232,13 +242,18 @@ const ManageCategory = () => {
                             />
                         </Form.Group>
                     </Modal.Body>
-                    <Modal.Footer className="border-0 pt-0">
-                        <Button variant="light" className="fw-semibold rounded-3" onClick={() => setShowModal(false)}>Hủy</Button>
+                    <Modal.Footer className="border-0 pt-0 d-flex flex-nowrap justify-content-end gap-2 w-100">
+                        <Button 
+                            variant="none" 
+                            onClick={() => setShowModal(false)}
+                            style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', color: '#4B5563', borderRadius: '4px', padding: '8px 16px', fontSize: '0.875rem', fontWeight: '500', whiteSpace: 'nowrap' }}
+                        >
+                            Hủy
+                        </Button>
                         <Button 
                             type="submit" 
                             disabled={!currentCategory.name.trim() || modalLoading}
-                            className="fw-bold rounded-3 border-0 d-flex align-items-center"
-                            style={{ backgroundColor: '#4f46e5' }}
+                            style={{ backgroundColor: '#1D559F', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '8px 16px', fontSize: '0.875rem', fontWeight: '500', whiteSpace: 'nowrap' }}
                         >
                             {modalLoading ? <Spinner size="sm" animation="border" className="me-2" /> : null}
                             Lưu thông tin
