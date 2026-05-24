@@ -4,8 +4,17 @@ export const endpoints = {
     'login': '/login',
     'register': '/users',
     'current-user': '/secure/profile',
-    'categories': '/categories',
+    'overdue-documents': '/stats/secure/overdue-documents',
+    'categories-stats': '/stats/secure/categories',
+    'user-majors-stats': '/stats/secure/user-majors',
+    'authors-stats': '/stats/secure/authors',
+    'reviews-stats': '/stats/secure/reviews',
+    'buy-stats': '/stats/secure/buys',
+    'buy': '/secure/buys',
     'documents': '/documents',
+    'categories': '/categories',
+    'secure-categories': '/secure/categories',
+    'delete-document': (documentId) => `/documents/${documentId}`,
     "secure-borrows": "/secure/borrows",
     'secure-buy': '/secure/buy',
     'document-details': (docId) => `/documents/${docId}`,
@@ -14,11 +23,15 @@ export const endpoints = {
     'trend-docs': '/documents/trend',
     'my-buys': '/secure/buy',
     'my-borrows': '/secure/borrows',
+    'tags': '/tags',
+    'authors': '/authors',
+    'add-tag': '/secure/tags',
+    'add-author': '/secure/authors',
 }
 
 export const authApi = (token) => {
     return axios.create({
-        baseURL: 'http://localhost:8080/eLibrary/api/',
+        baseURL: 'http://localhost:8080/eLibrary_war/api/',
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -26,5 +39,5 @@ export const authApi = (token) => {
 }
 
 export default axios.create({
-    baseURL: 'http://localhost:8080/eLibrary/api/'
+    baseURL: 'http://localhost:8080/eLibrary_war/api/'
 })

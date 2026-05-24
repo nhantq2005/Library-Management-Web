@@ -1,0 +1,28 @@
+.header {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a2a49;
+  margin: 0;
+}
+
+.header-user {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
