@@ -208,6 +208,10 @@ const Cart = () => {
                     <h3 style={CartStyles.sectionTitleBorrow} className="mt-5">
                         <i className="fa-solid fa-book-open-reader me-2"></i>Sách Chọn Mượn
                     </h3>
+
+                    <Button as={Link} to="/payment" variant="success" size="sm" className="mb-3">
+                        <i className="fa-solid fa-money-check-dollar me-1"></i> Xem phí mượn
+                    </Button>
                     
                     {cartBorrow === null || Object.keys(cartBorrow).length === 0 ? (
                         <Alert variant="light" className="border">KHÔNG có sản phẩm trong giỏ mượn!</Alert>
