@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { authApi, endpoints } from "../../configs/Apis";
 import CartStyles from "../../style/CartStyles";
 import CartSection from "../../components/CartSection";
+import { TiDeleteOutline } from "react-icons/ti";
 
 const Cart = () => {
     const [cartBuy, setCartBuy] = useState(null);
@@ -42,6 +43,11 @@ const Cart = () => {
                     setCartBuy(null);
                     dispatchBuy({ "type": "UPDATE", "userId": user.id });
                 }
+
+{/* <Button as={Link} to="/payment" variant="none" style={{ backgroundColor: '#F3F4F6', color: '#4B5563', borderRadius: '4px', padding: '6px 16px', fontSize: '0.875rem', fontWeight: '500', border: '1px solid #E5E7EB' }}>
+                                    Xem phí mượn
+                                </Button> */}
+
             } catch (ex) {
                 console.error("Lỗi:", ex);
                 alert(ex.response?.data?.message || "Đã có lỗi xảy ra. Vui lòng thử lại!");
@@ -110,6 +116,10 @@ const Cart = () => {
             dispatchBorrow({ "type": "UPDATE", "userId": user.id });
         }
     }
+const cardStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px', marginBottom: '24px' };
+    const thStyle = { padding: '14px 20px', fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB', backgroundColor: '#F9FAFB' };
+    const tdStyle = { padding: '16px 20px', fontSize: '0.875rem', color: '#111827', verticalAlign: 'middle', borderBottom: '1px solid #E5E7EB' };
+    const qtyInputStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '6px 12px', fontSize: '0.875rem', textAlign: 'center', width: '70px', color: '#111827', boxShadow: 'none' };
 
     const buyItems = cartBuy ? Object.values(cartBuy) : [];
     const borrowItems = cartBorrow ? Object.values(cartBorrow) : [];
@@ -141,6 +151,7 @@ const Cart = () => {
                     />
                 </>
             )}
+       
         </div>
     );
 }

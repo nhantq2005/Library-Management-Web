@@ -23,6 +23,8 @@ import Message from './screens/Librarian/Message';
 import ManageCategory from './screens/Librarian/ManageCategory';
 import BorrowStats from './screens/Librarian/BorrowStats';
 import Payment from './screens/Payment/Payment';
+import MessageClient from './screens/Message/MessageClient';
+import PaymentResult from './screens/Payment/PaymentResult';
 
 const App = () => {
   const [user, dispatchUser] = useReducer(MyUserReducer, cookies.load('user') || null);
@@ -45,6 +47,8 @@ const App = () => {
               <Route path="/cart" element={<Cart />} />
               <Route path="/my-documents" element={<MyDocuments />} />
               <Route path="/payment" element= {<Payment/>} />
+              <Route path="/payment-result" element={<PaymentResult />} />
+              <Route path="/message-client" element={<MessageClient />} />
               <Route path="/librarian" element={<Base />} > 
                 <Route index element={<LibrarianDashboard />} />
                 <Route path="manage-document" element={<ManageDocument />} />
