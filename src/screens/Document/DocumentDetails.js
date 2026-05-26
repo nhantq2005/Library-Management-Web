@@ -5,8 +5,8 @@ import cookies from 'react-cookies';
 import Apis, { authApi, endpoints } from "../../configs/Apis";
 import moment from "moment";
 import { MyUserContext } from "../../configs/Context";
-import useOrder from "../../hooks/useOrder";
-import ReviewItem from "../../components/Items/ReviewItem";
+import useOrder from "../../components/useOrder";
+import DocumentDetailStyles from "../../style/DocumentDetailStyles";
 
 const DocumentDetails = () => {
     const { documentId } = useParams();

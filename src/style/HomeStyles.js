@@ -1,80 +1,108 @@
 const HomeStyles = {
     container: {
-        marginTop: '1.5rem',
+        marginTop: '2rem',
+        marginBottom: '4rem',
     },
     headerTitle: {
-        color: '#0284c7',
-        marginBottom: '1.5rem',
-        fontWeight: 'bold',
-        fontSize: '1.75rem',
+        fontSize: '1.5rem',
+        fontWeight: '800',
+        letterSpacing: '-0.5px',
+        color: '#1e293b'
+    },
+    scrollContainer: {
+        display: 'flex',
+        flexWrap: 'nowrap',
+        gap: '1.25rem',
+        paddingBottom: '1.5rem',
+        paddingLeft: '0.5rem',
+        paddingRight: '0.5rem',
+        overflowX: 'auto',
+        overflowY: 'hidden',
+        WebkitOverflowScrolling: 'touch',
+        scrollSnapType: 'x mandatory'
+    },
+    cardWrapper: {
+        flex: '0 0 auto',
+        width: '240px', // Thu gọn lại một chút cho thanh thoát
+        scrollSnapAlign: 'start'
     },
     card: {
         height: '100%',
-        boxShadow: '0 0.125rem 0.25rem rgba(0, 0, 0, 0.075)',
-        border: 'none',
-        borderRadius: '12px',
-        position: 'relative',
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', // Bóng đổ cực mềm
+        border: '1px solid #f1f5f9', // Viền siêu mờ
+        borderRadius: '16px',
+        cursor: 'pointer',
+        backgroundColor: '#ffffff',
+        transition: 'all 0.25s ease'
     },
     badgeWrapper: {
         position: 'absolute',
-        top: 0,
-        left: 0,
-        margin: '0.5rem',
-        zIndex: 1,
+        top: 12,
+        left: 12,
+        zIndex: 2,
+    },
+    badge: {
+        fontSize: '0.75rem',
+        padding: '6px 12px',
+        borderRadius: '8px',
+        fontWeight: '600',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
     },
     cardImage: {
         height: '220px',
         objectFit: 'cover',
-        borderTopLeftRadius: '12px',
-        borderTopRightRadius: '12px',
+        borderTopLeftRadius: '16px',
+        borderTopRightRadius: '16px',
+        backgroundColor: '#f8fafc',
     },
     cardBody: {
         display: 'flex',
         flexDirection: 'column',
-        padding: '1rem',
+        padding: '1.25rem',
     },
     cardTitle: {
-        fontWeight: 'bold',
-        fontSize: '1rem',
-        whiteSpace: 'nowrap',
+        fontWeight: '700',
+        fontSize: '1.05rem',
+        color: '#0f172a',
+        marginBottom: '0.4rem',
+        lineHeight: '1.4',
+        minHeight: '2.8rem',
         overflow: 'hidden',
         textOverflow: 'ellipsis',
+        display: '-webkit-box',
+        WebkitLineClamp: 2,
+        WebkitBoxOrient: 'vertical'
     },
     authorText: {
-        color: '#6c757d',
-        fontSize: '0.875rem',
-        marginBottom: '0.25rem',
+        color: '#64748b',
+        fontSize: '0.85rem',
+        marginBottom: '1rem',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis'
     },
     statsContainer: {
         display: 'flex',
         justifyContent: 'space-between',
-        fontSize: '0.875rem',
-        color: '#6c757d',
-        marginBottom: '0.5rem',
+        alignItems: 'center',
+        paddingBottom: '0.75rem',
+        marginBottom: '0.75rem',
+        borderBottom: '1px dashed #e2e8f0' // Thêm dải phân cách nét đứt tinh tế
+    },
+    statText: {
+        fontSize: '0.8rem',
+        color: '#64748b',
+        fontWeight: '500'
     },
     priceText: {
-        color: '#dc3545',
-        fontWeight: 'bold',
-        marginBottom: '0.5rem',
+        fontWeight: '800',
+        fontSize: '1.1rem',
+        marginBottom: '0.25rem'
     },
     dateText: {
-        fontSize: '0.875rem',
-        fontStyle: 'italic',
-        marginBottom: '0.5rem',
-    },
-    actionContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '0.5rem',
-        marginTop: '1rem',
-    },
-    buttonRow: {
-        display: 'flex',
-        gap: '0.5rem',
-    },
-    loadingContainer: {
-        textAlign: 'center',
-        margin: '3rem 0',
+        fontSize: '0.75rem',
+        color: '#94a3b8',
+        fontWeight: '500'
     }
 };
 

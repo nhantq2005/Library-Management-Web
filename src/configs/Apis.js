@@ -33,7 +33,7 @@ export const endpoints = {
 
 export const authApi = (token) => {
     return axios.create({
-        baseURL: 'http://localhost:8080/eLibrary_war/api/',
+        baseURL: 'http://localhost:8080/eLibrary/api/',
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -41,5 +41,5 @@ export const authApi = (token) => {
 }
 
 export default axios.create({
-    baseURL: 'http://localhost:8080/eLibrary_war/api/'
+    baseURL: 'http://localhost:8080/eLibrary/api/'
 })
