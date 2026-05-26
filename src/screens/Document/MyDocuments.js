@@ -3,22 +3,23 @@ import cookies from 'react-cookies';
 import { authApi, endpoints } from '../../configs/Apis';
 import { MyUserContext } from '../../configs/Context';
 import { useNavigate } from 'react-router-dom';
-import moment from "moment";
 import 'moment/locale/vi';
 import MyDocumentsStyles from '../../style/MyDocumentsStyles';
+import DocumentTable from '../../components/DocumentTable';
 
 const MyDocuments = () => {
     const [activeTab, setActiveTab] = useState('borrowed');
     const [user] = useContext(MyUserContext);
     const nav = useNavigate();
+    
     const [borrowedDocs, setBorrowedDocs] = useState([]);
     const [purchasedDocs, setPurchasedDocs] = useState([]);
+    
     const [pageBorrow, setPageBorrow] = useState(1);
     const [pageBuy, setPageBuy] = useState(1);
+    
     const [loadingBorrow, setLoadingBorrow] = useState(false);
     const [loadingBuy, setLoadingBuy] = useState(false);
-    const [isExpandedBorrow, setIsExpandedBorrow] = useState(false);
-    const [isExpandedBuy, setIsExpandedBuy] = useState(false);
 
     const groupDocuments = (docs, type) => {
         if (!docs || !Array.isArray(docs)) return [];
@@ -73,23 +74,13 @@ const MyDocuments = () => {
         setLoadingBorrow(true);
         try {
             let res = await authApi(token).get(endpoints['my-borrows'], {
-                params: {
-                    userId: user.id,
-                    page: pageBorrow
-                }
+                params: { userId: user.id, page: pageBorrow }
             });
 
-            if (res.data.length < 20) {
-                setPageBorrow(0);
-            }
+            if (res.data.length < 20) setPageBorrow(0); 
 
             const groupedData = groupDocuments(res.data, 'borrowed');
-
-            if (pageBorrow === 1) {
-                setBorrowedDocs(groupedData);
-            } else {
-                setBorrowedDocs(prev => [...prev, ...groupedData]);
-            }
+            setBorrowedDocs(prev => pageBorrow === 1 ? groupedData : [...prev, ...groupedData]);
         } catch (error) {
             console.error("Lỗi tải lịch sử mượn:", error);
         } finally {
@@ -104,38 +95,18 @@ const MyDocuments = () => {
         setLoadingBuy(true);
         try {
             let res = await authApi(token).get(endpoints['my-buys'], {
-                params: {
-                    userId: user.id,
-                    page: pageBuy
-                }
+                params: { userId: user.id, page: pageBuy }
             });
 
-            if (res.data.length < 20) {
-                setPageBuy(0);
-            }
+            if (res.data.length < 20) setPageBuy(0);
 
             const groupedData = groupDocuments(res.data, 'purchased');
-
-            if (pageBuy === 1) {
-                setPurchasedDocs(groupedData);
-            } else {
-                setPurchasedDocs(prev => [...prev, ...groupedData]);
-            }
+            setPurchasedDocs(prev => pageBuy === 1 ? groupedData : [...prev, ...groupedData]);
         } catch (error) {
             console.error("Lỗi tải lịch sử mua:", error);
         } finally {
             setLoadingBuy(false);
         }
-    };
-
-    const handleLoadMoreBorrow = () => {
-        setIsExpandedBorrow(true);
-        setPageBorrow(pageBorrow + 1);
-    };
-
-    const handleLoadMoreBuy = () => {
-        setIsExpandedBuy(true);
-        setPageBuy(pageBuy + 1);
     };
 
     useEffect(() => {
@@ -187,165 +158,32 @@ const MyDocuments = () => {
 
                     {activeTab === 'borrowed' && (
                         <div className="table-responsive bg-white rounded shadow-sm p-3">
-                            {borrowedDocs.length === 0 && !loadingBorrow ? (
-                                <div className="text-center py-4 text-muted">Bạn chưa mượn tài liệu nào.</div>
-                            ) : (
-                                <>
-                                    <table className="table table-hover align-middle mb-0">
-                                        <thead className="table-light">
-                                            <tr>
-                                                <th scope="col" style={MyDocumentsStyles.colStt}>STT</th>
-                                                <th scope="col" style={MyDocumentsStyles.colCover}>Ảnh bìa</th>
-                                                <th scope="col" style={MyDocumentsStyles.colTitleBorrow}>Tên tài liệu</th>
-                                                <th scope="col" style={MyDocumentsStyles.colAuthorBorrow}>Tác giả</th>
-                                                <th scope="col" style={MyDocumentsStyles.colQuantity}>Số lượng</th>
-                                                <th scope="col" style={MyDocumentsStyles.colTime}>Thời gian</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {borrowedDocs.map((item, index) => (
-                                                <tr key={item.id || index} onClick={() => handleRowClick(item)} style={MyDocumentsStyles.tableRow} title="Bấm để xem chi tiết">
-                                                    <td className="fw-bold text-muted">{index + 1}</td>
-                                                    <td>
-                                                        <img
-                                                            src={item.image || item.document?.image || "https://res.cloudinary.com/duk4u0tsp/image/upload/v1715421501/default-book_k0lbbk.png"}
-                                                            alt="cover"
-                                                            style={MyDocumentsStyles.bookCover}
-                                                        />
-                                                    </td>
-                                                    <td className="fw-semibold text-primary">
-                                                        {item.documentTitle || item.document?.title || item.title || "Tài liệu không tên"}
-                                                    </td>
-                                                    <td className="text-muted small">
-                                                        {item.authorNames || item.document?.authorSet?.map(a => a.name).join(', ') || 'Đang cập nhật'}
-                                                    </td>
-                                                    <td>
-                                                        <span className="badge bg-primary px-3 py-2 rounded-pill">
-                                                            {item.quantity} cuốn
-                                                        </span>
-                                                    </td>
-                                                    <td className="text-muted fw-semibold small">
-                                                        <span className="text-success"><i className="fa-regular fa-clock me-1"></i>
-                                                            {item.rawDate ? moment(item.rawDate).fromNow() : "---"}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-
-                                    <div className="text-center mt-4 d-flex justify-content-center gap-2">
-                                        {loadingBorrow && <div className="spinner-border text-primary" role="status"></div>}
-
-                                        {pageBorrow > 0 && !loadingBorrow && (
-                                            <button
-                                                className="btn btn-outline-primary"
-                                                onClick={handleLoadMoreBorrow}
-                                            >
-                                                Xem thêm sách mượn...
-                                            </button>
-                                        )}
-
-                                        {isExpandedBorrow && !loadingBorrow && (
-                                            <button
-                                                className="btn btn-outline-secondary"
-                                                onClick={() => {
-                                                    setPageBorrow(1);
-                                                    setIsExpandedBorrow(false);
-                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                }}
-                                            >
-                                                Ẩn bớt
-                                            </button>
-                                        )}
-                                    </div>
-                                </>
-                            )}
+                            <DocumentTable 
+                                docs={borrowedDocs}
+                                type="borrowed"
+                                emptyMessage="Bạn chưa mượn tài liệu nào."
+                                loading={loadingBorrow}
+                                page={pageBorrow}
+                                onLoadMore={() => setPageBorrow(pageBorrow + 1)}
+                                onRowClick={handleRowClick}
+                            />
                         </div>
                     )}
 
                     {activeTab === 'purchased' && (
                         <div className="table-responsive bg-white rounded shadow-sm p-3">
-                            {purchasedDocs.length === 0 && !loadingBuy ? (
-                                <div className="text-center py-4 text-muted">Bạn chưa mua tài liệu nào.</div>
-                            ) : (
-                                <>
-                                    <table className="table table-hover align-middle mb-0">
-                                        <thead className="table-light">
-                                            <tr>
-                                                <th scope="col" style={MyDocumentsStyles.colStt}>STT</th>
-                                                <th scope="col" style={MyDocumentsStyles.colCover}>Ảnh bìa</th>
-                                                <th scope="col" style={MyDocumentsStyles.colTitleBuy}>Tên tài liệu</th>
-                                                <th scope="col" style={MyDocumentsStyles.colAuthorBuy}>Tác giả</th>
-                                                <th scope="col" style={MyDocumentsStyles.colQuantityBuy}>Số lượng</th>
-                                                <th scope="col" style={MyDocumentsStyles.colAmountBuy}>Tổng tiền</th>
-                                                <th scope="col" style={MyDocumentsStyles.colTime}>Thời gian</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {purchasedDocs.map((item, index) => (
-                                                <tr key={item.id || index} onClick={() => handleRowClick(item)} style={MyDocumentsStyles.tableRow} title="Bấm để xem chi tiết">
-                                                    <td className="fw-bold text-muted">{index + 1}</td>
-                                                    <td>
-                                                        <img
-                                                            src={item.image || item.document?.image || "https://res.cloudinary.com/duk4u0tsp/image/upload/v1715421501/default-book_k0lbbk.png"}
-                                                            alt="cover"
-                                                            style={MyDocumentsStyles.bookCover}
-                                                        />
-                                                    </td>
-                                                    <td className="fw-semibold text-primary">
-                                                        {item.documentTitle || item.document?.title || item.title || "Tài liệu không tên"}
-                                                    </td>
-                                                    <td className="text-muted small">
-                                                        {item.authorNames || item.document?.authorSet?.map(a => a.name).join(', ') || 'Đang cập nhật'}
-                                                    </td>
-                                                    <td>
-                                                        <span className="badge bg-primary px-3 py-2 rounded-pill">
-                                                            {item.quantity} cuốn
-                                                        </span>
-                                                    </td>
-                                                    <td className="text-danger fw-bold">
-                                                        {item.amount ? `${item.amount.toLocaleString('vi-VN')} đ` : "Miễn phí"}
-                                                    </td>
-                                                    <td className="text-muted fw-semibold small">
-                                                        <span className="text-success"><i className="fa-regular fa-clock me-1"></i>
-                                                            {item.rawDate ? moment(item.rawDate).fromNow() : "---"}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-
-                                    <div className="text-center mt-4 d-flex justify-content-center gap-2">
-                                        {loadingBuy && <div className="spinner-border text-primary" role="status"></div>}
-
-                                        {pageBuy > 0 && !loadingBuy && (
-                                            <button
-                                                className="btn btn-outline-success"
-                                                onClick={handleLoadMoreBuy}
-                                            >
-                                                Xem thêm sách mua...
-                                            </button>
-                                        )}
-
-                                        {isExpandedBuy && !loadingBuy && (
-                                            <button
-                                                className="btn btn-outline-secondary"
-                                                onClick={() => {
-                                                    setPageBuy(1);
-                                                    setIsExpandedBuy(false);
-                                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                                }}
-                                            >
-                                                Ẩn bớt
-                                            </button>
-                                        )}
-                                    </div>
-                                </>
-                            )}
+                            <DocumentTable 
+                                docs={purchasedDocs}
+                                type="purchased"
+                                emptyMessage="Bạn chưa mua tài liệu nào."
+                                loading={loadingBuy}
+                                page={pageBuy}
+                                onLoadMore={() => setPageBuy(pageBuy + 1)}
+                                onRowClick={handleRowClick}
+                            />
                         </div>
                     )}
+
                 </div>
             </div>
         </div>

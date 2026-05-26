@@ -73,10 +73,6 @@ const Header = () => {
                                 </Link>
                             ))}
                         </NavDropdown>
-                        <div>
-                            <Link to="/?type=latest" className="nav-link text-danger fw-bold text-nowrap">Mới nhất</Link>
-                            <Link to="/?type=trend" className="nav-link text-success fw-bold text-nowrap">Xem nhiều</Link>
-                        </div>
                         
                         {user !== null && (
                             <Link to="/my-documents" style={HeaderStyles.myDocsButton} className="nav-link fw-bold ms-1 text-decoration-none">
@@ -101,10 +97,8 @@ const Header = () => {
                         </Button>
                     </Form>
 
-                    {/* KHU VỰC BÊN PHẢI (Dùng gap-3 để khoảng cách đẹp hơn) */}
                     <Nav className="ms-auto align-items-center gap-3">
                         
-                        {/* Nút Giỏ hàng */}
                         <Link to="/cart" className="nav-link fw-bold text-decoration-none" style={HeaderStyles.cartLink}>
                             <i className="fa-solid fa-cart-shopping me-1 text-primary"></i> Giỏ hàng
                             <Badge bg="danger" className="ms-2 rounded-pill" title="Sách mua">
@@ -115,7 +109,6 @@ const Header = () => {
                             </Badge>
                         </Link>
 
-                        {/* Phân luồng Đăng nhập / Đã đăng nhập */}
                         {user === null ? (
                             <div className="d-flex gap-2">
                                 <Link className="btn btn-outline-primary btn-sm px-3 text-nowrap" to="/login">

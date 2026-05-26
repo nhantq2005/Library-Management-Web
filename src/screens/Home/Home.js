@@ -1,219 +1,229 @@
-import { useEffect, useState } from "react";
-import { Alert, Button, Card, Col, Row, Spinner, Container, Badge } from "react-bootstrap";
+import { useEffect, useState, useRef } from "react";
+import { Alert, Card, Spinner, Container, Badge, Row } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Apis, { endpoints } from "../../configs/Apis";
 import moment from "moment";
 import HomeStyles from "../../style/HomeStyles";
-import useOrder from "../../hooks/useOrder";
+import LoadMoreButton from "../../components/LoadMoreButton";
 
 const Home = () => {
-    const [documents, setDocuments] = useState([]);
+    const [latestDocs, setLatestDocs] = useState([]);
+    const [trendDocs, setTrendDocs] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [page, setPage] = useState(1);
+    const [searchDocs, setSearchDocs] = useState([]);
+    const [searchPage, setSearchPage] = useState(1);
+    const [hasMoreSearch, setHasMoreSearch] = useState(true);
+    const [loadingMoreSearch, setLoadingMoreSearch] = useState(false);
     const [q] = useSearchParams();
+    const kw = q.get("kw") || "";
+    const cateId = q.get("cateId") || "";
+    const isSearching = kw !== "" || cateId !== "";
     const nav = useNavigate();
-    const order = useOrder();
-    const loadDocuments = async () => {
-        try {
-            setLoading(true);
+    const latestScrollRef = useRef(null);
+    const trendScrollRef = useRef(null);
 
-            let url = `${endpoints['documents']}?page=${page}`;
-
-            const type = q.get("type");
-            const cateId = q.get("cateId");
-            const kw = q.get("kw");
-
-            if (type === "latest") url = `${endpoints['latest-docs']}?page=${page}`;
-            else if (type === "trend") url = `${endpoints['trend-docs']}?page=${page}`;
-            else {
-                if (cateId) url += `&cateId=${cateId}`;
-                if (kw) url += `&kw=${kw}`;
-            }
-
-            let res = await Apis.get(url);
-
-            if (res.data.length < 20)
-                setPage(0);
-
-            if (page === 1)
-                setDocuments(res.data);
-            else
-                setDocuments([...documents, ...res.data]);
-
-        } catch (ex) {
-            console.error("Lỗi load tài liệu:", ex);
-        } finally {
-            setLoading(false);
+    useEffect(() => {
+        if (isSearching) {
+            setSearchPage(1);
+            setHasMoreSearch(true);
         }
-    }
+    }, [kw, cateId, isSearching]);
 
     useEffect(() => {
-        setPage(1);
-    }, [q]);
+        const fetchHomeData = async () => {
+            try {
+                if (isSearching) {
+                    if (searchPage === 1) setLoading(true);
+                    else setLoadingMoreSearch(true);
+
+                    let url = `${endpoints['documents']}?page=${searchPage}`;
+                    if (kw) url += `&kw=${kw}`;
+                    if (cateId) url += `&cateId=${cateId}`;
+                    
+                    let res = await Apis.get(url);
+                    
+                    if (res.data.length < 20) {
+                        setHasMoreSearch(false);
+                    } else {
+                        setHasMoreSearch(true);
+                    }
+
+                    if (searchPage === 1) {
+                        setSearchDocs(res.data);
+                    } else {
+                        setSearchDocs(prev => [...prev, ...res.data]);
+                    }
+                } else {
+                    setLoading(true);
+                    const [resLatest, resTrend] = await Promise.all([
+                        Apis.get(endpoints['latest-docs']),
+                        Apis.get(endpoints['trend-docs'])
+                    ]);
+                    setLatestDocs(resLatest.data);
+                    setTrendDocs(resTrend.data);
+                }
+            } catch (ex) {
+                console.error("Lỗi load tài liệu:", ex);
+            } finally {
+                setLoading(false);
+                setLoadingMoreSearch(false);
+            }
+        };
+
+        fetchHomeData();
+    }, [searchPage, kw, cateId, isSearching]); 
 
     useEffect(() => {
-        if (page > 0) loadDocuments();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [q, page]);
+        const handleWheel = (e) => {
+            if (e.deltaY !== 0) {
+                e.preventDefault(); 
+                e.currentTarget.scrollLeft += e.deltaY;
+            }
+        };
 
-    const loadMore = () => {
-        setPage(page + 1);
-    }
+        const latestElem = latestScrollRef.current;
+        const trendElem = trendScrollRef.current;
 
+        if (latestElem) latestElem.addEventListener('wheel', handleWheel, { passive: false });
+        if (trendElem) trendElem.addEventListener('wheel', handleWheel, { passive: false });
+
+        return () => {
+            if (latestElem) latestElem.removeEventListener('wheel', handleWheel);
+            if (trendElem) trendElem.removeEventListener('wheel', handleWheel);
+        };
+    }, [latestDocs, trendDocs, isSearching]); 
+
+    const renderDocumentCard = (doc, isGrid = false) => (
+        <div 
+            key={doc.id} 
+            style={isGrid ? { height: '100%' } : HomeStyles.cardWrapper} 
+            className={isGrid ? "col-12 col-sm-6 col-md-4 col-lg-3 mb-4" : ""}
+        >
+            <Card
+                onClick={() => nav(`/documents/${doc.id}`)}
+                style={HomeStyles.card}
+                onMouseOver={e => {
+                    e.currentTarget.style.transform = 'translateY(-6px)';
+                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.08)';
+                    e.currentTarget.style.borderColor = '#e2e8f0';
+                }}
+                onMouseOut={e => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = HomeStyles.card.boxShadow;
+                    e.currentTarget.style.borderColor = HomeStyles.card.border.split(' ')[2];
+                }}
+            >
+                <div style={HomeStyles.badgeWrapper}>
+                    <Badge bg="primary" style={HomeStyles.badge}>
+                        {doc.category?.name || "Tài liệu"}
+                    </Badge>
+                </div>
+
+                <Card.Img
+                    variant="top"
+                    src={doc.image}
+                    style={HomeStyles.cardImage}
+                />
+
+                <Card.Body style={HomeStyles.cardBody}>
+                    <Card.Title title={doc.title} style={HomeStyles.cardTitle}>
+                        {doc.title}
+                    </Card.Title>
+
+                    <Card.Text style={HomeStyles.authorText}>
+                        <i className="fa-regular fa-pen-to-square me-1"></i>
+                        {doc.authorSet?.map(a => a.name).join(', ') || 'Đang cập nhật'}
+                    </Card.Text>
+
+                    <div style={HomeStyles.statsContainer}>
+                        <span style={HomeStyles.statText}>
+                            <i className="fa-regular fa-eye me-1"></i>{doc.viewCount || 0}
+                        </span>
+                        {doc.quantity > 0 ? (
+                            <span style={{...HomeStyles.statText, color: '#10b981', fontWeight: '700'}}>
+                                Còn: {doc.quantity}
+                            </span>
+                        ) : (
+                            <span style={{...HomeStyles.statText, color: '#ef4444', fontWeight: '700'}}>
+                                Hết sách
+                            </span>
+                        )}
+                    </div>
+
+                    <div className="mt-auto">
+                        <div style={{ ...HomeStyles.priceText, color: doc.price ? '#e11d48' : '#10b981' }}>
+                            {doc.price ? `${doc.price?.toLocaleString()} đ` : 'Miễn phí'}
+                        </div>
+                        <div style={HomeStyles.dateText}>
+                            <i className="fa-regular fa-clock me-1"></i>
+                            {moment(doc.createdDate).format('DD/MM/YYYY')}
+                        </div>
+                    </div>
+                </Card.Body>
+            </Card>
+        </div>
+    );
 
     return (
         <Container style={HomeStyles.container}>
-            <h3 style={HomeStyles.headerTitle}>Danh mục tài liệu</h3>
-
-            {documents.length === 0 && !loading && (
-                <Alert variant="info" className="text-center">Không tìm thấy tài liệu phù hợp!</Alert>
-            )}
-
-            <Row>
-                {documents.map(doc => (
-                    <Col xs={12} sm={6} md={4} lg={3} key={doc.id} className="p-2">
-                        <Card
-                            style={{
-                                ...HomeStyles.card,
-                                boxShadow: '0 4px 24px 0 rgba(80, 112, 255, 0.08)',
-                                border: 'none',
-                                borderRadius: 18,
-                                transition: 'transform 0.18s cubic-bezier(.4,2,.3,.7), box-shadow 0.18s',
-                                cursor: 'pointer',
-                            }}
-                            className="h-100 card-hover"
-                            onMouseOver={e => {
-                                e.currentTarget.style.transform = 'translateY(-4px) scale(1.03)';
-                                e.currentTarget.style.boxShadow = '0 8px 32px 0 rgba(80, 112, 255, 0.16)';
-                            }}
-                            onMouseOut={e => {
-                                e.currentTarget.style.transform = 'none';
-                                e.currentTarget.style.boxShadow = '0 4px 24px 0 rgba(80, 112, 255, 0.08)';
-                            }}
-                        >
-                            <div style={{
-                                ...HomeStyles.badgeWrapper,
-                                position: 'absolute',
-                                top: 16,
-                                left: 16,
-                                zIndex: 2,
-                            }}>
-                                <Badge bg="primary" style={{ fontSize: 13, padding: '6px 14px', borderRadius: 12, boxShadow: '0 2px 8px rgba(80,112,255,0.10)' }}>
-                                    {doc.category?.name || "Tài liệu"}
-                                </Badge>
-                            </div>
-
-                            <Card.Img
-                                variant="top"
-                                src={doc.image}
-                                style={{
-                                    ...HomeStyles.cardImage,
-                                    borderTopLeftRadius: 18,
-                                    borderTopRightRadius: 18,
-                                    height: 180,
-                                    objectFit: 'cover',
-                                    background: '#f3f6fa',
-                                }}
-                            />
-
-                            <Card.Body style={{ ...HomeStyles.cardBody, display: 'flex', flexDirection: 'column', minHeight: 260 }}>
-                                <Card.Title
-                                    title={doc.title}
-                                    style={{
-                                        ...HomeStyles.cardTitle,
-                                        fontWeight: 700,
-                                        fontSize: 18,
-                                        color: '#1e293b',
-                                        marginBottom: 8,
-                                        minHeight: 48,
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        whiteSpace: 'nowrap',
-                                    }}
-                                >
-                                    {doc.title}
-                                </Card.Title>
-
-                                <Card.Text style={{ ...HomeStyles.authorText, color: '#64748b', fontSize: 14, marginBottom: 8 }}>
-                                    Tác giả: {doc.authorSet?.map(a => a.name).join(', ') || 'Đang cập nhật'}
-                                </Card.Text>
-
-                                <div style={{ ...HomeStyles.statsContainer, display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                                    <span style={{ fontSize: 13, color: '#475569' }}>👁️ {doc.viewCount || 0}</span>
-                                    {doc.quantity > 0 ? (
-                                        <span className="text-success fw-bold" style={{ fontSize: 13 }}>Còn: {doc.quantity}</span>
-                                    ) : (
-                                        <span className="text-danger" style={{ fontSize: 13 }}>Hết sách</span>
-                                    )}
-                                </div>
-
-                                <div className="mt-auto" style={{ marginTop: 12 }}>
-                                    <div style={{ ...HomeStyles.priceText, fontWeight: 700, fontSize: 16, color: doc.price ? '#e11d48' : '#10b981', marginBottom: 4 }}>
-                                        {doc.price ? `${doc.price?.toLocaleString()} VNĐ` : 'Miễn phí'}
-                                    </div>
-                                    <div style={{ ...HomeStyles.dateText, fontSize: 13, color: '#64748b', marginBottom: 10 }}>
-                                        <span role="img" aria-label="calendar">📅</span> {moment(doc.createdDate).format('DD/MM/YYYY')}
-                                    </div>
-
-                                    <div style={{ ...HomeStyles.actionContainer, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                        <div style={{ ...HomeStyles.buttonRow, display: 'flex', gap: 8 }}>
-                                            <Button
-                                                variant="danger"
-                                                className="fw-bold"
-                                                style={{ width: '50%', borderRadius: 8, fontSize: 15, padding: '7px 0' }}
-                                                disabled={doc.quantity <= 0}
-                                                onClick={() => order(doc, 'BUY')}
-                                            >
-                                                Mua
-                                            </Button>
-                                            <Button
-                                                variant="success"
-                                                className="fw-bold"
-                                                style={{ width: '50%', borderRadius: 8, fontSize: 15, padding: '7px 0' }}
-                                                disabled={doc.quantity <= 0}
-                                                onClick={() => order(doc, 'BORROW')}
-                                            >
-                                                Mượn
-                                            </Button>
-                                        </div>
-                                        <Button
-                                            variant="info"
-                                            className="w-100 text-white fw-bold"
-                                            style={{ borderRadius: 8, fontSize: 15, padding: '7px 0', background: 'linear-gradient(90deg,#06b6d4 0%,#4f46e5 100%)', border: 'none' }}
-                                            onClick={() => nav(`/documents/${doc.id}`)}
-                                        >
-                                            Xem chi tiết
-                                        </Button>
-                                    </div>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-            </Row>
-            <div className="text-center my-4 d-flex justify-content-center gap-2">
-                {page > 0 && (
-                    <Button variant="success" onClick={loadMore}>
-                        Xem thêm...
-                    </Button>
-                )}
-                {documents.length > 20 && (
-                    <Button
-                        variant="outline-secondary"
-                        onClick={() => {
-                            setPage(1);
-                            window.scrollTo({ top: 0, behavior: 'smooth' });
-                        }}
-                    >
-                        Ẩn bớt
-                    </Button>
-                )}
-            </div>
-
-            {loading && page === 1 && (
-                <div style={HomeStyles.loadingContainer}>
-                    <Spinner animation="border" variant="primary" />
+            {loading && searchPage === 1 ? (
+                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+                    <Spinner animation="grow" variant="primary" />
                 </div>
+            ) : isSearching ? (
+                
+                <div className="mb-5">
+                    <h3 style={HomeStyles.headerTitle} className="mb-4 text-primary">
+                        <i className="fa-solid fa-magnifying-glass me-2"></i>
+                        Kết quả tìm kiếm ({searchDocs.length} tài liệu)
+                    </h3>
+                    
+                    {searchDocs.length === 0 ? (
+                        <Alert variant="light" className="text-center border">Không tìm thấy tài liệu phù hợp!</Alert>
+                    ) : (
+                        <>
+                            <Row>
+                                {searchDocs.map(doc => renderDocumentCard(doc, true))}
+                            </Row>
+                            
+                            {hasMoreSearch && (
+                                <LoadMoreButton 
+                                    onClick={() => setSearchPage(prev => prev + 1)} 
+                                    isLoading={loadingMoreSearch} 
+                                />
+                            )}
+                        </>
+                    )}
+                </div>
+
+            ) : (
+                <>
+                    <div className="mb-5">
+                        <h3 style={HomeStyles.headerTitle} className="mb-4">
+                            Sách mới nhất <span style={{ color: '#ef4444' }}></span>
+                        </h3>
+                        {latestDocs.length === 0 ? (
+                            <Alert variant="light" className="text-center border">Chưa có dữ liệu sách mới.</Alert>
+                        ) : (
+                            <div ref={latestScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
+                                {latestDocs.map(doc => renderDocumentCard(doc))}
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="mb-5">
+                        <h3 style={HomeStyles.headerTitle} className="mb-4">
+                            Sách ưa thích nhất <span style={{ color: '#10b981' }}></span>
+                        </h3>
+                        {trendDocs.length === 0 ? (
+                            <Alert variant="light" className="text-center border">Chưa có dữ liệu sách ưa thích.</Alert>
+                        ) : (
+                            <div ref={trendScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
+                                {trendDocs.map(doc => renderDocumentCard(doc))}
+                            </div>
+                        )}
+                    </div>
+                </>
             )}
         </Container>
     );
