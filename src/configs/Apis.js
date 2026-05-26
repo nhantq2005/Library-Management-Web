@@ -27,6 +27,8 @@ export const endpoints = {
     'authors': '/authors',
     'add-tag': '/secure/tags',
     'add-author': '/secure/authors',
+    'reviews': (docId) => `/documents/${docId}/reviews`,
+    'add-review': (docId) => `/secure/documents/${docId}/reviews`
 }
 
 export const authApi = (token) => {
