@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import 'moment/locale/vi';
 import MyDocumentsStyles from '../../style/MyDocumentsStyles';
 import DocumentTable from '../../components/DocumentTable';
+import Footer from '../../components/Footer';
+import Header from '../../components/Header';
 
 const MyDocuments = () => {
     const [activeTab, setActiveTab] = useState('borrowed');
@@ -125,6 +127,8 @@ const MyDocuments = () => {
     };
 
     return (
+         <>
+        <Header />
         <div className="container mt-5" style={MyDocumentsStyles.container}>
             <div className="card shadow-sm border-0">
                 <div className="card-header bg-white pt-4 pb-0 border-0">
@@ -187,6 +191,8 @@ const MyDocuments = () => {
                 </div>
             </div>
         </div>
+        <Footer />
+    </>
     );
 };
 

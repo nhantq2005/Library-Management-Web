@@ -63,7 +63,7 @@ const DocumentTable = ({
                                 </td>
                             )}
 
-                            <td className="text-muted fw-semibold small">
+                            <td className="text-muted fw-semibold small" style={{ minWidth: 130, maxWidth: 180 }}>
                                 <span className="text-success"><i className="fa-regular fa-clock me-1"></i>
                                     {item.rawDate ? moment(item.rawDate).fromNow() : "---"}
                                 </span>

@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useReducer } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -25,20 +25,24 @@ import BorrowStats from './screens/Librarian/BorrowStats';
 import Payment from './screens/Payment/Payment';
 import MessageClient from './screens/Message/MessageClient';
 import PaymentResult from './screens/Payment/PaymentResult';
+import Forbidden from './screens/Exception/Forbidden';
+
+import ChatButton from './components/ChatButton';
 
 const App = () => {
   const [user, dispatchUser] = useReducer(MyUserReducer, cookies.load('user') || null);
   const [cartBuy, dispatchCartBuy] = useReducer(MyCartBuyReducer, { totalQuantity: 0, totalAmount: 0 });
   const [cartBorrow, dispatchCartBorrow] = useReducer(MyCartBorrowReducer, { totalQuantity: 0 });
-  console.log("Current User in App:", user);
-  console.log("Is User exist?", !!user);
+    // const location = useLocation();
+    // const firstSegment = location.pathname.split("/")[1];
+    // const isHideMsgButton = ['librarian', 'message-client', 'login', 'register'].includes(firstSegment);
+
   return (
     <MyUserContext.Provider value={[user, dispatchUser]}>
       <MyCartBuyContext.Provider value={[cartBuy, dispatchCartBuy]}>
         <MyCartBorrowContext.Provider value={[cartBorrow, dispatchCartBorrow]}>
 
           <BrowserRouter>
-            <Header />
             <Routes>
               <Route path="/login" element={<Auth page="login" />} />
               <Route path="/register" element={<Auth page="register" />} />
@@ -46,10 +50,14 @@ const App = () => {
               <Route path="/documents/:documentId" element={<DocumentDetails />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/my-documents" element={<MyDocuments />} />
-              <Route path="/payment" element= {<Payment/>} />
+              <Route path="/payment" element={<Payment />} />
               <Route path="/payment-result" element={<PaymentResult />} />
               <Route path="/message-client" element={<MessageClient />} />
-              <Route path="/librarian" element={<Base />} > 
+              <Route path="/librarian" element={
+                user && (user.role === 'ROLE_LIBRARIAN')
+                  ? <Base />
+                  : <Forbidden />
+              }>
                 <Route index element={<LibrarianDashboard />} />
                 <Route path="manage-document" element={<ManageDocument />} />
                 <Route path="stats" element={<BorrowStats />} />
@@ -61,7 +69,7 @@ const App = () => {
               </Route>
               <Route path="*" element={<PageNotFound />} />
             </Routes>
-            <Footer />
+            {/* {!isHideMsgButton && <ChatButton />} */}
           </BrowserRouter>
 
         </MyCartBorrowContext.Provider>

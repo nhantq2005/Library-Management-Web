@@ -9,6 +9,8 @@ import useOrder from "../../components/useOrder";
 import DocumentDetailStyles from "../../style/DocumentDetailStyles";
 import ReviewItem from "../../components/Items/ReviewItem";
 import PdfViewer from "../View/PDFView";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
 const DocumentDetails = () => {
     const { documentId } = useParams();
@@ -210,6 +212,8 @@ const DocumentDetails = () => {
 
     // ...existing code...
     return (
+        <>
+        <Header />
         <div style={{ backgroundColor: '#F9FAFB', minHeight: '100vh', padding: '32px 40px', fontFamily: 'Inter, sans-serif' }}>
             <Container style={{ maxWidth: '1050px', padding: 0 }}>
                 {/* ...existing code... giữ nguyên phần chi tiết và review như cũ ... */}
@@ -372,6 +376,8 @@ const DocumentDetails = () => {
                 </div>
             </Container>
         </div>
+        <Footer />
+        </>
     );
 }
 

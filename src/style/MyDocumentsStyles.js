@@ -12,7 +12,8 @@ const MyDocumentsStyles = {
         borderTop: '1px solid #dee2e6'
     },
     tableRow: {
-        cursor: 'pointer'
+        cursor: 'pointer',
+        height: '90px',
     },
     bookCover: {
         width: '50px',
