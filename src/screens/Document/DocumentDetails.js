@@ -7,6 +7,8 @@ import moment from "moment";
 import { MyUserContext } from "../../configs/Context";
 import useOrder from "../../components/useOrder";
 import DocumentDetailStyles from "../../style/DocumentDetailStyles";
+import ReviewItem from "../../components/Items/ReviewItem";
+import CompareModal from "../../components/CompareModal";
 
 const DocumentDetails = () => {
     const { documentId } = useParams();
@@ -26,12 +28,13 @@ const DocumentDetails = () => {
     const [loadingMoreReviews, setLoadingMoreReviews] = useState(false);
     const [hasMoreReviews, setHasMoreReviews] = useState(true);
 
+    const [showCompare, setShowCompare] = useState(false);
+
     const loadDocumentDetail = async () => {
         try {
             setLoading(true);
             let res = await Apis.get(endpoints['document-details'](documentId));
             setDoc(res.data);
-            
         } catch (error) {
             console.error("Lỗi tải chi tiết sách", error);
         } finally {
@@ -64,8 +67,7 @@ const DocumentDetails = () => {
     }
 
     const addReview = async (e) => {
-        e.preventDefault(); 
-        
+        e.preventDefault();
         if (!user) {
             alert("Bạn cần đăng nhập để thực hiện đánh giá!");
             return;
@@ -73,22 +75,19 @@ const DocumentDetails = () => {
         if (!commentInput.trim()) return;
 
         setSubmittingReview(true);
-        
         try {
             const token = cookies.load('token');
-            console.log("Gửi đánh giá mới:", { rating: ratingInput, comment: commentInput, token });
-            await authApi(token).post(endpoints['add-review'](documentId), { 
-                rating: ratingInput, 
-                comment: commentInput 
+            await authApi(token).post(endpoints['add-review'](documentId), {
+                rating: ratingInput,
+                comment: commentInput
             });
             setCommentInput("");
             setRatingInput(5);
             alert("Gửi nhận xét thành công!");
             loadReviews();
-            
         } catch (error) {
             console.error("Lỗi gửi đánh giá:", error);
-            alert("Không thể gửi đánh giá lúc này (Lỗi 403 hoặc server từ chối)!");
+            alert("Không thể gửi đánh giá lúc này!");
         } finally {
             setSubmittingReview(false);
         }
@@ -102,7 +101,10 @@ const DocumentDetails = () => {
         try {
             setCheckingAccess(true);
             let resBorrow = await authApi(token).get(endpoints['my-borrows'], { params: { userId: user.id } });
-            let isBorrowed = resBorrow.data.some(item => item.documentId === parseInt(documentId));
+            let isBorrowed = resBorrow.data.some(item =>
+                item.documentId === parseInt(documentId) &&
+                item.status === 'BORROWED'
+            );
 
             let resBuy = await authApi(token).get(endpoints['my-buys'], { params: { userId: user.id } });
             let isBought = resBuy.data.some(item => item.documentId === parseInt(documentId));
@@ -130,7 +132,6 @@ const DocumentDetails = () => {
                 : `viewed_doc_${documentId}_guest`;
 
             let viewed = cookies.load(cookieName);
-
             if (!viewed) {
                 await increaseViewCount();
                 const expires = new Date();
@@ -145,6 +146,7 @@ const DocumentDetails = () => {
         }
 
         initLoad();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [documentId, user]);
 
     const handleViewPdf = () => {
@@ -165,61 +167,57 @@ const DocumentDetails = () => {
             alert("Bạn cần phải MƯỢN hoặc MUA tài liệu này trước thì mới có thể xem nội dung (File PDF)!");
         }
     };
-    const cardStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '32px' };
-    const labelStyle = { fontSize: '0.75rem', fontWeight: '600', color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' };
-    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none' };
-    const badgeStyle = (bgColor, textColor) => ({ backgroundColor: bgColor, color: textColor, padding: '4px 10px', borderRadius: '2px', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.02em' });
 
     if (loading) return <div className="text-center py-5 mt-5"><Spinner animation="border" style={{ color: '#1D559F' }} /></div>;
     if (doc === null) return <h3 className="text-center mt-5" style={{ color: '#DC2626', fontWeight: '600' }}>Không tìm thấy thông tin tài liệu!</h3>;
 
     return (
-        <div style={{ backgroundColor: '#F9FAFB', minHeight: '100vh', padding: '32px 40px', fontFamily: 'Inter, sans-serif' }}>
-            <Container style={{ maxWidth: '1050px', padding: 0 }}>
-                
-                <Button variant="none" className="mb-3 d-flex align-items-center gap-2 px-0" onClick={() => nav(-1)} style={{ color: '#4B5563', fontSize: '0.875rem', fontWeight: '500' }}>
+        <div style={DocumentDetailStyles.pageWrapper}>
+            <Container style={DocumentDetailStyles.container}>
+
+                <Button variant="none" className="mb-3 d-flex align-items-center gap-2 px-0" onClick={() => nav(-1)} style={DocumentDetailStyles.backButton}>
                     &larr; Quay lại danh sách
                 </Button>
 
-                <div style={cardStyle} className="mb-4">
+                <div style={DocumentDetailStyles.card} className="mb-4">
                     <Row className="g-5">
                         <Col md={4} className="text-center">
                             <Image
-                                src={doc.image || 'https://via.placeholder.com/400x600?text=No+Cover'}
+                                src={doc.image}
                                 fluid
-                                style={{ borderRadius: '4px', border: '1px solid #E5E7EB', width: '100%', maxHeight: '420px', objectFit: 'cover' }}
+                                style={DocumentDetailStyles.bookImage}
                             />
                         </Col>
-                        
+
                         <Col md={8} className="d-flex flex-column justify-content-between">
                             <div>
-                                <h2 className="fw-bold mb-3" style={{ color: '#111827', fontSize: '1.75rem', letterSpacing: '-0.02em' }}>{doc.title}</h2>
+                                <h2 className="fw-bold mb-3" style={DocumentDetailStyles.docTitle}>{doc.title}</h2>
 
                                 <div className="mb-4 d-flex flex-wrap gap-2">
-                                    <span style={badgeStyle('#EFF6FF', '#1D559F')}>Danh mục: {doc.category?.name || 'Chưa cập nhật'}</span>
-                                    <span style={badgeStyle('#F3F4F6', '#4B5563')}>Lượt xem: {doc.viewCount || 0}</span>
+                                    <span style={DocumentDetailStyles.badge('#EFF6FF', '#1D559F')}>Danh mục: {doc.category?.name || 'Chưa cập nhật'}</span>
+                                    <span style={DocumentDetailStyles.badge('#F3F4F6', '#4B5563')}>Lượt xem: {doc.viewCount || 0}</span>
                                     {doc.quantity > 0 ? (
-                                        <span style={badgeStyle('#DCFCE7', '#166534')}>Còn lại: {doc.quantity} cuốn</span>
+                                        <span style={DocumentDetailStyles.badge('#DCFCE7', '#166534')}>Còn lại: {doc.quantity} cuốn</span>
                                     ) : (
-                                        <span style={badgeStyle('#FEE2E2', '#991B1B')}>Hết sách bản cứng</span>
+                                        <span style={DocumentDetailStyles.badge('#FEE2E2', '#991B1B')}>Hết sách bản cứng</span>
                                     )}
                                 </div>
 
-                                <h3 className="fw-bold mb-4" style={{ color: '#DC2626', fontSize: '1.5rem' }}>
+                                <h3 className="fw-bold mb-4" style={DocumentDetailStyles.priceText}>
                                     {doc.price ? `${doc.price.toLocaleString('vi-VN')} VNĐ` : 'Miễn phí'}
                                 </h3>
 
                                 <div className="mb-4 d-flex flex-column gap-2" style={{ fontSize: '0.875rem' }}>
-                                    <Row><Col sm={3} style={{ fontWeight: '600', color: '#6B7280' }}>TÁC GIẢ:</Col><Col sm={9} style={{ color: '#111827' }}>{doc.authors && doc.authors.length > 0 ? doc.authors.map(a => a.name).join(', ') : 'Đang cập nhật'}</Col></Row>
-                                    <Row><Col sm={3} style={{ fontWeight: '600', color: '#6B7280' }}>NĂM XUẤT BẢN:</Col><Col sm={9} style={{ color: '#111827' }}>{doc.publishYear || 'Đang cập nhật'}</Col></Row>
-                                    <Row><Col sm={3} style={{ fontWeight: '600', color: '#6B7280' }}>NGÀY ĐĂNG TẢI:</Col><Col sm={9} style={{ color: '#111827' }}>{doc.createdDate ? moment(doc.createdDate).format('DD/MM/YYYY HH:mm') : 'Đang cập nhật'}</Col></Row>
+                                    <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>TÁC GIẢ:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.authors && doc.authors.length > 0 ? doc.authors.map(a => a.name).join(', ') : 'Đang cập nhật'}</Col></Row>
+                                    <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>NĂM XUẤT BẢN:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.publishYear || 'Đang cập nhật'}</Col></Row>
+                                    <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>NGÀY ĐĂNG TẢI:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.createdDate ? moment(doc.createdDate).format('DD/MM/YYYY HH:mm') : 'Đang cập nhật'}</Col></Row>
                                 </div>
 
-                                <hr style={{ borderColor: '#E5E7EB', opacity: 1 }} />
+                                <hr style={DocumentDetailStyles.hr} />
 
                                 <div className="mb-4">
-                                    <h6 className="fw-bold text-uppercase mb-2" style={{ fontSize: '0.75rem', color: '#6B7280', letterSpacing: '0.05em' }}>Mô tả tài liệu</h6>
-                                    <p style={{ fontSize: '0.875rem', color: '#4B5563', lineHeight: '1.6', textAlign: 'justify', margin: 0 }}>
+                                    <h6 className="fw-bold text-uppercase mb-2" style={DocumentDetailStyles.descHeader}>Mô tả tài liệu</h6>
+                                    <p style={DocumentDetailStyles.descText}>
                                         {doc.description || 'Chưa có mô tả cho tài liệu này.'}
                                     </p>
                                 </div>
@@ -228,14 +226,14 @@ const DocumentDetails = () => {
                             <div>
                                 <div className="d-flex flex-wrap gap-3 align-items-center">
                                     {checkingAccess ? (
-                                        <Button variant="none" disabled style={{ backgroundColor: '#F3F4F6', color: '#6B7280', borderRadius: '4px', fontSize: '0.875rem', padding: '10px 24px' }}>
+                                        <Button variant="none" disabled style={DocumentDetailStyles.btnChecking}>
                                             <Spinner as="span" animation="border" size="sm" className="me-2" /> Kiểm tra quyền...
                                         </Button>
                                     ) : (
                                         <Button
                                             variant="none"
                                             onClick={handleViewPdf}
-                                            style={{ backgroundColor: hasAccess ? '#059669' : '#6B7280', color: '#FFFFFF', borderRadius: '4px', padding: '10px 24px', fontSize: '0.875rem', fontWeight: '500', border: 'none' }}
+                                            style={hasAccess ? DocumentDetailStyles.btnViewAllowed : DocumentDetailStyles.btnViewLocked}
                                         >
                                             {hasAccess ? "📄 Xem file PDF" : "🔒 Xem file PDF (Đã khóa)"}
                                         </Button>
@@ -243,18 +241,26 @@ const DocumentDetails = () => {
 
                                     {!hasAccess && !checkingAccess && (
                                         <>
-                                            <Button variant="none" disabled={doc.quantity <= 0} onClick={() => order(doc, 'BUY')} style={{ backgroundColor: '#DC2626', color: '#FFFFFF', borderRadius: '4px', padding: '10px 24px', fontSize: '0.875rem', fontWeight: '500', border: 'none' }}>
+                                            <Button variant="none" disabled={doc.quantity <= 0} onClick={() => order(doc, 'BUY')} style={DocumentDetailStyles.btnBuy}>
                                                 🛒 Mua tài liệu
                                             </Button>
-                                            <Button variant="none" disabled={doc.quantity <= 0} onClick={() => order(doc, 'BORROW')} style={{ backgroundColor: '#1D559F', color: '#FFFFFF', borderRadius: '4px', padding: '10px 24px', fontSize: '0.875rem', fontWeight: '500', border: 'none' }}>
+                                            <Button variant="none" disabled={doc.quantity <= 0} onClick={() => order(doc, 'BORROW')} style={DocumentDetailStyles.btnBorrow}>
                                                 📖 Mượn đọc
                                             </Button>
                                         </>
                                     )}
+
+                                    <Button
+                                        variant="outline-secondary"
+                                        onClick={() => setShowCompare(true)}
+                                        style={{ borderRadius: '4px', padding: '10px 24px', fontSize: '0.875rem', fontWeight: '500' }}
+                                    >
+                                        <i className="fa-solid fa-code-compare me-2"></i> So sánh tài liệu
+                                    </Button>
                                 </div>
 
                                 {!hasAccess && !checkingAccess && (
-                                    <div className="mt-3 text-muted" style={{ fontSize: '0.75rem', fontStyle: 'italic' }}>
+                                    <div className="mt-3 text-muted" style={DocumentDetailStyles.noteText}>
                                         * Bạn cần thêm sách vào giỏ (Mượn/Mua) và hoàn tất thanh toán để mở khóa tính năng đọc trực tuyến (File PDF).
                                     </div>
                                 )}
@@ -263,20 +269,20 @@ const DocumentDetails = () => {
                     </Row>
                 </div>
 
-                <div style={cardStyle}>
-                    <h5 className="mb-4" style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem' }}>Đánh giá từ độc giả ({reviews.length})</h5>
-                    <div className="p-4 mb-5" style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px' }}>
+                <div style={DocumentDetailStyles.card}>
+                    <h5 className="mb-4" style={DocumentDetailStyles.reviewTitle}>Đánh giá từ độc giả ({reviews.length})</h5>
+                    <div className="p-4 mb-5" style={DocumentDetailStyles.reviewBox}>
                         <h6 className="mb-3 fw-bold" style={{ fontSize: '0.875rem', color: '#111827' }}>Gửi nhận xét của bạn</h6>
                         <Form onSubmit={addReview}>
                             <Row className="align-items-center mb-3">
                                 <Col xs="auto">
-                                    <span style={labelStyle}>Chọn số sao:</span>
+                                    <span style={DocumentDetailStyles.labelStyle}>Chọn số sao:</span>
                                 </Col>
                                 <Col xs="auto">
-                                    <Form.Select 
-                                        value={ratingInput} 
+                                    <Form.Select
+                                        value={ratingInput}
                                         onChange={(e) => setRatingInput(parseInt(e.target.value))}
-                                        style={{ ...inputStyle, width: '150px', padding: '6px 12px' }}
+                                        style={{ ...DocumentDetailStyles.inputStyle, width: '150px', padding: '6px 12px' }}
                                     >
                                         <option value="5">⭐⭐⭐⭐⭐</option>
                                         <option value="4">⭐⭐⭐⭐</option>
@@ -287,23 +293,23 @@ const DocumentDetails = () => {
                                 </Col>
                             </Row>
                             <Form.Group className="mb-3">
-                                <Form.Label style={labelStyle}>Nội dung bình luận</Form.Label>
-                                <Form.Control 
-                                    as="textarea" 
-                                    rows={3} 
+                                <Form.Label style={DocumentDetailStyles.labelStyle}>Nội dung bình luận</Form.Label>
+                                <Form.Control
+                                    as="textarea"
+                                    rows={3}
                                     placeholder={user ? "Hãy chia sẻ cảm nghĩ của bạn về tài liệu này..." : "Bạn cần đăng nhập để viết bình luận..."}
                                     value={commentInput}
                                     onChange={(e) => setCommentInput(e.target.value)}
                                     disabled={!user}
-                                    style={inputStyle}
+                                    style={DocumentDetailStyles.inputStyle}
                                     required
                                 />
                             </Form.Group>
                             <div className="d-flex justify-content-end">
-                                <Button 
-                                    type="submit" 
+                                <Button
+                                    type="submit"
                                     disabled={submittingReview || !user || !commentInput.trim()}
-                                    style={{ backgroundColor: '#1D559F', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '8px 20px', fontSize: '0.875rem', fontWeight: '500' }}
+                                    style={DocumentDetailStyles.submitReviewBtn}
                                 >
                                     {submittingReview ? <Spinner size="sm" className="me-2" /> : null}
                                     Gửi nhận xét
@@ -311,16 +317,18 @@ const DocumentDetails = () => {
                             </div>
                         </Form>
                     </div>
+
                     <div className="d-flex flex-column gap-4">
                         {reviews.map((rev) => (
                             <ReviewItem key={rev.id} review={rev} />
                         ))}
                         {reviews.length === 0 && (
-                            <div className="text-center py-4 text-muted" style={{ fontSize: '0.875rem' }}>
+                            <div className="text-center py-4 text-muted" style={DocumentDetailStyles.emptyReviewText}>
                                 Chưa có lượt đánh giá nào cho tài liệu này.
                             </div>
                         )}
                     </div>
+
                     {reviews.length > 0 && hasMoreReviews && (
                         <div className="text-center mt-4">
                             <Button
@@ -338,6 +346,12 @@ const DocumentDetails = () => {
                         </div>
                     )}
                 </div>
+                <CompareModal 
+                    show={showCompare} 
+                    onHide={() => setShowCompare(false)} 
+                    currentDoc={doc}
+                    currentReviews={reviews}
+                />
 
             </Container>
         </div>
