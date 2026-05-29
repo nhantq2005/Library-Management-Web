@@ -70,6 +70,7 @@ const App = () => {
               <Route path="*" element={<PageNotFound />} />
             </Routes>
             {/* {!isHideMsgButton && <ChatButton />} */}
+            <ChatButton />
           </BrowserRouter>
 
         </MyCartBorrowContext.Provider>

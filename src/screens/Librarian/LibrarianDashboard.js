@@ -4,7 +4,9 @@ import {
   Legend, ArcElement, PointElement, LineElement,
 } from 'chart.js';
 import { Pie, Bar, Line } from 'react-chartjs-2';
-import './LibrarianDashboard.css';
+import { dashboardMainContent, dashboardTitle, chartsGrid, chartCard, chartCardTitle, tableSection,
+  statCard, statCardTitle, tableResponsive, overdueTable, overdueTableCell, overdueTableHeader,
+  overdueTableRowHover, textDanger, badgeUser, loadingSpinner} from '../../style/LibrarianDashboardStyle';
 import { authApi, endpoints } from '../../configs/Apis';
 import cookies from 'react-cookies'
 
@@ -84,7 +86,7 @@ const LibrarianDashboard = () => {
   }, []);
   
   if (loading) {
-    return <div className="loading-spinner">Đang tải dữ liệu Dashboard...</div>;
+    return <div style={loadingSpinner}>Đang tải dữ liệu Dashboard...</div>;
   }
 
 
@@ -141,26 +143,26 @@ const LibrarianDashboard = () => {
   };
 
   return (
-    <div className="dashboard-main-content">
-      <h1 className="dashboard-title">Tổng quan Thống kê Thư viện</h1>
+    <div style={dashboardMainContent}>
+      <h1 style={dashboardTitle}>Tổng quan Thống kê Thư viện</h1>
 
-      <div className="charts-grid">
-        <div className="chart-card">
-          <h3>Tài liệu theo Danh mục</h3>
+      <div style={chartsGrid}>
+        <div style={chartCard}>
+          <h3 style={chartCardTitle}>Tài liệu theo Danh mục</h3>
           <div style={{ height: '300px', width: '100%' }}>
             <Pie data={categoriesChartData} options={commonOptions} />
           </div>
         </div>
 
-        <div className="chart-card">
-          <h3>Người dùng theo Chuyên ngành</h3>
+        <div style={chartCard}>
+          <h3 style={chartCardTitle}>Người dùng theo Chuyên ngành</h3>
           <div style={{ height: '300px', width: '100%' }}>
             <Bar data={majorsChartData} options={commonOptions} />
           </div>
         </div>
 
-        <div className="chart-card">
-          <h3>Số lượng tài liệu theo Tác giả</h3>
+        <div style={chartCard}>
+          <h3 style={chartCardTitle}>Số lượng tài liệu theo Tác giả</h3>
           <div style={{ height: '300px', width: '100%' }}>
             <Bar
               data={authorsChartData}
@@ -172,8 +174,8 @@ const LibrarianDashboard = () => {
           </div>
         </div>
 
-        <div className="chart-card">
-          <h3>Lượt đánh giá theo Tài liệu</h3>
+        <div style={chartCard}>
+          <h3 style={chartCardTitle}>Lượt đánh giá theo Tài liệu</h3>
           <div style={{ height: '300px', width: '100%' }}>
             <Line
               data={reviewsChartData}
@@ -190,36 +192,36 @@ const LibrarianDashboard = () => {
         </div>
       </div>
 
-      <div className="table-section">
-        <div className="stat-card">
-          <h3>Cảnh báo: Tài liệu quá hạn</h3>
+      <div style={tableSection}>
+        <div style={statCard}>
+          <h3 style={statCardTitle}>Cảnh báo: Tài liệu quá hạn</h3>
           {Array.isArray(overdueDocs) && overdueDocs.length > 0 ? (
-            <div className="table-responsive">
-              <table className="overdue-table">
+            <div style={tableResponsive}>
+              <table style={overdueTable}>
                 <thead>
                   <tr>
-                    <th>ID</th>
-                    <th>Tên Tài Liệu</th>
-                    <th>Người Mượn</th>
-                    <th>Ngày Mượn</th>
-                    <th>Hạn Trả</th>
+                    <th style={overdueTableHeader}>ID</th>
+                    <th style={overdueTableHeader}>Tên Tài Liệu</th>
+                    <th style={overdueTableHeader}>Người Mượn</th>
+                    <th style={overdueTableHeader}>Ngày Mượn</th>
+                    <th style={overdueTableHeader}>Hạn Trả</th>
                   </tr>
                 </thead>
                 <tbody>
                   {overdueDocs.map((doc, index) => (
                     <tr key={index}>
-                      <td>{doc[0]}</td>
-                      <td>{doc[1]}</td>
-                      <td><span className="badge-user">{doc[2]}</span></td>
-                      <td>{formatDate(doc[3])}</td>
-                      <td className="text-danger">{formatDate(doc[4])}</td>
+                      <td style={overdueTableCell}>{doc[0]}</td>
+                      <td style={overdueTableCell}>{doc[1]}</td>
+                      <td style={overdueTableCell}><span style={badgeUser}>{doc[2]}</span></td>
+                      <td style={overdueTableCell}>{formatDate(doc[3])}</td>
+                      <td style={{ ...overdueTableCell, ...textDanger }}>{formatDate(doc[4])}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           ) : (
-            <p className="no-data">Không có dữ liệu</p>
+            <p>Không có dữ liệu</p>
           )}
         </div>
       </div>
