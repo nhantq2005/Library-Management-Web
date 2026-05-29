@@ -86,8 +86,8 @@ const PaymentStats = () => {
             // Truyền biến token vào authApi
             const res = await authApi(token).get(url);
             setStatsData(res.data || []);
-        } catch (err) {
-            console.error("Lỗi tải thống kê doanh thu:", err);
+        } catch (error) {
+            console.error("Lỗi tải thống kê doanh thu:", error);
             setError("Không thể tải thống kê doanh thu.");
             setStatsData([]);
         } finally {
@@ -112,8 +112,8 @@ const PaymentStats = () => {
             const responseData = Array.isArray(res.data) ? res.data : [];
             setHasMore(!(responseData.length === 0 || responseData.length < 20));
             setTransactions(page === 1 ? responseData : prev => [...prev, ...responseData]);
-        } catch (err) {
-            console.error("Lỗi tải lịch sử mua tài liệu:", err);
+        } catch (error) {
+            console.error("Lỗi tải lịch sử mua tài liệu:", error);
             setError("Không thể tải lịch sử mua tài liệu.");
             if (page === 1) setTransactions([]);
         } finally {
