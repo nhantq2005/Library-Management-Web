@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/nhantq2005/Library-Management-Web/static/css/main.9848db25.css",
-    "main.js": "/nhantq2005/Library-Management-Web/static/js/main.1feb5e66.js",
-    "static/js/453.c7882a92.chunk.js": "/nhantq2005/Library-Management-Web/static/js/453.c7882a92.chunk.js",
-    "static/media/google.png": "/nhantq2005/Library-Management-Web/static/media/google.cadee8cdb0c0afb1a713.png",
-    "index.html": "/nhantq2005/Library-Management-Web/index.html",
-    "main.9848db25.css.map": "/nhantq2005/Library-Management-Web/static/css/main.9848db25.css.map",
-    "main.1feb5e66.js.map": "/nhantq2005/Library-Management-Web/static/js/main.1feb5e66.js.map",
-    "453.c7882a92.chunk.js.map": "/nhantq2005/Library-Management-Web/static/js/453.c7882a92.chunk.js.map"
+    "main.css": "/Library-Management-Web/static/css/main.9848db25.css",
+    "main.js": "/Library-Management-Web/static/js/main.5a28a545.js",
+    "static/js/453.c7882a92.chunk.js": "/Library-Management-Web/static/js/453.c7882a92.chunk.js",
+    "static/media/google.png": "/Library-Management-Web/static/media/google.cadee8cdb0c0afb1a713.png",
+    "index.html": "/Library-Management-Web/index.html",
+    "main.9848db25.css.map": "/Library-Management-Web/static/css/main.9848db25.css.map",
+    "main.5a28a545.js.map": "/Library-Management-Web/static/js/main.5a28a545.js.map",
+    "453.c7882a92.chunk.js.map": "/Library-Management-Web/static/js/453.c7882a92.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.9848db25.css",
-    "static/js/main.1feb5e66.js"
+    "static/js/main.5a28a545.js"
   ]
 }
