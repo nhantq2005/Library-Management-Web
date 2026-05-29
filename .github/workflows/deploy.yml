@@ -19,7 +19,7 @@ jobs:
           node-version: '18' # Bạn có thể đổi sang version Node.js bạn đang dùng
 
       - name: 📦 Cài đặt thư viện (NPM Install)
-        run: npm install
+        run: CI=false npm run build
 
       - name: 🛠️ Build dự án React
         run: npm run build
