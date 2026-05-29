@@ -27,9 +27,10 @@ const MyDocumentsStyles = {
     colTime: { width: '15%' },
     colQuantity: { width: '15%' },
     
-    colTitleBorrow: { width: '35%' },
-    colAuthorBorrow: { width: '20%' },
-    
+    colTitleBorrow: { width: '25%' },
+    colAuthorBorrow: { width: '15%' },
+    colReturnDate: { width: '15%' },
+    colStatus: { width: '10%' },
     colTitleBuy: { width: '30%' },
     colAuthorBuy: { width: '15%' },
     colQuantityBuy: { width: '10%' },

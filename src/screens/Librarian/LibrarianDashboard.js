@@ -4,9 +4,7 @@ import {
   Legend, ArcElement, PointElement, LineElement,
 } from 'chart.js';
 import { Pie, Bar, Line } from 'react-chartjs-2';
-import { dashboardMainContent, dashboardTitle, chartsGrid, chartCard, chartCardTitle, tableSection,
-  statCard, statCardTitle, tableResponsive, overdueTable, overdueTableCell, overdueTableHeader,
-  overdueTableRowHover, textDanger, badgeUser, loadingSpinner} from '../../style/LibrarianDashboardStyle';
+import { librarianDashboardStyle} from '../../style/LibrarianDashboardStyle';
 import { authApi, endpoints } from '../../configs/Apis';
 import cookies from 'react-cookies'
 
@@ -86,7 +84,7 @@ const LibrarianDashboard = () => {
   }, []);
   
   if (loading) {
-    return <div style={loadingSpinner}>Đang tải dữ liệu Dashboard...</div>;
+    return <div style={librarianDashboardStyle.loadingSpinner}>Đang tải dữ liệu Dashboard...</div>;
   }
 
 
@@ -143,26 +141,26 @@ const LibrarianDashboard = () => {
   };
 
   return (
-    <div style={dashboardMainContent}>
-      <h1 style={dashboardTitle}>Tổng quan Thống kê Thư viện</h1>
+    <div style={librarianDashboardStyle.dashboardMainContent}>
+      <h1 style={librarianDashboardStyle.dashboardTitle}>Tổng quan Thống kê Thư viện</h1>
 
-      <div style={chartsGrid}>
-        <div style={chartCard}>
-          <h3 style={chartCardTitle}>Tài liệu theo Danh mục</h3>
+      <div style={librarianDashboardStyle.chartsGrid}>
+        <div style={librarianDashboardStyle.chartCard}>
+          <h3 style={librarianDashboardStyle.chartCardTitle}>Tài liệu theo Danh mục</h3>
           <div style={{ height: '300px', width: '100%' }}>
             <Pie data={categoriesChartData} options={commonOptions} />
           </div>
         </div>
 
-        <div style={chartCard}>
-          <h3 style={chartCardTitle}>Người dùng theo Chuyên ngành</h3>
+        <div style={librarianDashboardStyle.chartCard}>
+          <h3 style={librarianDashboardStyle.chartCardTitle}>Người dùng theo Chuyên ngành</h3>
           <div style={{ height: '300px', width: '100%' }}>
             <Bar data={majorsChartData} options={commonOptions} />
           </div>
         </div>
 
-        <div style={chartCard}>
-          <h3 style={chartCardTitle}>Số lượng tài liệu theo Tác giả</h3>
+        <div style={librarianDashboardStyle.chartCard}>
+          <h3 style={librarianDashboardStyle.chartCardTitle}>Số lượng tài liệu theo Tác giả</h3>
           <div style={{ height: '300px', width: '100%' }}>
             <Bar
               data={authorsChartData}
@@ -174,8 +172,8 @@ const LibrarianDashboard = () => {
           </div>
         </div>
 
-        <div style={chartCard}>
-          <h3 style={chartCardTitle}>Lượt đánh giá theo Tài liệu</h3>
+        <div style={librarianDashboardStyle.chartCard}>
+          <h3 style={librarianDashboardStyle.chartCardTitle}>Lượt đánh giá theo Tài liệu</h3>
           <div style={{ height: '300px', width: '100%' }}>
             <Line
               data={reviewsChartData}
@@ -192,29 +190,29 @@ const LibrarianDashboard = () => {
         </div>
       </div>
 
-      <div style={tableSection}>
-        <div style={statCard}>
-          <h3 style={statCardTitle}>Cảnh báo: Tài liệu quá hạn</h3>
+      <div style={librarianDashboardStyle.tableSection}>
+        <div style={librarianDashboardStyle.statCard}>
+          <h3 style={librarianDashboardStyle.statCardTitle}>Cảnh báo: Tài liệu quá hạn</h3>
           {Array.isArray(overdueDocs) && overdueDocs.length > 0 ? (
-            <div style={tableResponsive}>
-              <table style={overdueTable}>
+            <div style={librarianDashboardStyle.tableResponsive}>
+              <table style={librarianDashboardStyle.overdueTable}>
                 <thead>
                   <tr>
-                    <th style={overdueTableHeader}>ID</th>
-                    <th style={overdueTableHeader}>Tên Tài Liệu</th>
-                    <th style={overdueTableHeader}>Người Mượn</th>
-                    <th style={overdueTableHeader}>Ngày Mượn</th>
-                    <th style={overdueTableHeader}>Hạn Trả</th>
+                    <th style={librarianDashboardStyle.overdueTableHeader}>ID</th>
+                    <th style={librarianDashboardStyle.overdueTableHeader}>Tên Tài Liệu</th>
+                    <th style={librarianDashboardStyle.overdueTableHeader}>Người Mượn</th>
+                    <th style={librarianDashboardStyle.overdueTableHeader}>Ngày Mượn</th>
+                    <th style={librarianDashboardStyle.overdueTableHeader}>Hạn Trả</th>
                   </tr>
                 </thead>
                 <tbody>
                   {overdueDocs.map((doc, index) => (
                     <tr key={index}>
-                      <td style={overdueTableCell}>{doc[0]}</td>
-                      <td style={overdueTableCell}>{doc[1]}</td>
-                      <td style={overdueTableCell}><span style={badgeUser}>{doc[2]}</span></td>
-                      <td style={overdueTableCell}>{formatDate(doc[3])}</td>
-                      <td style={{ ...overdueTableCell, ...textDanger }}>{formatDate(doc[4])}</td>
+                      <td style={librarianDashboardStyle.overdueTableCell}>{doc[0]}</td>
+                      <td style={librarianDashboardStyle.overdueTableCell}>{doc[1]}</td>
+                      <td style={librarianDashboardStyle.overdueTableCell}><span style={librarianDashboardStyle.badgeUser}>{doc[2]}</span></td>
+                      <td style={librarianDashboardStyle.overdueTableCell}>{formatDate(doc[3])}</td>
+                      <td style={{ ...librarianDashboardStyle.overdueTableCell, ...librarianDashboardStyle.textDanger }}>{formatDate(doc[4])}</td>
                     </tr>
                   ))}
                 </tbody>

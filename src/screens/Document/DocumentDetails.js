@@ -12,6 +12,7 @@ import PdfViewer from "../View/PDFView";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import CompareModal from "../../components/CompareModal";
+import { IoIosGitCompare } from "react-icons/io";
 
 const DocumentDetails = () => {
     const { documentId } = useParams();
@@ -188,13 +189,6 @@ const DocumentDetails = () => {
     };
 
     const fileId = doc ? extractCloudinaryFileId(doc.fileUrl) : null;
-
-    const cardStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '32px' };
-    const labelStyle = { fontSize: '0.75rem', fontWeight: '600', color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' };
-    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none' };
-    const badgeStyle = (bgColor, textColor) => ({ backgroundColor: bgColor, color: textColor, padding: '4px 10px', borderRadius: '2px', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.02em' });
-
-
     if (loading) return <div className="text-center py-5 mt-5"><Spinner animation="border" style={{ color: '#1D559F' }} /></div>;
     if (doc === null) return <h3 className="text-center mt-5" style={{ color: '#DC2626', fontWeight: '600' }}>Không tìm thấy thông tin tài liệu!</h3>;
 
@@ -292,7 +286,7 @@ const DocumentDetails = () => {
                                         onClick={() => setShowCompare(true)}
                                         style={{ borderRadius: '4px', padding: '10px 24px', fontSize: '0.875rem', fontWeight: '500' }}
                                     >
-                                        <i className="fa-solid fa-code-compare me-2"></i> So sánh tài liệu
+                                        <IoIosGitCompare /> So sánh tài liệu
                                     </Button>
                                 </div>
                                 {!hasAccess && !checkingAccess && (
@@ -352,11 +346,6 @@ const DocumentDetails = () => {
                             </div>
                         </Form>
                     </div>
-                    <Link to={'/message-client'} style={{ fontSize: '0.875rem', color: '#1D559F', textDecoration: 'none' }}>
-                        <Button variant="outline-primary" style={{ fontSize: '0.875rem', padding: '6px 18px' }}>
-                            💬 Gửi phản hồi về tài liệu này
-                        </Button>
-                    </Link>
 
                     <div className="d-flex flex-column gap-4">
                         {reviews.map((rev) => (

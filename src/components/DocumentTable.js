@@ -26,11 +26,15 @@ const DocumentTable = ({
                         <th scope="col" style={MyDocumentsStyles.colTitleBorrow}>Tên tài liệu</th>
                         <th scope="col" style={MyDocumentsStyles.colAuthorBorrow}>Tác giả</th>
                         <th scope="col" style={MyDocumentsStyles.colQuantity}>Số lượng</th>
-                        
+                        {type === 'borrowed' && (
+                            <>
+                                <th scope="col" style={MyDocumentsStyles.colReturnDate}>Ngày trả</th>
+                                <th scope="col" style={MyDocumentsStyles.colStatus}>Trạng thái</th>
+                            </>
+                        )}
                         {type === 'purchased' && (
                             <th scope="col" style={MyDocumentsStyles.colAmountBuy}>Tổng tiền</th>
                         )}
-                        
                         <th scope="col" style={MyDocumentsStyles.colTime}>Thời gian</th>
                     </tr>
                 </thead>
@@ -56,13 +60,23 @@ const DocumentTable = ({
                                     {item.quantity} cuốn
                                 </span>
                             </td>
-                            
+                            {type === 'borrowed' && (
+                                <>
+                                    <td className="text-muted small">
+                                        {item.returnDate ? moment(item.returnDate).format('DD/MM/YYYY') : '---'}
+                                    </td>
+                                    <td>
+                                        <span className={`badge px-3 py-2 rounded-pill ${item.status === 'RETURNED' ? 'bg-success' : item.status === 'BORROWED' ? 'bg-warning text-dark' : 'bg-secondary'}`}>
+                                            {item.status === 'RETURNED' ? 'Đã trả' : item.status === 'BORROWED' ? 'Đang mượn' : (item.status || '---')}
+                                        </span>
+                                    </td>
+                                </>
+                            )}
                             {type === 'purchased' && (
                                 <td className="text-danger fw-bold">
                                     {item.amount ? `${item.amount.toLocaleString('vi-VN')} đ` : "Miễn phí"}
                                 </td>
                             )}
-
                             <td className="text-muted fw-semibold small" style={{ minWidth: 130, maxWidth: 180 }}>
                                 <span className="text-success"><i className="fa-regular fa-clock me-1"></i>
                                     {item.rawDate ? moment(item.rawDate).fromNow() : "---"}

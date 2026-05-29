@@ -7,6 +7,7 @@ import FileUploadBox from '../../components/FileUploadBox';
 import ScrollableCheckboxList from '../../components/ScrollableCheckboxList';
 import { Cookies } from 'react-cookie';
 import LabelWithAddButton from '../../components/LabelWithAddButton';
+import { addUpdateDocStyle } from '../../style/AddUpdateDocumentStyle';
 
 const AddUpdateDocument = () => {
     const navigate = useNavigate();
@@ -76,6 +77,8 @@ const AddUpdateDocument = () => {
         } catch (err) {
             console.error("Lỗi tải thông tin tài liệu:", err);
             setError("Không thể tải thông tin tài liệu.");
+        } finally {
+            setFetching(false);
         }
     };
 
@@ -85,6 +88,8 @@ const AddUpdateDocument = () => {
         loadTags();
         if (isUpdate) {
             loadDocument();
+        } else {
+            setFetching(false);
         }
     }, [isUpdate]);
 
@@ -199,67 +204,66 @@ const AddUpdateDocument = () => {
         }
     };
 
-    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none', fontFamily: 'Inter, sans-serif' };
-    const labelStyle = { fontSize: '0.75rem', fontWeight: '600', color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', fontFamily: 'Inter, sans-serif' };
-    const addBtnStyle = { color: '#1D559F', cursor: 'pointer', textTransform: 'none', fontWeight: '600', letterSpacing: 'normal', fontSize: '0.8rem' };
-
-
-    if (fetching) return <div className="text-center py-5 mt-5"><Spinner animation="border" style={{ color: '#1D559F' }} /> Đang tải thông tin...</div>;
+    if (fetching) return <div className="text-center py-5 mt-5"><Spinner animation="border" style={addUpdateDocStyle.spinnerStyle} /> Đang tải thông tin...</div>;
 
     return (
-        <div style={{ padding: '32px 40px', backgroundColor: '#F8FAFC', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
-            <div className="p-5" style={{ maxWidth: '950px', margin: '0 auto', backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px' }}>
+        <div style={addUpdateDocStyle.pageWrapperStyle}>
+            <div className="p-5" style={addUpdateDocStyle.cardStyle}>
 
-                <div className="d-flex justify-content-between align-items-center mb-4 pb-3" style={{ borderBottom: '1px solid #E5E7EB' }}>
+                <div className="d-flex justify-content-between align-items-center mb-4 pb-3" style={addUpdateDocStyle.headerContainerStyle}>
                     <div>
-                        <h3 className="mb-1" style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem' }}>
+                        <h3 className="mb-1" style={addUpdateDocStyle.titleStyle}>
                             {isUpdate ? 'Cập nhật tài liệu' : 'Thêm tài liệu mới'}
                         </h3>
-                        <p className="mb-0" style={{ fontSize: '0.875rem', color: '#4B5563' }}>
+                        <p className="mb-0" style={addUpdateDocStyle.subtitleStyle}>
                             {isUpdate ? 'Chỉnh sửa thông tin tài liệu hiện có.' : 'Điền đầy đủ thông tin bên dưới để xuất bản tài liệu vào hệ thống.'}
                         </p>
                     </div>
-                    <Button variant="none" className="d-flex align-items-center gap-2" onClick={() => navigate(-1)} style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', color: '#4B5563', borderRadius: '4px', padding: '8px 16px', fontSize: '0.875rem', fontWeight: '500', transition: 'all 0.2s' }} onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB'; }} onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF'; }}>
+                    <Button 
+                        variant="none" 
+                        className="d-flex align-items-center gap-2" 
+                        onClick={() => navigate(-1)} 
+                        style={addUpdateDocStyle.backBtnStyle} 
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB'; }} 
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF'; }}
+                    >
                         Quay lại
                     </Button>
                 </div>
 
-                {error && <Alert variant="danger" style={{ borderRadius: '4px', fontSize: '0.875rem' }}>{error}</Alert>}
-                {success && <Alert variant="success" style={{ borderRadius: '4px', fontSize: '0.875rem' }}>{success}</Alert>}
+                {error && <Alert variant="danger" style={addUpdateDocStyle.alertStyle}>{error}</Alert>}
+                {success && <Alert variant="success" style={addUpdateDocStyle.alertStyle}>{success}</Alert>}
 
                 <Form onSubmit={handleSubmit}>
                     <Row className="mb-4">
                         <Col md={8}>
                             <Form.Group className="mb-4">
-                                <Form.Label style={labelStyle}>Tên tài liệu <span className="text-danger">*</span></Form.Label>
-                                <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} placeholder="VD: Lập trình Python nâng cao..." required style={inputStyle} />
+                                <Form.Label style={addUpdateDocStyle.labelStyle}>Tên tài liệu <span className="text-danger">*</span></Form.Label>
+                                <Form.Control type="text" name="title" value={formData.title} onChange={handleChange} placeholder="VD: Lập trình Python nâng cao..." required style={addUpdateDocStyle.inputStyle} />
                             </Form.Group>
 
                             <Form.Group className="mb-4">
-                                <Form.Label style={labelStyle}>Mô tả chi tiết</Form.Label>
-                                <Form.Control as="textarea" rows={6} name="description" value={formData.description} onChange={handleChange} placeholder="Nhập tóm tắt nội dung tài liệu..." style={inputStyle} />
+                                <Form.Label style={addUpdateDocStyle.labelStyle}>Mô tả chi tiết</Form.Label>
+                                <Form.Control as="textarea" rows={6} name="description" value={formData.description} onChange={handleChange} placeholder="Nhập tóm tắt nội dung tài liệu..." style={addUpdateDocStyle.inputStyle} />
                             </Form.Group>
                         </Col>
 
                         <Col md={4}>
                             <Form.Group className="mb-4">
-                                <Form.Label style={labelStyle}>Danh mục <span className="text-danger">*</span></Form.Label>
+                                <Form.Label style={addUpdateDocStyle.labelStyle}>Danh mục <span className="text-danger">*</span></Form.Label>
                                 <InputGroup>
-                                    <Form.Select name="categoryId" value={formData.categoryId} onChange={handleChange} required style={{ ...inputStyle, borderRight: 'none', borderRadius: '4px 0 0 4px' }}>
+                                    <Form.Select name="categoryId" value={formData.categoryId} onChange={handleChange} required style={{ ...addUpdateDocStyle.inputStyle, borderRight: 'none', borderRadius: '4px 0 0 4px' }}>
                                         <option value="">-- Chọn danh mục --</option>
                                         {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                                     </Form.Select>
-                                    <Button variant="none" onClick={() => openModal('CATEGORY')} style={{ backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', color: '#1D559F', borderRadius: '0 4px 4px 0', fontWeight: '600', fontSize: '0.875rem' }}>
+                                    <Button variant="none" onClick={() => openModal('CATEGORY')} style={addUpdateDocStyle.categoryAddBtnStyle}>
                                         + Thêm
                                     </Button>
                                 </InputGroup>
                             </Form.Group>
 
                             <ScrollableCheckboxList
-                                label={<LabelWithAddButton
-                                    title="Tác giả"
-                                    onAddClick={() => openModal('AUTHOR')}
-                                />}
+                                label={<LabelWithAddButton title="Tác giả" onAddClick={() => openModal('AUTHOR')} />}
                                 items={authors}
                                 selectedItems={formData.authorIds}
                                 onChange={handleCheckboxChange}
@@ -268,10 +272,7 @@ const AddUpdateDocument = () => {
                             />
 
                             <ScrollableCheckboxList
-                                label={<LabelWithAddButton
-                                    title="Nhãn"
-                                    onAddClick={() => openModal('TAG')}
-                                />}
+                                label={<LabelWithAddButton title="Nhãn" onAddClick={() => openModal('TAG')} />}
                                 items={tags}
                                 selectedItems={formData.tagIds}
                                 onChange={handleCheckboxChange}
@@ -284,30 +285,44 @@ const AddUpdateDocument = () => {
                     <Row className="mb-4">
                         <Col md={3}>
                             <Form.Group className="mb-4">
-                                <Form.Label style={labelStyle}>Năm xuất bản</Form.Label>
-                                <Form.Control type="number" name="publishYear" value={formData.publishYear} onChange={handleChange} style={inputStyle} />
+                                <Form.Label style={addUpdateDocStyle.labelStyle}>Năm xuất bản</Form.Label>
+                                <Form.Control type="number" name="publishYear" value={formData.publishYear} onChange={handleChange} style={addUpdateDocStyle.inputStyle} />
                             </Form.Group>
                         </Col>
                         <Col md={3}>
                             <Form.Group className="mb-4">
-                                <Form.Label style={labelStyle}>Số lượng (Bản cứng)</Form.Label>
-                                <Form.Control type="number" name="quantity" min="0" value={formData.quantity} onChange={handleChange} style={inputStyle} />
+                                <Form.Label style={addUpdateDocStyle.labelStyle}>Số lượng (Bản cứng)</Form.Label>
+                                <Form.Control type="number" name="quantity" min="0" value={formData.quantity} onChange={handleChange} style={addUpdateDocStyle.inputStyle} />
                             </Form.Group>
                         </Col>
                         <Col md={6}>
-                            <Form.Group className="mb-4 p-3 h-100" style={{ backgroundColor: formData.isPremium ? '#EFF6FF' : '#F9FAFB', border: formData.isPremium ? '1px solid #1D559F' : '1px solid #E5E7EB', borderRadius: '4px', transition: 'all 0.2s' }}>
+                            <Form.Group 
+                                className="mb-4 p-3 h-100" 
+                                style={{ 
+                                    ...addUpdateDocStyle.premiumBoxBaseStyle, 
+                                    backgroundColor: formData.isPremium ? '#EFF6FF' : '#F9FAFB', 
+                                    border: formData.isPremium ? '1px solid #1D559F' : '1px solid #E5E7EB' 
+                                }}
+                            >
                                 <div className="d-flex justify-content-between align-items-center h-100">
-                                    <Form.Check type="switch" id="premium-switch" name="isPremium" label={<span className="fw-semibold ms-2" style={{ color: formData.isPremium ? '#1D559F' : '#4B5563', fontSize: '0.875rem' }}>Premium (Có phí)</span>} checked={formData.isPremium} onChange={handleChange} />
+                                    <Form.Check 
+                                        type="switch" 
+                                        id="premium-switch" 
+                                        name="isPremium" 
+                                        label={<span className="fw-semibold ms-2" style={{ color: formData.isPremium ? '#1D559F' : '#4B5563', fontSize: '0.875rem' }}>Premium (Có phí)</span>} 
+                                        checked={formData.isPremium} 
+                                        onChange={handleChange} 
+                                    />
                                     <div className="d-flex align-items-center gap-2">
-                                        <Form.Control type="number" name="price" placeholder="Nhập giá..." min="0" value={formData.price} onChange={handleChange} disabled={!formData.isPremium} style={{ ...inputStyle, padding: '8px 12px', width: '130px' }} />
-                                        <span className="fw-semibold" style={{ fontSize: '0.875rem', color: '#4B5563' }}>VNĐ</span>
+                                        <Form.Control type="number" name="price" placeholder="Nhập giá..." min="0" value={formData.price} onChange={handleChange} disabled={!formData.isPremium} style={{ ...addUpdateDocStyle.inputStyle, padding: '8px 12px', width: '130px' }} />
+                                        <span className="fw-semibold" style={addUpdateDocStyle.currencyStyle}>VNĐ</span>
                                     </div>
                                 </div>
                             </Form.Group>
                         </Col>
                     </Row>
 
-                    <hr className="my-4" style={{ borderColor: '#E5E7EB', opacity: 1 }} />
+                    <hr className="my-4" style={addUpdateDocStyle.dividerStyle} />
 
                     <Row className="mb-5">
                         <Col md={6}>
@@ -319,10 +334,10 @@ const AddUpdateDocument = () => {
                     </Row>
 
                     <div className="d-flex flex-nowrap justify-content-end align-items-center gap-3 pt-3">
-                        <Button variant="none" onClick={() => navigate(-1)} style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', color: '#4B5563', borderRadius: '4px', padding: '10px 24px', fontSize: '0.875rem', fontWeight: '500', whiteSpace: 'nowrap' }}>
+                        <Button variant="none" onClick={() => navigate(-1)} style={addUpdateDocStyle.cancelBtnStyle}>
                             Hủy bỏ
                         </Button>
-                        <Button type="submit" disabled={loading} style={{ backgroundColor: '#1D559F', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '10px 24px', fontSize: '0.875rem', fontWeight: '500', whiteSpace: 'nowrap' }}>
+                        <Button type="submit" disabled={loading} style={addUpdateDocStyle.submitBtnStyle}>
                             {loading ? <Spinner size="sm" className="me-2" /> : null}
                             {isUpdate ? 'Lưu thay đổi' : 'Xuất bản tài liệu'}
                         </Button>

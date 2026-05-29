@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Alert, Card, Spinner, Container, Badge, Row } from "react-bootstrap";
+import { Alert, Card, Spinner, Container, Badge, Row, Carousel } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Apis, { endpoints } from "../../configs/Apis";
 import moment from "moment";
@@ -7,6 +7,7 @@ import HomeStyles from "../../style/HomeStyles";
 import LoadMoreButton from "../../components/LoadMoreButton";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
+import { FaBookOpen } from "react-icons/fa";
 
 const Home = () => {
     const [latestDocs, setLatestDocs] = useState([]);
@@ -23,6 +24,13 @@ const Home = () => {
     const nav = useNavigate();
     const latestScrollRef = useRef(null);
     const trendScrollRef = useRef(null);
+
+    // Danh sách các ảnh Banner (Bạn có thể thay link ảnh thực tế của thư viện vào đây)
+    const banners = [
+        "https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80",
+        "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+    ];
 
     useEffect(() => {
         if (isSearching) {
@@ -167,84 +175,101 @@ const Home = () => {
     );
 
     return (
-         <>
-        <Header />
-        <Container style={HomeStyles.container}>
+        <>
+            <Header />
+            <Container style={{ ...HomeStyles.container, paddingTop: '20px' }}>
 
-            {loading && searchPage === 1 ? (
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
-                    <Spinner animation="grow" variant="primary" />
-                </div>
-            ) : isSearching ? (
-                
-                <div className="mb-5">
-                    <h3 style={HomeStyles.headerTitle} className="mb-4 text-primary">
-                        <i className="fa-solid fa-magnifying-glass me-2"></i>
-                        Kết quả tìm kiếm ({searchDocs.length} tài liệu)
-                    </h3>
+                {/* BANNER SLIDER (Ẩn đi khi người dùng đang tìm kiếm sách) */}
+                {!isSearching && (
+                    <div className="mb-5" style={{ borderRadius: '16px', overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}>
+                        <Carousel interval={1000} slide={true}>
+                            {banners.map((img, idx) => (
+                                <Carousel.Item key={idx}>
+                                    <img
+                                        className="d-block w-100"
+                                        src={img}
+                                        alt={`Banner ${idx + 1}`}
+                                        style={{ height: '360px', objectFit: 'cover' }}
+                                    />
+                                </Carousel.Item>
+                            ))}
+                        </Carousel>
+                    </div>
+                )}
+
+                {loading && searchPage === 1 ? (
+                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+                        <Spinner animation="grow" variant="primary" />
+                    </div>
+                ) : isSearching ? (
                     
-                    {searchDocs.length === 0 ? (
-                        <Alert variant="light" className="text-center border">Không tìm thấy tài liệu phù hợp!</Alert>
-                    ) : (
-                        <>
-                            <Row>
-                                {searchDocs.map(doc => renderDocumentCard(doc, true))}
-                            </Row>
-                            
-                            {hasMoreSearch && (
-                                <LoadMoreButton 
-                                    onClick={() => setSearchPage(prev => prev + 1)} 
-                                    isLoading={loadingMoreSearch} 
-                                />
+                    <div className="mb-5">
+                        <h3 style={HomeStyles.headerTitle} className="mb-4 text-primary">
+                            <i className="fa-solid fa-magnifying-glass me-2"></i>
+                            Kết quả tìm kiếm ({searchDocs.length} tài liệu)
+                        </h3>
+                        
+                        {searchDocs.length === 0 ? (
+                            <Alert variant="light" className="text-center border">Không tìm thấy tài liệu phù hợp!</Alert>
+                        ) : (
+                            <>
+                                <Row>
+                                    {searchDocs.map(doc => renderDocumentCard(doc, true))}
+                                </Row>
+                                
+                                {hasMoreSearch && (
+                                    <LoadMoreButton 
+                                        onClick={() => setSearchPage(prev => prev + 1)} 
+                                        isLoading={loadingMoreSearch} 
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
+
+                ) : (
+                    <>
+                        <div className="mb-5">
+                            <h3 style={HomeStyles.headerTitle} className="mb-4">
+                                Sách mới nhất <span style={{ color: '#ef4444' }}></span>
+                            </h3>
+                            {latestDocs.length === 0 ? (
+                                <Alert variant="light" className="text-center border">Chưa có dữ liệu sách mới.</Alert>
+                            ) : (
+                                <div ref={latestScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
+                                    {latestDocs.map(doc => renderDocumentCard(doc))}
+                                </div>
                             )}
-                        </>
-                    )}
+                        </div>
+
+                        <div className="mb-5">
+                            <h3 style={HomeStyles.headerTitle} className="mb-4">
+                                Sách ưa thích nhất <span style={{ color: '#10b981' }}></span>
+                            </h3>
+                            {trendDocs.length === 0 ? (
+                                <Alert variant="light" className="text-center border">Chưa có dữ liệu sách ưa thích.</Alert>
+                            ) : (
+                                <div ref={trendScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
+                                    {trendDocs.map(doc => renderDocumentCard(doc))}
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
+
+                <div className="mb-5" style={{ background: '#F3F6FA', borderRadius: 12, padding: '32px 28px', boxShadow: '0 2px 12px rgba(26,85,159,0.04)', display: 'flex', alignItems: 'center', gap: 32 }}>
+                    <FaBookOpen style={{ fontSize: '2rem', color: '#1D559F' }} size={150} />
+                    <div>
+                        <h2 style={{ color: '#1D559F', fontWeight: 800, fontSize: '2rem', marginBottom: 8, letterSpacing: '-0.02em' }}>eLibrary - Hệ thống quản lý thư viện hiện đại</h2>
+                        <p style={{ color: '#374151', fontSize: '1.1rem', marginBottom: 0}}>
+                            Chào mừng bạn đến với eLibrary! Chúng tôi cung cấp nền tảng quản lý tài liệu, sách và hỗ trợ mượn/trả hiện đại, thân thiện, bảo mật cao. Hệ thống giúp bạn dễ dàng tìm kiếm, lưu trữ, chia sẻ và quản lý tài liệu mọi lúc, mọi nơi. Đội ngũ thủ thư luôn sẵn sàng hỗ trợ bạn trực tuyến.
+                        </p>
+                    </div>
                 </div>
 
-            ) : (
-                <>
-                    <div className="mb-5">
-                        <h3 style={HomeStyles.headerTitle} className="mb-4">
-                            Sách mới nhất <span style={{ color: '#ef4444' }}></span>
-                        </h3>
-                        {latestDocs.length === 0 ? (
-                            <Alert variant="light" className="text-center border">Chưa có dữ liệu sách mới.</Alert>
-                        ) : (
-                            <div ref={latestScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
-                                {latestDocs.map(doc => renderDocumentCard(doc))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-5">
-                        <h3 style={HomeStyles.headerTitle} className="mb-4">
-                            Sách ưa thích nhất <span style={{ color: '#10b981' }}></span>
-                        </h3>
-                        {trendDocs.length === 0 ? (
-                            <Alert variant="light" className="text-center border">Chưa có dữ liệu sách ưa thích.</Alert>
-                        ) : (
-                            <div ref={trendScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
-                                {trendDocs.map(doc => renderDocumentCard(doc))}
-                            </div>
-                        )}
-                    </div>
-                </>
-            )}
-
-             <div className="mb-5" style={{ background: '#F3F6FA', borderRadius: 12, padding: '32px 28px', boxShadow: '0 2px 12px rgba(26,85,159,0.04)', display: 'flex', alignItems: 'center', gap: 32 }}>
-                <img src="/logo192.png" alt="eLibrary" style={{ width: 80, height: 80, borderRadius: 16, boxShadow: '0 2px 8px rgba(26,85,159,0.08)' }} />
-                <div>
-                    <h2 style={{ color: '#1D559F', fontWeight: 800, fontSize: '2rem', marginBottom: 8, letterSpacing: '-0.02em' }}>eLibrary - Hệ thống quản lý thư viện hiện đại</h2>
-                    <p style={{ color: '#374151', fontSize: '1.1rem', marginBottom: 0}}>
-                        Chào mừng bạn đến với eLibrary! Chúng tôi cung cấp nền tảng quản lý tài liệu, sách và hỗ trợ mượn/trả hiện đại, thân thiện, bảo mật cao. Hệ thống giúp bạn dễ dàng tìm kiếm, lưu trữ, chia sẻ và quản lý tài liệu mọi lúc, mọi nơi. Đội ngũ thủ thư luôn sẵn sàng hỗ trợ bạn trực tuyến.
-                    </p>
-                </div>
-            </div>
-
-            
-        </Container>
+            </Container>
             <Footer />
-            </>
+        </>
     );
 };
 
