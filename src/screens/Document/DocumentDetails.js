@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Button, Col, Container, Image, Row, Spinner, Form } from "react-bootstrap";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import cookies from 'react-cookies';
 import Apis, { authApi, endpoints } from "../../configs/Apis";
 import moment from "moment";
@@ -8,6 +8,9 @@ import { MyUserContext } from "../../configs/Context";
 import useOrder from "../../components/useOrder";
 import DocumentDetailStyles from "../../style/DocumentDetailStyles";
 import ReviewItem from "../../components/Items/ReviewItem";
+import PdfViewer from "../View/PDFView";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import CompareModal from "../../components/CompareModal";
 
 const DocumentDetails = () => {
@@ -28,6 +31,8 @@ const DocumentDetails = () => {
     const [loadingMoreReviews, setLoadingMoreReviews] = useState(false);
     const [hasMoreReviews, setHasMoreReviews] = useState(true);
 
+
+    const [isViewing, setIsViewing] = useState(false);
     const [showCompare, setShowCompare] = useState(false);
 
     const loadDocumentDetail = async () => {
@@ -155,11 +160,10 @@ const DocumentDetails = () => {
             nav(`/login?next=/documents/${documentId}`);
             return;
         }
-
         if (hasAccess) {
             const pdfUrl = doc.fileUrl;
             if (pdfUrl) {
-                window.open(pdfUrl, '_blank');
+                setIsViewing(true); // Hiện PDFView nhúng
             } else {
                 alert("Rất tiếc, tài liệu này hiện chưa được cập nhật file PDF trên hệ thống!");
             }
@@ -168,10 +172,50 @@ const DocumentDetails = () => {
         }
     };
 
+    const extractCloudinaryFileId = (url) => {
+        if (!url) return null;
+        try {
+            // Cắt chuỗi lấy phần sau chữ '/upload/' và bỏ đuôi '.pdf'
+            const parts = url.split('/upload/');
+            if (parts.length > 1) {
+                return parts[1].replace('.pdf', '');
+            }
+            return null;
+        } catch (error) {
+            console.error("Lỗi khi parse URL Cloudinary:", error);
+            return null;
+        }
+    };
+
+    const fileId = doc ? extractCloudinaryFileId(doc.fileUrl) : null;
+
+    const cardStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '32px' };
+    const labelStyle = { fontSize: '0.75rem', fontWeight: '600', color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '4px' };
+    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none' };
+    const badgeStyle = (bgColor, textColor) => ({ backgroundColor: bgColor, color: textColor, padding: '4px 10px', borderRadius: '2px', fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.02em' });
+
+
     if (loading) return <div className="text-center py-5 mt-5"><Spinner animation="border" style={{ color: '#1D559F' }} /></div>;
     if (doc === null) return <h3 className="text-center mt-5" style={{ color: '#DC2626', fontWeight: '600' }}>Không tìm thấy thông tin tài liệu!</h3>;
 
+    // Nếu đang xem PDF thì chỉ hiện PDFView và nút quay lại
+    if (isViewing && fileId) {
+        return (
+            <div style={{ backgroundColor: '#222', minHeight: '100vh', padding: '32px 0' }}>
+                <Container style={{ maxWidth: '1050px', padding: 0 }}>
+                    <Button variant="light" className="mb-3" onClick={() => setIsViewing(false)}>
+                        &larr; Quay lại chi tiết tài liệu
+                    </Button>
+                    <PdfViewer fileId={fileId} totalPages={15} />
+                </Container>
+            </div>
+        );
+    }
+
+    // ...existing code...
     return (
+        <>
+        <Header />
         <div style={DocumentDetailStyles.pageWrapper}>
             <Container style={DocumentDetailStyles.container}>
 
@@ -188,11 +232,9 @@ const DocumentDetails = () => {
                                 style={DocumentDetailStyles.bookImage}
                             />
                         </Col>
-
                         <Col md={8} className="d-flex flex-column justify-content-between">
                             <div>
                                 <h2 className="fw-bold mb-3" style={DocumentDetailStyles.docTitle}>{doc.title}</h2>
-
                                 <div className="mb-4 d-flex flex-wrap gap-2">
                                     <span style={DocumentDetailStyles.badge('#EFF6FF', '#1D559F')}>Danh mục: {doc.category?.name || 'Chưa cập nhật'}</span>
                                     <span style={DocumentDetailStyles.badge('#F3F4F6', '#4B5563')}>Lượt xem: {doc.viewCount || 0}</span>
@@ -206,15 +248,12 @@ const DocumentDetails = () => {
                                 <h3 className="fw-bold mb-4" style={DocumentDetailStyles.priceText}>
                                     {doc.price ? `${doc.price.toLocaleString('vi-VN')} VNĐ` : 'Miễn phí'}
                                 </h3>
-
                                 <div className="mb-4 d-flex flex-column gap-2" style={{ fontSize: '0.875rem' }}>
                                     <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>TÁC GIẢ:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.authors && doc.authors.length > 0 ? doc.authors.map(a => a.name).join(', ') : 'Đang cập nhật'}</Col></Row>
                                     <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>NĂM XUẤT BẢN:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.publishYear || 'Đang cập nhật'}</Col></Row>
                                     <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>NGÀY ĐĂNG TẢI:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.createdDate ? moment(doc.createdDate).format('DD/MM/YYYY HH:mm') : 'Đang cập nhật'}</Col></Row>
                                 </div>
-
                                 <hr style={DocumentDetailStyles.hr} />
-
                                 <div className="mb-4">
                                     <h6 className="fw-bold text-uppercase mb-2" style={DocumentDetailStyles.descHeader}>Mô tả tài liệu</h6>
                                     <p style={DocumentDetailStyles.descText}>
@@ -222,7 +261,6 @@ const DocumentDetails = () => {
                                     </p>
                                 </div>
                             </div>
-
                             <div>
                                 <div className="d-flex flex-wrap gap-3 align-items-center">
                                     {checkingAccess ? (
@@ -238,7 +276,6 @@ const DocumentDetails = () => {
                                             {hasAccess ? "📄 Xem file PDF" : "🔒 Xem file PDF (Đã khóa)"}
                                         </Button>
                                     )}
-
                                     {!hasAccess && !checkingAccess && (
                                         <>
                                             <Button variant="none" disabled={doc.quantity <= 0} onClick={() => order(doc, 'BUY')} style={DocumentDetailStyles.btnBuy}>
@@ -258,7 +295,6 @@ const DocumentDetails = () => {
                                         <i className="fa-solid fa-code-compare me-2"></i> So sánh tài liệu
                                     </Button>
                                 </div>
-
                                 {!hasAccess && !checkingAccess && (
                                     <div className="mt-3 text-muted" style={DocumentDetailStyles.noteText}>
                                         * Bạn cần thêm sách vào giỏ (Mượn/Mua) và hoàn tất thanh toán để mở khóa tính năng đọc trực tuyến (File PDF).
@@ -268,7 +304,6 @@ const DocumentDetails = () => {
                         </Col>
                     </Row>
                 </div>
-
                 <div style={DocumentDetailStyles.card}>
                     <h5 className="mb-4" style={DocumentDetailStyles.reviewTitle}>Đánh giá từ độc giả ({reviews.length})</h5>
                     <div className="p-4 mb-5" style={DocumentDetailStyles.reviewBox}>
@@ -317,6 +352,11 @@ const DocumentDetails = () => {
                             </div>
                         </Form>
                     </div>
+                    <Link to={'/message-client'} style={{ fontSize: '0.875rem', color: '#1D559F', textDecoration: 'none' }}>
+                        <Button variant="outline-primary" style={{ fontSize: '0.875rem', padding: '6px 18px' }}>
+                            💬 Gửi phản hồi về tài liệu này
+                        </Button>
+                    </Link>
 
                     <div className="d-flex flex-column gap-4">
                         {reviews.map((rev) => (
@@ -352,9 +392,10 @@ const DocumentDetails = () => {
                     currentDoc={doc}
                     currentReviews={reviews}
                 />
-
             </Container>
         </div>
+        <Footer />
+        </>
     );
 }
 

@@ -4,7 +4,14 @@ import { authApi } from '../../configs/Apis';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 import LoadMoreButton from '../../components/LoadMoreButton';
-import { Cookies } from 'react-cookie';
+import cookies from 'react-cookies';
+import {
+    cardStyle,
+    inputStyle,
+    thStyle,
+    tdStyle,
+    badgeStyle
+} from './PaymentStatsStyle';
 
 // Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
@@ -22,42 +29,93 @@ const PaymentStats = () => {
     const [statusFilter, setStatusFilter] = useState('');
     const [error, setError] = useState("");
 
-    const loadRevenueStats = async () => {
-    setStatsLoading(true);
-    try {
-        // Gọi đến API backend của bạn
-        let url = '/stats/secure/revenue-by-document';
-        let queryParams = [];
-        if (fromDate) queryParams.push(`fromDate=${fromDate}`);
-        if (toDate) queryParams.push(`toDate=${toDate}`);
-        if (queryParams.length > 0) url += `?${queryParams.join('&')}`;
+    // const loadRevenueStats = async () => {
+    //     setStatsLoading(true);
+    //     try {
+    //         // Gọi đến API backend của bạn
+    //         let url = '/stats/secure/revenue-by-document';
+    //         let queryParams = [];
+    //         if (fromDate) queryParams.push(`fromDate=${fromDate}`);
+    //         if (toDate) queryParams.push(`toDate=${toDate}`);
+    //         if (queryParams.length > 0) url += `?${queryParams.join('&')}`;
 
-        // Sử dụng authApi với token
-        const res = await authApi(Cookies.get('token')).get(url);
-        
-        // Cập nhật dữ liệu từ API thay vì mock data
-        setStatsData(res.data || []);
-    } catch (err) {
-        console.error("Lỗi tải thống kê doanh thu:", err);
-        setError("Không thể tải thống kê doanh thu.");
-        setStatsData([]); // Reset về rỗng nếu lỗi
-    } finally {
-        setStatsLoading(false);
-    }
-};
+    //         // Sử dụng authApi với token
+    //         const res = await authApi(cookies.load('token')).get(url);
+
+    //         // Cập nhật dữ liệu từ API thay vì mock data
+    //         setStatsData(res.data || []);
+    //     } catch (err) {
+    //         console.error("Lỗi tải thống kê doanh thu:", err);
+    //         setError("Không thể tải thống kê doanh thu.");
+    //         setStatsData([]); // Reset về rỗng nếu lỗi
+    //     } finally {
+    //         setStatsLoading(false);
+    //     }
+    // };
 
     // Fetch transaction history
+    // const loadTransactionHistory = async () => {
+    // setTxLoading(true);
+    // try {
+    //     let url = `/stats/secure/revenue-by-document`; // <--- LỖI Ở ĐÂY
+    //     if (statusFilter) url += `&status=${statusFilter}`;
+    //         const res = await authApi(cookies.load('token')).get(url);
+    //         setHasMore(!(res.data.length === 0 || res.data.length < 20));
+    //         setTransactions(page === 1 ? res.data : prev => [...prev, ...res.data]);
+    //     } catch (err) {
+    //         console.error("Lỗi tải lịch sử mua tài liệu:", err);
+    //         setError("Không thể tải lịch sử mua tài liệu.");
+    //     } finally {
+    //         setTxLoading(false);
+    //     }
+    // };
+
+
+    const loadRevenueStats = async () => {
+        const token = cookies.load('token'); // Lấy token
+        if (!token) return; // Nếu không có token thì dừng luôn
+
+        setStatsLoading(true);
+        try {
+            let url = '/stats/secure/revenue-by-document';
+            let queryParams = [];
+            if (fromDate) queryParams.push(`fromDate=${fromDate}`);
+            if (toDate) queryParams.push(`toDate=${toDate}`);
+            if (queryParams.length > 0) url += `?${queryParams.join('&')}`;
+
+            // Truyền biến token vào authApi
+            const res = await authApi(token).get(url);
+            setStatsData(res.data || []);
+        } catch (err) {
+            console.error("Lỗi tải thống kê doanh thu:", err);
+            setError("Không thể tải thống kê doanh thu.");
+            setStatsData([]);
+        } finally {
+            setStatsLoading(false);
+        }
+    };
+
     const loadTransactionHistory = async () => {
+        const token = cookies.load('token'); // Lấy token
+        if (!token) return; // Nếu không có token thì dừng luôn
+
         setTxLoading(true);
         try {
-            let url = `/stats/secure/revenue-by-document`;
-            if (statusFilter) url += `&status=${statusFilter}`;
-            const res = await authApi(Cookies.get('token')).get(url);
-            setHasMore(!(res.data.length === 0 || res.data.length < 20));
-            setTransactions(page === 1 ? res.data : prev => [...prev, ...res.data]);
+            let url = `/stats/secure/transaction-history?page=${page}`;
+            if (statusFilter) {
+                url += `&status=${statusFilter}`;
+            }
+
+            // Truyền biến token vào authApi
+            const res = await authApi(token).get(url);
+
+            const responseData = Array.isArray(res.data) ? res.data : [];
+            setHasMore(!(responseData.length === 0 || responseData.length < 20));
+            setTransactions(page === 1 ? responseData : prev => [...prev, ...responseData]);
         } catch (err) {
             console.error("Lỗi tải lịch sử mua tài liệu:", err);
             setError("Không thể tải lịch sử mua tài liệu.");
+            if (page === 1) setTransactions([]);
         } finally {
             setTxLoading(false);
         }
@@ -94,12 +152,8 @@ const PaymentStats = () => {
             },
         ],
     };
-    
-    const cardStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px' };
-    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '8px 12px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none' };
-    const thStyle = { padding: '12px 20px', fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' };
-    const tdStyle = { padding: '16px 20px', fontSize: '0.875rem', color: '#111827', verticalAlign: 'middle', borderBottom: '1px solid #E5E7EB' };
-    const badgeStyle = { padding: '4px 8px', borderRadius: '2px', fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-block' };
+
+
 
     return (
         <div style={{ padding: '32px 40px', backgroundColor: '#F9FAFB', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
@@ -166,7 +220,7 @@ const PaymentStats = () => {
                                 <Spinner animation="border" style={{ color: '#1D559F' }} />
                             </div>
                         ) : (
-                            <div style={{ margin: '0 -24px', flexGrow: 1, overflowX: 'auto' }}>
+                            <div style={{ margin: '0 -24px', flexGrow: 1, overflowX: 'auto', overflowY: 'auto', maxHeight: '350px' }}>
                                 <Table hover responsive className="align-middle mb-0" style={{ borderTop: '1px solid #E5E7EB' }}>
                                     <thead>
                                         <tr>
@@ -264,9 +318,9 @@ const PaymentStats = () => {
                                     {transactions.map((tx, idx) => (
                                         <tr key={idx}>
                                             <td style={{ ...tdStyle, color: '#6B7280' }}>{tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('vi-VN') : '---'}</td>
-                                            <td style={{ ...tdStyle, fontWeight: '500' }}>{tx.user?.username || 'Ẩn danh'}</td>
-                                            <td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>{tx.document?.title || 'Tài liệu không còn tồn tại'}</td>
-                                            <td style={tdStyle}>
+                                           <td style={{ ...tdStyle, fontWeight: '500' }}>{tx.username || 'Ẩn danh'}</td>
+<td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>{tx.documentTitle || 'Tài liệu không còn tồn tại'}</td>
+<td style={tdStyle}>
                                                 <span style={{ ...badgeStyle, backgroundColor: '#F3F4F6', color: '#4B5563' }}>{tx.paymentMethod || 'VNPay'}</span>
                                             </td>
                                             <td style={{ ...tdStyle, textAlign: 'right', fontWeight: '600' }}>{(tx.amount || 0).toLocaleString('vi-VN')} đ</td>

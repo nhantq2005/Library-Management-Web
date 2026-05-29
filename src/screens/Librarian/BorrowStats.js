@@ -6,6 +6,10 @@ import { Bar } from 'react-chartjs-2';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import LoadMoreButton from '../../components/LoadMoreButton';
 import { Cookies } from 'react-cookie';
+import {containerStyle, headerTitle, headerDesc, overdueAlert, chartCard, chartCardTitle, chartSelect,
+    chartLoading, chartNoData, tableCard, tableTitle, inputStyle, searchInputGroup, searchInputText,
+    thStyle, tdStyle, badgeStyle, tableNoData, tableNoDataIcon} from '../../style/BorrowStatsStyle';
+import { IoSearchSharp } from 'react-icons/io5';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
@@ -15,7 +19,7 @@ const BorrowStats = () => {
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
-    
+
     // State cho Bộ lọc
     const [kw, setKw] = useState('');
     const [searchInput, setSearchInput] = useState('');
@@ -25,11 +29,11 @@ const BorrowStats = () => {
     const [chartData, setChartData] = useState([]);
     const [overdueDocs, setOverdueDocs] = useState([]);
     const [statYear, setStatYear] = useState(new Date().getFullYear());
-    const [chartLoading, setChartLoading] = useState(false);
+    const [isChartLoading, setIsChartLoading] = useState(false); // Renamed to prevent conflict
 
     useEffect(() => {
         const loadStats = async () => {
-            setChartLoading(true);
+            setIsChartLoading(true);
             try {
                 let resStats = await authApi(new Cookies().get('token')).get(`/stats/secure/borrowing?year=${statYear}`);
                 setChartData(resStats.data);
@@ -40,7 +44,7 @@ const BorrowStats = () => {
             } catch (error) {
                 console.error("Lỗi tải thống kê:", error);
             } finally {
-                setChartLoading(false);
+                setIsChartLoading(false);
             }
         };
         loadStats();
@@ -50,13 +54,13 @@ const BorrowStats = () => {
     const loadBorrows = async () => {
         try {
             if (page === 1) setLoading(true);
-            
+
             let url = `/secure/borrows?page=${page}`;
             if (kw) url += `&kw=${kw}`;
             if (statusFilter) url += `&status=${statusFilter}`;
 
             let res = await authApi(new Cookies().get('token')).get(url);
-            
+
             if (res.data.length === 0 || res.data.length < 20) {
                 setHasMore(false);
             } else {
@@ -119,27 +123,20 @@ const BorrowStats = () => {
         scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
     };
 
-    // --- LUMINA DESIGN STYLES ---
-    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none', fontFamily: 'Inter, sans-serif' };
-    const thStyle = { padding: '12px 20px', fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' };
-    const tdStyle = { padding: '16px 20px', fontSize: '0.875rem', color: '#111827', verticalAlign: 'middle', borderBottom: '1px solid #E5E7EB' };
-    const badgeStyle = { padding: '4px 8px', borderRadius: '2px', fontSize: '0.7rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'inline-block' };
-
     return (
-        <div style={{ padding: '32px 40px', backgroundColor: '#F9FAFB', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
-            
+        <div style={containerStyle}>
             {/* PHẦN 1: HEADER & CẢNH BÁO */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 className="mb-1" style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem' }}>
+                    <h3 className="mb-1" style={headerTitle}>
                         Thống kê mượn trả
                     </h3>
-                    <p className="mb-0" style={{ fontSize: '0.875rem', color: '#4B5563' }}>
+                    <p className="mb-0" style={headerDesc}>
                         Quản lý hoạt động mượn tài liệu và theo dõi quá hạn.
                     </p>
                 </div>
                 {overdueDocs.length > 0 && (
-                    <div style={{ backgroundColor: '#DC2626', color: '#FFFFFF', padding: '8px 16px', borderRadius: '4px', fontSize: '0.875rem', fontWeight: '500' }} className="d-flex align-items-center gap-2">
+                    <div style={overdueAlert}>
                         <RiErrorWarningLine size={18} />
                         Cảnh báo: Có {overdueDocs.length} phiếu mượn đang quá hạn!
                     </div>
@@ -149,13 +146,13 @@ const BorrowStats = () => {
             {/* PHẦN 2: BIỂU ĐỒ THỐNG KÊ */}
             <Row className="mb-4">
                 <Col md={12}>
-                    <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px' }}>
+                    <div style={chartCard}>
                         <div className="d-flex justify-content-between align-items-center mb-4">
-                            <h5 className="mb-0" style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem' }}>Biểu đồ lượt mượn tài liệu</h5>
-                            <Form.Select 
-                                value={statYear} 
+                            <h5 className="mb-0" style={chartCardTitle}>Biểu đồ lượt mượn tài liệu</h5>
+                            <Form.Select
+                                value={statYear}
                                 onChange={(e) => setStatYear(e.target.value)}
-                                style={{ width: '130px', ...inputStyle }}
+                                style={chartSelect}
                             >
                                 <option value="2024">Năm 2024</option>
                                 <option value="2025">Năm 2025</option>
@@ -163,14 +160,14 @@ const BorrowStats = () => {
                             </Form.Select>
                         </div>
                         <div style={{ height: '350px' }}>
-                            {chartLoading ? (
-                                <div className="h-100 d-flex justify-content-center align-items-center">
+                            {isChartLoading ? (
+                                <div style={chartLoading}> {/* Now accurately resolves to the imported style object */}
                                     <Spinner animation="border" style={{ color: '#1D559F' }} />
                                 </div>
                             ) : chartData.length > 0 ? (
                                 <Bar data={barChartData} options={barChartOptions} />
                             ) : (
-                                <div className="h-100 d-flex justify-content-center align-items-center" style={{ color: '#6B7280', fontSize: '0.875rem' }}>
+                                <div style={chartNoData}>
                                     Không có dữ liệu thống kê cho năm này
                                 </div>
                             )}
@@ -180,30 +177,27 @@ const BorrowStats = () => {
             </Row>
 
             {/* PHẦN 3: DANH SÁCH PHIẾU MƯỢN */}
-            <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px' }}>
-                <h5 className="mb-4" style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem' }}>Danh sách phiếu mượn</h5>
-                
+            <div style={tableCard}>
+                <h5 className="mb-4" style={tableTitle}>Danh sách phiếu mượn</h5>
                 <div className="d-flex gap-3 mb-4 flex-wrap">
-                    <InputGroup style={{ maxWidth: '400px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
-                        <InputGroup.Text 
-                            className="border-0 px-3" 
-                            style={{ backgroundColor: '#F9FAFB', color: '#9CA3AF', fontSize: '1rem' }}
+                    <InputGroup style={searchInputGroup}>
+                        <InputGroup.Text
+                            className="border-0 px-3"
+                            style={searchInputText}
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
+                            <IoSearchSharp />
                         </InputGroup.Text>
                         <Form.Control
                             className="border-0 shadow-none ps-1 py-2"
-                            style={{ backgroundColor: '#F9FAFB', fontSize: '0.875rem', color: '#111827' }}
+                            style={{ ...inputStyle, backgroundColor: '#F9FAFB', fontSize: '0.875rem', color: '#111827' }}
                             placeholder="Tìm theo tên tài liệu..."
                             value={searchInput}
                             onChange={e => setSearchInput(e.target.value)}
                         />
                     </InputGroup>
 
-                    <Form.Select 
-                        value={statusFilter} 
+                    <Form.Select
+                        value={statusFilter}
                         onChange={handleFilterStatus}
                         style={{ maxWidth: '200px', ...inputStyle }}
                     >
@@ -253,8 +247,8 @@ const BorrowStats = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="6" className="text-center py-5 text-muted" style={{ fontSize: '0.875rem', color: '#6B7280' }}>
-                                            <div className="mb-2" style={{ fontSize: '1.5rem' }}>📭</div>
+                                        <td colSpan="6" className="text-center py-5 text-muted" style={tableNoData}>
+                                            <div className="mb-2" style={tableNoDataIcon}>📭</div>
                                             Không tìm thấy phiếu mượn nào phù hợp.
                                         </td>
                                     </tr>

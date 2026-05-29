@@ -14,7 +14,7 @@ const Forbidden = () => {
 			<p className="text-muted mb-4" style={{ fontSize: '1.1rem', maxWidth: 400, textAlign: 'center' }}>
 				Bạn không có quyền truy cập vào trang này.<br />Vui lòng kiểm tra lại quyền truy cập hoặc quay về trang trước.
 			</p>
-			<Button variant="danger" style={{ backgroundColor: '#e53935', borderColor: '#e53935', fontFamily: 'monospace', fontWeight: 600, letterSpacing: 1 }} onClick={() => navigate(-1)}>
+			<Button variant="danger" className="mb-5" style={{ backgroundColor: '#e53935', borderColor: '#e53935', fontFamily: 'monospace', fontWeight: 600, letterSpacing: 1, width: '30%' }} onClick={() => navigate(-1)}>
 				Quay lại
 			</Button>
 		</div>

@@ -5,6 +5,8 @@ import Apis, { endpoints } from "../../configs/Apis";
 import moment from "moment";
 import HomeStyles from "../../style/HomeStyles";
 import LoadMoreButton from "../../components/LoadMoreButton";
+import Footer from "../../components/Footer";
+import Header from "../../components/Header";
 
 const Home = () => {
     const [latestDocs, setLatestDocs] = useState([]);
@@ -165,7 +167,10 @@ const Home = () => {
     );
 
     return (
+         <>
+        <Header />
         <Container style={HomeStyles.container}>
+
             {loading && searchPage === 1 ? (
                 <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
                     <Spinner animation="grow" variant="primary" />
@@ -225,7 +230,21 @@ const Home = () => {
                     </div>
                 </>
             )}
+
+             <div className="mb-5" style={{ background: '#F3F6FA', borderRadius: 12, padding: '32px 28px', boxShadow: '0 2px 12px rgba(26,85,159,0.04)', display: 'flex', alignItems: 'center', gap: 32 }}>
+                <img src="/logo192.png" alt="eLibrary" style={{ width: 80, height: 80, borderRadius: 16, boxShadow: '0 2px 8px rgba(26,85,159,0.08)' }} />
+                <div>
+                    <h2 style={{ color: '#1D559F', fontWeight: 800, fontSize: '2rem', marginBottom: 8, letterSpacing: '-0.02em' }}>eLibrary - Hệ thống quản lý thư viện hiện đại</h2>
+                    <p style={{ color: '#374151', fontSize: '1.1rem', marginBottom: 0}}>
+                        Chào mừng bạn đến với eLibrary! Chúng tôi cung cấp nền tảng quản lý tài liệu, sách và hỗ trợ mượn/trả hiện đại, thân thiện, bảo mật cao. Hệ thống giúp bạn dễ dàng tìm kiếm, lưu trữ, chia sẻ và quản lý tài liệu mọi lúc, mọi nơi. Đội ngũ thủ thư luôn sẵn sàng hỗ trợ bạn trực tuyến.
+                    </p>
+                </div>
+            </div>
+
+            
         </Container>
+            <Footer />
+            </>
     );
 };
 

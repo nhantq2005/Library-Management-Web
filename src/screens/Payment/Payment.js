@@ -1,34 +1,56 @@
 import React, { useContext, useState } from 'react';
 import { Row, Col, Form, Button, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { MyUserContext } from '../../configs/Context';
+import { MyUserContext, MyCartBuyContext } from '../../configs/Context'; // Import thêm MyCartBuyContext
+import cookies from 'react-cookies';
+import Apis, { endpoints } from '../../configs/Apis';
 
 const Payment = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('VNPAY');
-    const [user,]= useContext(MyUserContext);
+    const [user,] = useContext(MyUserContext);
+    const [cartBuy,] = useContext(MyCartBuyContext);
+    // const [totalAmount, setTotalAmount] = useState(cartBuy?.totalAmount || 0); // Lấy totalAmount từ context
 
-    // MOCK DATA: Giả lập dữ liệu giỏ hàng. 
-    // Thay thế bằng dữ liệu thật từ MyCartBuyContext của bạn nhé.
-    const cartItems = [
-        { id: 1, title: 'Lập trình Python nâng cao', price: 150000 },
-        { id: 2, title: 'Thiết kế hệ thống phân tán', price: 250000 }
-    ];
-    const totalAmount = cartItems.reduce((sum, item) => sum + item.price, 0);
+    // Lấy chi tiết các item từ cookie để hiển thị danh sách "Tóm tắt đơn hàng" (không gọi hàm)
+    let cartItems = [];
+    if (user && user.id) {
+        const cart = cookies.load(`cartBuy_${user.id}`) || {};
+        cartItems = Object.values(cart);
+    }
+    
+    // LẤY TOTAL AMOUNT TRỰC TIẾP TỪ REDUCER
+   const totalAmount = cartBuy?.totalAmount > 0 
+        ? cartBuy.totalAmount 
+        : cartItems.reduce((sum, item) => sum + (item.price || 0), 0);
+
 
     const handlePayment = async (e) => {
         e.preventDefault();
         setLoading(true);
         try {
-            // Giả lập gọi API thanh toán
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            console.log("Khởi tạo thanh toán với số tiền:", totalAmount);
             
-            // Chuyển hướng đến cổng thanh toán hoặc trang thành công
-            alert(`Đang chuyển hướng đến cổng thanh toán ${paymentMethod}...`);
+            // Ép kiểu totalAmount sang chuỗi (String) để khớp với Map<String, String> ở Backend
+            const res = await Apis.post(endpoints['VNPAY-payment'], { 
+                amount: totalAmount.toString() 
+            });
+            
+            // Sửa res.ok thành res.status === 200 (vì dùng Axios)
+            if (res.status === 200 && res.data && res.data.paymentUrl) {
+                // Chuyển hướng người dùng sang trang thanh toán của VNPay
+                window.location.href = res.data.paymentUrl;
+            } else {
+                alert("Không thể khởi tạo thanh toán. Vui lòng thử lại!");
+            }
         } catch (error) {
-            console.error(error);
-            alert("Có lỗi xảy ra trong quá trình khởi tạo thanh toán.");
+            console.error("Lỗi chi tiết:", error);
+            if (error.response && error.response.data) {
+                alert(`Lỗi từ server: ${error.response.data.message || 'Kiểm tra lại dữ liệu gửi lên'}`);
+            } else {
+                alert("Có lỗi xảy ra trong quá trình khởi tạo thanh toán.");
+            }
         } finally {
             setLoading(false);
         }
@@ -90,28 +112,13 @@ const Payment = () => {
                                 >
                                     <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: paymentMethod === 'VNPAY' ? '5px solid #1D559F' : '1px solid #D1D5DB', backgroundColor: '#FFFFFF' }}></div>
                                     <div className="d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', backgroundColor: '#FFFFFF', borderRadius: '4px', border: '1px solid #E5E7EB', fontWeight: 'bold', color: '#005BAA', fontSize: '0.7rem' }}>
-                                        VNP
+                                        VNPay
                                     </div>
                                     <div>
                                         <div style={{ color: '#111827', fontWeight: '600', fontSize: '0.9rem' }}>Thanh toán qua VNPAY</div>
                                         <div style={{ color: '#6B7280', fontSize: '0.8rem' }}>Quét mã QR hoặc dùng thẻ ATM/Visa/MasterCard</div>
                                     </div>
                                 </div>
-
-                                {/* Option Momo */}
-                                {/* <div 
-                                    style={methodBoxStyle('MOMO')} 
-                                    onClick={() => setPaymentMethod('MOMO')}
-                                >
-                                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: paymentMethod === 'MOMO' ? '5px solid #1D559F' : '1px solid #D1D5DB', backgroundColor: '#FFFFFF' }}></div>
-                                    <div className="d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', backgroundColor: '#A50064', borderRadius: '4px', color: '#FFFFFF', fontSize: '0.7rem', fontWeight: 'bold' }}>
-                                        MM
-                                    </div>
-                                    <div>
-                                        <div style={{ color: '#111827', fontWeight: '600', fontSize: '0.9rem' }}>Ví điện tử MoMo</div>
-                                        <div style={{ color: '#6B7280', fontSize: '0.8rem' }}>Thanh toán nhanh chóng qua ứng dụng MoMo</div>
-                                    </div>
-                                </div> */}
                             </div>
                         </div>
 
@@ -129,7 +136,7 @@ const Payment = () => {
                                     <Form.Label style={labelStyle}>Họ và tên</Form.Label>
                                     <Form.Control 
                                         type="text" 
-                                        value={user.name}
+                                        value={user?.name || ''}
                                         readOnly 
                                         style={{ ...inputStyle, backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'not-allowed' }} 
                                     />
@@ -140,7 +147,7 @@ const Payment = () => {
                                             <Form.Label style={labelStyle}>Email</Form.Label>
                                             <Form.Control 
                                                 type="email" 
-                                                value={user.email}
+                                                value={user?.email || ''}
                                                 readOnly 
                                                 style={{ ...inputStyle, backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'not-allowed' }} 
                                             />
@@ -151,7 +158,7 @@ const Payment = () => {
                                             <Form.Label style={labelStyle}>Vai trò</Form.Label>
                                             <Form.Control 
                                                 type="text" 
-                                                value={user.role === "ROLE_STUDENT" ? "Sinh viên" : "Giảng viên"} // Thay bằng {user.role === "ROLE_STU" ? "Sinh viên" : "Giảng viên"}
+                                                value={user?.role === "ROLE_STUDENT" ? "Sinh viên" : "Giảng viên"}
                                                 readOnly 
                                                 style={{ ...inputStyle, backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'not-allowed' }} 
                                             />
@@ -162,6 +169,7 @@ const Payment = () => {
                         </div>
                     </Col>
 
+                    {/* CỘT PHẢI: Tóm tắt đơn hàng */}
                     <Col lg={5}>
                         <div style={{ ...cardStyle, position: 'sticky', top: '32px' }}>
                             <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '24px' }}>

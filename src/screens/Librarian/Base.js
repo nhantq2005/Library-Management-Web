@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet } from "react-router-dom";
 import SideBar from '../../components/SideBar';
 import Footer from '../../components/Footer';
-import './LibrarianDashboard.css'; 
 
 const Base = () => {
   return (

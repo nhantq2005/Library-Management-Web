@@ -14,7 +14,7 @@ const PageNotFound = () => {
       <p className="text-muted mb-4" style={{ fontSize: '1.1rem', maxWidth: 400, textAlign: 'center' }}>
         Rất tiếc, chúng tôi không thể tìm thấy trang bạn đang tìm kiếm.<br />Vui lòng kiểm tra lại đường dẫn hoặc quay về trang chủ.
       </p>
-      <Button variant="primary" style={{ backgroundColor: '#1c4c96', borderColor: '#1c4c96', fontFamily: 'monospace', fontWeight: 600, letterSpacing: 1 }} onClick={() => navigate(-1)}>
+      <Button variant="primary" className="mb-5" style={{ backgroundColor: '#1c4c96', borderColor: '#1c4c96', fontFamily: 'monospace', fontWeight: 600, letterSpacing: 1, width: '30%' }} onClick={() => navigate(-1)}>
         Quay lại
       </Button>
     </div>
