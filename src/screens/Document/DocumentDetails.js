@@ -8,13 +8,10 @@ import { MyUserContext } from "../../configs/Context";
 import useOrder from "../../components/useOrder";
 import DocumentDetailStyles from "../../style/DocumentDetailStyles";
 import ReviewItem from "../../components/Items/ReviewItem";
-<<<<<<< HEAD
 import PdfViewer from "../View/PDFView";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-=======
 import CompareModal from "../../components/CompareModal";
->>>>>>> 506f3f1f051560fa4ea2f9536066c860458de955
 
 const DocumentDetails = () => {
     const { documentId } = useParams();
