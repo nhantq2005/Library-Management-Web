@@ -1,28 +1,28 @@
-name: Deploy ReactJS lên GitHub Pages
+name: Tự động Deploy ReactJS lên GitHub Pages
 
 on:
   push:
     branches:
-      - main
+      - main 
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Tải mã nguồn về máy chủ GitHub Actions
+      - name: 🛎️ Tải mã nguồn về máy chủ GitHub Actions
         uses: actions/checkout@v3
 
-      - name: Cài đặt Node.js
+      - name: ⚙️ Cài đặt Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18' # Bạn có thể đổi sang version Node.js bạn đang dùng
+          node-version: '18'
 
       - name: 📦 Cài đặt thư viện (NPM Install)
-        run: CI=false npm run build
+        run: npm install
 
       - name: 🛠️ Build dự án React
-        run: npm run build
+        run: CI=false npm run build
 
       - name: 🚀 Đẩy bản build lên GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
