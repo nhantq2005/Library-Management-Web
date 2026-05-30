@@ -7,7 +7,7 @@ const LoadMoreButton = ({ onClick, isLoading }) => {
                 variant="none"
                 className="fw-semibold px-4 py-2 shadow-sm"
                 style={{
-                    color: '#4f46e5',
+                    color: '#1D559F',
                     border: '1px solid #e2e8f0',
                     backgroundColor: '#ffffff',
                     borderRadius: '10px',
@@ -16,7 +16,7 @@ const LoadMoreButton = ({ onClick, isLoading }) => {
                 }}
                 onMouseOver={(e) => {
                     e.currentTarget.style.backgroundColor = '#f8fafc';
-                    e.currentTarget.style.borderColor = '#4f46e5';
+                    e.currentTarget.style.borderColor = '#1D559F';
                 }}
                 onMouseOut={(e) => {
                     e.currentTarget.style.backgroundColor = '#ffffff';

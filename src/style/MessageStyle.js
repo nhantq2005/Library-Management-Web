@@ -1,5 +1,4 @@
 export const messageStyle = {
-
   mainContainer: {
     display: 'flex',
     height: '100%',
@@ -8,7 +7,7 @@ export const messageStyle = {
   },
 
   sidebarContainer: {
-    width: '20%',
+    width: '25%', // Tăng nhẹ width để tên user không bị chèn ép
     height: 'calc(100vh - 64px)',
     background: '#fff',
     borderRight: '1px solid #E5E7EB',
@@ -42,8 +41,8 @@ export const messageStyle = {
   cardStyle: {
     width: "100%",
     height: "calc(100vh - 64px)",
-    border: "1px solid #E5E7EB",
-    borderRadius: "4px",
+    border: "none", // Bỏ viền thừa để phẳng hơn
+    borderRadius: "0",
     boxShadow: "none",
     display: "flex",
     flexDirection: "column",
@@ -64,7 +63,7 @@ export const messageStyle = {
     backgroundColor: "#FFFFFF",
     display: "flex",
     flexDirection: "column",
-    gap: "20px"
+    gap: "16px" // Khoảng cách giữa các tin nhắn
   },
 
   bubbleRow: (isMe) => ({
@@ -72,26 +71,34 @@ export const messageStyle = {
     justifyContent: isMe ? "flex-end" : "flex-start",
     width: "100%"
   }),
+  
+  // Đã sửa lỗi hiển thị chữ
   bubble: (isMe) => ({
-    maxWidth: "85%",
-    padding: "12px 18px",
+    maxWidth: "100%", // Giảm từ 85% xuống 70% để bong bóng không quá dài trên web
+    width: "fit-content", // Ôm sát nội dung tin nhắn ngắn
+    padding: "10px 16px",
     borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
     backgroundColor: isMe ? "#1D559F" : "#F3F4F6",
     color: isMe ? "#fff" : "#111827",
     border: isMe ? "none" : "1px solid #E5E7EB",
     fontSize: "0.95rem",
-    wordBreak: "break-word",
-    boxShadow: isMe ? "0 2px 8px rgba(29,85,159,0.08)" : "0 1px 4px rgba(0,0,0,0.03)"
+    lineHeight: "1.5",
+    
+    /* 3 thuộc tính quan trọng để fix lỗi rớt dòng và tràn chữ */
+    wordWrap: "break-word", 
+    overflowWrap: "anywhere", // Ép cắt ngang từ nếu chuỗi dài không có dấu cách (ví dụ: fhwhed...)
+    whiteSpace: "pre-wrap", // Giữ nguyên khoảng trắng và định dạng xuống dòng của người dùng
+    
+    boxShadow: isMe ? "0 2px 8px rgba(29,85,159,0.15)" : "none"
   }),
 
   senderNameStyle: {
-    fontSize: "0.7rem",
+    fontSize: "0.75rem",
     fontWeight: "600",
     color: "#6B7280",
-    marginBottom: "4px",
+    marginBottom: "6px",
     display: "block",
-    textTransform: "uppercase",
-    letterSpacing: "0.05em"
+    letterSpacing: "0.02em"
   },
 
   footerStyle: {
@@ -103,29 +110,30 @@ export const messageStyle = {
   inputStyle: {
     backgroundColor: '#F9FAFB',
     border: '1px solid #E5E7EB',
-    borderTopRightRadius: '0px',     // Vuông góc phải trên
-    borderBottomRightRadius: '0px',  // Vuông góc phải dưới
-    borderRight: 'none',             // Ẩn viền phải để khít nút gửi
+    borderTopRightRadius: '0px',
+    borderBottomRightRadius: '0px',
+    borderRight: 'none',
     padding: '12px 16px',
-    fontSize: '0.875rem',
+    fontSize: '0.95rem',
     boxShadow: 'none',
     fontFamily: 'Inter, sans-serif'
   },
 
+  // Sửa lỗi chữ "Gửi" bị rớt dòng
   sendButtonStyle: {
-    width: "80px",
+    minWidth: "90px", // Dùng minWidth thay vì width cứng
+    whiteSpace: "nowrap", // Ép chữ trên 1 dòng
     backgroundColor: "#1D559F",
     border: "none",
     borderTopLeftRadius: '0px',
     borderBottomLeftRadius: '0px',
-    borderTopRightRadius: '4px',      // Bo góc phải
-    borderBottomRightRadius: '4px',
-    padding: "0 28px",
-    fontWeight: "500",
+    borderTopRightRadius: '6px',
+    borderBottomRightRadius: '6px',
+    padding: "0 24px",
+    fontWeight: "600",
     fontSize: "0.95rem",
     color: "#fff",
-    boxShadow: "0 2px 8px rgba(29,85,159,0.08)",
-    transition: "background 0.2s, box-shadow 0.2s",
+    transition: "all 0.2s",
     cursor: "pointer"
   }
 }

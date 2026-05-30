@@ -3,19 +3,17 @@ import { Link, useLocation } from 'react-router-dom';
 import {
     MdOutlineDashboard, MdOutlineDocumentScanner, MdDashboard, MdDocumentScanner,
     MdCategory, MdOutlineCategory, MdPayments, MdOutlinePayments, MdOutlineLogout,
-    MdOutlineMessage, MdMessage, MdLocalLibrary
+    MdOutlineMessage, MdMessage
 } from 'react-icons/md';
-import { FaBookReader } from 'react-icons/fa';
+import { FaBookOpen, FaBookReader } from 'react-icons/fa';
 import { BiBookReader } from 'react-icons/bi';
-
-// Import toàn bộ style
 import {sidebarStyles} from '../style/SideBarStyle';
+import { IoMdAddCircleOutline } from 'react-icons/io';
 
 const SideBar = () => {
     const location = useLocation();
     const currentPath = location.pathname;
 
-    // Các state quản lý hiệu ứng Hover
     const [hoveredNavIndex, setHoveredNavIndex] = useState(null);
     const [isBtnHovered, setIsBtnHovered] = useState(false);
     const [isFooterHovered, setIsFooterHovered] = useState(false);
@@ -67,24 +65,20 @@ const SideBar = () => {
 
     return (
         <nav style={sidebarStyles.sidebarContainerStyle}>
-            {/* Header & Logo */}
             <div style={sidebarStyles.sidebarHeaderLogoAreaStyle}>
                 <div style={sidebarStyles.logoIconWrapperStyle}>
-                    <MdLocalLibrary size={22} />
+                    <FaBookOpen size={22} style={{ color: 'white' }}/>
                 </div>
                 <h2 style={sidebarStyles.sidebarLogoStyle}>
-                    <span style={{ color: '#1e293b' }}>e</span>
-                    <span style={{ color: '#4f46e5' }}>Library</span>
+                    <span style={{ color: '#1D559F' }}>eLibrary</span>
                 </h2>
             </div>
 
-            {/* Main Navigation */}
             <ul style={sidebarStyles.navMenuStyle}>
                 {navItems.map((item, index) => {
                     const isActive = item.selected;
                     const isHovered = hoveredNavIndex === index;
 
-                    // Tính toán style kết hợp giữa Normal, Active và Hover
                     let currentLinkStyle = isActive ? sidebarStyles.navLinkActiveStyle : sidebarStyles.navLinkNormalStyle;
                     if (isHovered && !isActive) {
                         currentLinkStyle = { ...currentLinkStyle, backgroundColor: '#e5e7eb', color: '#111827' };
@@ -106,7 +100,6 @@ const SideBar = () => {
                 })}
             </ul>
 
-            {/* Action Button */}
             <div style={sidebarStyles.actionSectionStyle}>
                 <Link
                     to="/librarian/add-document"
@@ -117,12 +110,12 @@ const SideBar = () => {
                     onMouseEnter={() => setIsBtnHovered(true)}
                     onMouseLeave={() => setIsBtnHovered(false)}
                 >
+                    <IoMdAddCircleOutline size={20} className="me-1" />
                     Thêm tài liệu
                 </Link>
             </div>
 
-            {/* Profile Section */}
-            <div style={sidebarStyles.sidebarHeaderProfileStyle}>
+            {/* <div style={sidebarStyles.sidebarHeaderProfileStyle}>
                 <div style={sidebarStyles.userProfileStyle}>
                     <img
                         src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"
@@ -134,11 +127,9 @@ const SideBar = () => {
                         <p style={sidebarStyles.userInfoPStyle}>Management Suite</p>
                     </div>
                 </div>
-            </div>
+            </div> */}
 
             <div style={sidebarStyles.dividerStyle}></div>
-
-            {/* Footer Navigation */}
             <div style={sidebarStyles.sidebarFooterStyle}>
                 <Link
                     to="/"

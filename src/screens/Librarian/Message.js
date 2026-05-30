@@ -139,14 +139,19 @@ const Message = () => {
               const isMe = msg.senderId === "LIBRARIAN";
               return (
                 <div key={msg.id} style={messageStyle.bubbleRow(isMe)}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: isMe ? "flex-end" : "flex-start" }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: isMe ? "flex-end" : "flex-start", maxWidth: "100%" }}>
+                    
                     {!isMe && <span style={messageStyle.senderNameStyle}>{msg.senderName}</span>}
+                    
+                    {/* KHÔNG dùng thẻ <p> ở đây nữa, đưa trực tiếp text vào div */}
                     <div style={messageStyle.bubble(isMe)}>
-                      <p style={{ margin: 0, lineHeight: "1.5" }}>{msg.content}</p>
+                      {msg.content}
                     </div>
-                    <span style={{ fontSize: "0.65rem", color: "#9CA3AF", marginTop: "4px" }}>
+                    
+                    <span style={{ fontSize: "0.7rem", color: "#9CA3AF", marginTop: "6px" }}>
                       {msg.timestamp ? moment(msg.timestamp).format("HH:mm") : ""}
                     </span>
+                    
                   </div>
                 </div>
               );

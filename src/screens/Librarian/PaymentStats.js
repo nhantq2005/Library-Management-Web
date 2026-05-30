@@ -110,7 +110,7 @@ const PaymentStats = () => {
             {/* Title */}
             <div className="mb-4">
                 <h3 style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem', marginBottom: '4px' }}>
-                    Thống kê thanh toán & Thương mại
+                    Thống kê thanh toán
                 </h3>
                 <p className="mb-0" style={{ fontSize: '0.875rem', color: '#4B5563' }}>
                     Theo dõi doanh thu, lịch sử mua và hoạt động thanh toán.

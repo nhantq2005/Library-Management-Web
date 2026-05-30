@@ -1,4 +1,3 @@
-// Định nghĩa navLinkBaseStyle trước
 const navLinkBaseStyle = {
     display: 'flex',
     alignItems: 'center',
@@ -38,13 +37,13 @@ export const sidebarStyles = {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#4f46e5',
+        backgroundColor: '#1D559F',
         color: 'white',
         width: '38px',
         height: '38px',
         borderRadius: '10px',
         marginRight: '12px',
-        boxShadow: '0 4px 10px rgba(79, 70, 229, 0.3)'
+        boxShadow: '0 4px 10px rgba(198, 198, 198, 0.3)'
     },
 
     sidebarLogoStyle: {

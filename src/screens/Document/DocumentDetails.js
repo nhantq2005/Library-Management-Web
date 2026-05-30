@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from "react";
 import { Button, Col, Container, Image, Row, Spinner, Form } from "react-bootstrap";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate} from "react-router-dom";
 import cookies from 'react-cookies';
 import Apis, { authApi, endpoints } from "../../configs/Apis";
 import moment from "moment";
@@ -17,7 +17,7 @@ import { IoIosGitCompare } from "react-icons/io";
 const DocumentDetails = () => {
     const { documentId } = useParams();
     const [doc, setDoc] = useState(null);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const nav = useNavigate();
     const [user] = useContext(MyUserContext);
     const [hasAccess, setHasAccess] = useState(false);
@@ -164,7 +164,7 @@ const DocumentDetails = () => {
         if (hasAccess) {
             const pdfUrl = doc.fileUrl;
             if (pdfUrl) {
-                setIsViewing(true); // Hiện PDFView nhúng
+                setIsViewing(true);
             } else {
                 alert("Rất tiếc, tài liệu này hiện chưa được cập nhật file PDF trên hệ thống!");
             }
@@ -190,7 +190,7 @@ const DocumentDetails = () => {
 
     const fileId = doc ? extractCloudinaryFileId(doc.fileUrl) : null;
     if (loading) return <div className="text-center py-5 mt-5"><Spinner animation="border" style={{ color: '#1D559F' }} /></div>;
-    if (doc === null) return <h3 className="text-center mt-5" style={{ color: '#DC2626', fontWeight: '600' }}>Không tìm thấy thông tin tài liệu!</h3>;
+    if (doc === null && !loading) return <h3 className="text-center mt-5" style={{ color: '#DC2626', fontWeight: '600' }}>Không tìm thấy thông tin tài liệu!</h3>;
 
     // Nếu đang xem PDF thì chỉ hiện PDFView và nút quay lại
     if (isViewing && fileId) {
@@ -286,7 +286,7 @@ const DocumentDetails = () => {
                                         onClick={() => setShowCompare(true)}
                                         style={{ borderRadius: '4px', padding: '10px 24px', fontSize: '0.875rem', fontWeight: '500' }}
                                     >
-                                        <IoIosGitCompare /> So sánh tài liệu
+                                        <IoIosGitCompare size={20} /> So sánh tài liệu
                                     </Button>
                                 </div>
                                 {!hasAccess && !checkingAccess && (
