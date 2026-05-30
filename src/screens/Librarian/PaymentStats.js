@@ -5,19 +5,11 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Pie } from 'react-chartjs-2';
 import LoadMoreButton from '../../components/LoadMoreButton';
 import cookies from 'react-cookies';
-import {
-    cardStyle,
-    inputStyle,
-    thStyle,
-    tdStyle,
-    badgeStyle
-} from './PaymentStatsStyle';
+import {paymentStatsStyle} from '../../style/PaymentStatsStyle';
 
-// Register Chart.js components
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 const PaymentStats = () => {
-    // State
     const [statsData, setStatsData] = useState([]);
     const [statsLoading, setStatsLoading] = useState(false);
     const [fromDate, setFromDate] = useState('');
@@ -28,48 +20,6 @@ const PaymentStats = () => {
     const [hasMore, setHasMore] = useState(true);
     const [statusFilter, setStatusFilter] = useState('');
     const [error, setError] = useState("");
-
-    // const loadRevenueStats = async () => {
-    //     setStatsLoading(true);
-    //     try {
-    //         // Gọi đến API backend của bạn
-    //         let url = '/stats/secure/revenue-by-document';
-    //         let queryParams = [];
-    //         if (fromDate) queryParams.push(`fromDate=${fromDate}`);
-    //         if (toDate) queryParams.push(`toDate=${toDate}`);
-    //         if (queryParams.length > 0) url += `?${queryParams.join('&')}`;
-
-    //         // Sử dụng authApi với token
-    //         const res = await authApi(cookies.load('token')).get(url);
-
-    //         // Cập nhật dữ liệu từ API thay vì mock data
-    //         setStatsData(res.data || []);
-    //     } catch (err) {
-    //         console.error("Lỗi tải thống kê doanh thu:", err);
-    //         setError("Không thể tải thống kê doanh thu.");
-    //         setStatsData([]); // Reset về rỗng nếu lỗi
-    //     } finally {
-    //         setStatsLoading(false);
-    //     }
-    // };
-
-    // Fetch transaction history
-    // const loadTransactionHistory = async () => {
-    // setTxLoading(true);
-    // try {
-    //     let url = `/stats/secure/revenue-by-document`; // <--- LỖI Ở ĐÂY
-    //     if (statusFilter) url += `&status=${statusFilter}`;
-    //         const res = await authApi(cookies.load('token')).get(url);
-    //         setHasMore(!(res.data.length === 0 || res.data.length < 20));
-    //         setTransactions(page === 1 ? res.data : prev => [...prev, ...res.data]);
-    //     } catch (err) {
-    //         console.error("Lỗi tải lịch sử mua tài liệu:", err);
-    //         setError("Không thể tải lịch sử mua tài liệu.");
-    //     } finally {
-    //         setTxLoading(false);
-    //     }
-    // };
-
 
     const loadRevenueStats = async () => {
         const token = cookies.load('token'); // Lấy token
@@ -160,7 +110,7 @@ const PaymentStats = () => {
             {/* Title */}
             <div className="mb-4">
                 <h3 style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem', marginBottom: '4px' }}>
-                    Thống kê thanh toán & Thương mại
+                    Thống kê thanh toán
                 </h3>
                 <p className="mb-0" style={{ fontSize: '0.875rem', color: '#4B5563' }}>
                     Theo dõi doanh thu, lịch sử mua và hoạt động thanh toán.
@@ -170,7 +120,7 @@ const PaymentStats = () => {
             {/* Summary widgets */}
             <Row className="mb-4">
                 <Col md={6} lg={4}>
-                    <div style={cardStyle} className="h-100">
+                    <div style={paymentStatsStyle.cardStyle} className="h-100">
                         <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
                             Tổng Doanh Thu Kinh Doanh
                         </div>
@@ -180,7 +130,7 @@ const PaymentStats = () => {
                     </div>
                 </Col>
                 <Col md={6} lg={4}>
-                    <div style={cardStyle} className="h-100">
+                    <div style={paymentStatsStyle.cardStyle} className="h-100">
                         <div style={{ fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px' }}>
                             Tổng Số Lượt Mua Thành Công
                         </div>
@@ -195,7 +145,7 @@ const PaymentStats = () => {
             <Row className="mb-4">
                 {/* Revenue table */}
                 <Col lg={7} className="mb-3 mb-lg-0">
-                    <div style={cardStyle} className="h-100 d-flex flex-column">
+                    <div style={paymentStatsStyle.cardStyle} className="h-100 d-flex flex-column">
                         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                             <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', margin: 0 }}>Doanh thu theo đầu sách</h5>
                             <div className="d-flex gap-2 align-items-center">
@@ -203,14 +153,14 @@ const PaymentStats = () => {
                                     type="date"
                                     value={fromDate}
                                     onChange={e => setFromDate(e.target.value)}
-                                    style={{ ...inputStyle, width: '130px' }}
+                                    style={{ ...paymentStatsStyle.inputStyle, width: '130px' }}
                                 />
                                 <span style={{ color: '#9CA3AF' }}>-</span>
                                 <Form.Control
                                     type="date"
                                     value={toDate}
                                     onChange={e => setToDate(e.target.value)}
-                                    style={{ ...inputStyle, width: '130px' }}
+                                    style={{ ...paymentStatsStyle.inputStyle, width: '130px' }}
                                 />
                             </div>
                         </div>
@@ -224,17 +174,17 @@ const PaymentStats = () => {
                                 <Table hover responsive className="align-middle mb-0" style={{ borderTop: '1px solid #E5E7EB' }}>
                                     <thead>
                                         <tr>
-                                            <th style={thStyle}>Tên tài liệu</th>
-                                            <th style={{ ...thStyle, textAlign: 'center' }}>Số lượt mua</th>
-                                            <th style={{ ...thStyle, textAlign: 'right' }}>Tổng tiền (VNĐ)</th>
+                                            <th style={paymentStatsStyle.thStyle}>Tên tài liệu</th>
+                                            <th style={{ ...paymentStatsStyle.thStyle, textAlign: 'center' }}>Số lượt mua</th>
+                                            <th style={{ ...paymentStatsStyle.thStyle, textAlign: 'right' }}>Tổng tiền (VNĐ)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {statsData.map((item, idx) => (
                                             <tr key={idx}>
-                                                <td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>{item[1]}</td>
-                                                <td style={{ ...tdStyle, textAlign: 'center', color: '#4B5563' }}>{item[2]}</td>
-                                                <td style={{ ...tdStyle, textAlign: 'right', fontWeight: '600' }}>{(item[3] || 0).toLocaleString('vi-VN')} đ</td>
+                                                <td style={{ ...paymentStatsStyle.tdStyle, fontWeight: '500', color: '#1D559F' }}>{item[1]}</td>
+                                                <td style={{ ...paymentStatsStyle.tdStyle, textAlign: 'center', color: '#4B5563' }}>{item[2]}</td>
+                                                <td style={{ ...paymentStatsStyle.tdStyle, textAlign: 'right', fontWeight: '600' }}>{(item[3] || 0).toLocaleString('vi-VN')} đ</td>
                                             </tr>
                                         ))}
                                         {statsData.length === 0 && (
@@ -253,7 +203,7 @@ const PaymentStats = () => {
 
                 {/* Pie chart */}
                 <Col lg={5}>
-                    <div style={cardStyle} className="h-100 d-flex flex-column justify-content-between">
+                    <div style={paymentStatsStyle.cardStyle} className="h-100 d-flex flex-column justify-content-between">
                         <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '24px' }}>Tỷ lệ đóng góp doanh thu (Top 5)</h5>
                         <div style={{ height: '260px', position: 'relative' }} className="d-flex justify-content-center">
                             {statsData.length > 0 ? (
@@ -278,7 +228,7 @@ const PaymentStats = () => {
             </Row>
 
             {/* Transaction history */}
-            <div style={cardStyle}>
+            <div style={paymentStatsStyle.cardStyle}>
                 <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', margin: 0 }}>Nhật ký giao dịch mua tài liệu</h5>
                     <Form.Select
@@ -287,7 +237,7 @@ const PaymentStats = () => {
                             setStatusFilter(e.target.value);
                             setPage(1);
                         }}
-                        style={{ width: '180px', ...inputStyle }}
+                        style={{ width: '180px', ...paymentStatsStyle.inputStyle }}
                     >
                         <option value="">Tất cả trạng thái</option>
                         <option value="SUCCESS">Thành công (SUCCESS)</option>
@@ -306,31 +256,31 @@ const PaymentStats = () => {
                             <Table hover responsive className="align-middle mb-0" style={{ borderTop: '1px solid #E5E7EB' }}>
                                 <thead>
                                     <tr>
-                                        <th style={thStyle}>Ngày GD</th>
-                                        <th style={thStyle}>Khách hàng</th>
-                                        <th style={thStyle}>Tên tài liệu</th>
-                                        <th style={thStyle}>Phương thức</th>
-                                        <th style={{ ...thStyle, textAlign: 'right' }}>Số tiền</th>
-                                        <th style={{ ...thStyle, textAlign: 'center' }}>Trạng thái</th>
+                                        <th style={paymentStatsStyle.thStyle}>Ngày GD</th>
+                                        <th style={paymentStatsStyle.thStyle}>Khách hàng</th>
+                                        <th style={paymentStatsStyle.thStyle}>Tên tài liệu</th>
+                                        <th style={paymentStatsStyle.thStyle}>Phương thức</th>
+                                        <th style={{ ...paymentStatsStyle.thStyle, textAlign: 'right' }}>Số tiền</th>
+                                        <th style={{ ...paymentStatsStyle.thStyle, textAlign: 'center' }}>Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {transactions.map((tx, idx) => (
                                         <tr key={idx}>
-                                            <td style={{ ...tdStyle, color: '#6B7280' }}>{tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('vi-VN') : '---'}</td>
-                                           <td style={{ ...tdStyle, fontWeight: '500' }}>{tx.username || 'Ẩn danh'}</td>
-<td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>{tx.documentTitle || 'Tài liệu không còn tồn tại'}</td>
-<td style={tdStyle}>
-                                                <span style={{ ...badgeStyle, backgroundColor: '#F3F4F6', color: '#4B5563' }}>{tx.paymentMethod || 'VNPay'}</span>
+                                            <td style={{ ...paymentStatsStyle.tdStyle, color: '#6B7280' }}>{tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('vi-VN') : '---'}</td>
+                                           <td style={{ ...paymentStatsStyle.tdStyle, fontWeight: '500' }}>{tx.username || 'Ẩn danh'}</td>
+<td style={{ ...paymentStatsStyle.tdStyle, fontWeight: '500', color: '#1D559F' }}>{tx.documentTitle || 'Tài liệu không còn tồn tại'}</td>
+<td style={paymentStatsStyle.tdStyle}>
+                                                <span style={{ ...paymentStatsStyle.badgeStyle, backgroundColor: '#F3F4F6', color: '#4B5563' }}>{tx.paymentMethod || 'VNPay'}</span>
                                             </td>
-                                            <td style={{ ...tdStyle, textAlign: 'right', fontWeight: '600' }}>{(tx.amount || 0).toLocaleString('vi-VN')} đ</td>
-                                            <td style={{ ...tdStyle, textAlign: 'center' }}>
+                                            <td style={{ ...paymentStatsStyle.tdStyle, textAlign: 'right', fontWeight: '600' }}>{(tx.amount || 0).toLocaleString('vi-VN')} đ</td>
+                                            <td style={{ ...paymentStatsStyle.tdStyle, textAlign: 'center' }}>
                                                 {tx.status === 'SUCCESS' ? (
-                                                    <span style={{ ...badgeStyle, backgroundColor: '#DCFCE7', color: '#166534' }}>Thành công</span>
+                                                    <span style={{ ...paymentStatsStyle.badgeStyle, backgroundColor: '#DCFCE7', color: '#166534' }}>Thành công</span>
                                                 ) : tx.status === 'FAILED' ? (
-                                                    <span style={{ ...badgeStyle, backgroundColor: '#FEE2E2', color: '#991B1B' }}>Thất bại</span>
+                                                    <span style={{ ...paymentStatsStyle.badgeStyle, backgroundColor: '#FEE2E2', color: '#991B1B' }}>Thất bại</span>
                                                 ) : (
-                                                    <span style={{ ...badgeStyle, backgroundColor: '#FEF08A', color: '#854D0E' }}>{tx.status}</span>
+                                                    <span style={{ ...paymentStatsStyle.badgeStyle, backgroundColor: '#FEF08A', color: '#854D0E' }}>{tx.status}</span>
                                                 )}
                                             </td>
                                         </tr>

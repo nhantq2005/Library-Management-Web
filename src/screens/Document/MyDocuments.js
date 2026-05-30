@@ -83,6 +83,7 @@ const MyDocuments = () => {
 
             const groupedData = groupDocuments(res.data, 'borrowed');
             setBorrowedDocs(prev => pageBorrow === 1 ? groupedData : [...prev, ...groupedData]);
+            console.log("Borrowed Docs:", res.data);
         } catch (error) {
             console.error("Lỗi tải lịch sử mượn:", error);
         } finally {

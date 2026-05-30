@@ -6,6 +6,9 @@ import DeleteButton from '../../components/DeleteButton';
 import EditButton from '../../components/EditButton';
 import cookies from 'react-cookies';
 
+// 1. Chỉ import đúng object tổng
+import { manageCategoryStyle } from '../../style/ManageCategoryStyle';
+
 const ManageCategory = () => {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -43,7 +46,6 @@ const ManageCategory = () => {
         loadCategories();
     }, [page]);
 
-    // 2. MỞ MODAL (Dùng chung cho Thêm mới và Chỉnh sửa)
     const handleOpenModal = (category = null) => {
         setError('');
         if (category) {
@@ -54,14 +56,12 @@ const ManageCategory = () => {
         setShowModal(true);
     };
 
-    // 3. LƯU DANH MỤC (Thêm hoặc Sửa)
     const handleSaveCategory = async (e) => {
         e.preventDefault();
         setModalLoading(true);
         setError('');
 
         try {
-            // API Spring Boot yêu cầu @RequestBody nên ta truyền trực tiếp object JSON
             const payload = {
                 name: currentCategory.name,
                 description: currentCategory.description
@@ -73,7 +73,6 @@ const ManageCategory = () => {
                     setCategories(categories.map(c => c.id === currentCategory.id ? res.data : c));
                 }
             } else {
-                // Thêm mới (POST)
                 const res = await authApi(cookies.load('token')).post('/secure/categories', payload);
                 if (res.status === 201) {
                     setCategories([res.data, ...categories]);
@@ -88,7 +87,6 @@ const ManageCategory = () => {
         }
     };
 
-    // 4. XÓA DANH MỤC
     const handleDelete = async (id) => {
         if (window.confirm("Bạn có chắc chắn muốn xóa danh mục này? Các tài liệu thuộc danh mục có thể bị ảnh hưởng.")) {
             try {
@@ -104,23 +102,18 @@ const ManageCategory = () => {
         }
     };
 
-    // --- LUMINA DESIGN STYLES ---
-    const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none', fontFamily: 'Inter, sans-serif' };
-    const labelStyle = { fontSize: '0.75rem', fontWeight: '600', color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', fontFamily: 'Inter, sans-serif' };
-    const thStyle = { padding: '12px 20px', fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB', backgroundColor: '#FFFFFF' };
-    const tdStyle = { padding: '16px 20px', fontSize: '0.875rem', color: '#111827', verticalAlign: 'middle' };
-
+    // 2. Gọi các style qua manageCategoryStyle.tên_style
     return (
-        <div style={{ padding: '32px 40px', backgroundColor: '#F9FAFB', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
-            <div style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px' }}>
+        <div style={manageCategoryStyle.pageWrapperStyle}>
+            <div style={manageCategoryStyle.cardStyle}>
                 
                 {/* HEADER */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
-                        <h3 className="mb-1" style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem' }}>
+                        <h3 className="mb-1" style={manageCategoryStyle.titleStyle}>
                             Quản lý Danh mục
                         </h3>
-                        <p className="mb-0" style={{ fontSize: '0.875rem', color: '#4B5563' }}>
+                        <p className="mb-0" style={manageCategoryStyle.subtitleStyle}>
                             Thêm, sửa, xóa và quản lý các thể loại tài liệu.
                         </p>
                     </div>
@@ -128,16 +121,7 @@ const ManageCategory = () => {
                     <Button 
                         variant="none" 
                         className="d-flex align-items-center gap-2"
-                        style={{ 
-                            backgroundColor: '#1D559F', 
-                            color: '#FFFFFF',
-                            padding: '10px 20px', 
-                            borderRadius: '4px',
-                            fontSize: '0.875rem',
-                            fontWeight: '500',
-                            border: 'none',
-                            transition: 'all 0.2s ease'
-                        }}
+                        style={manageCategoryStyle.addBtnStyle}
                         onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#154078'; }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#1D559F'; }}
                         onClick={() => handleOpenModal()}
@@ -155,26 +139,26 @@ const ManageCategory = () => {
                         <Spinner animation="border" style={{ color: '#1D559F' }} />
                     </div>
                 ) : (
-                    <div style={{ margin: '0 -24px' }}>
-                        <Table hover responsive className="align-middle mb-0" style={{ borderTop: '1px solid #E5E7EB' }}>
+                    <div style={manageCategoryStyle.tableContainerStyle}>
+                        <Table hover responsive className="align-middle mb-0" style={manageCategoryStyle.tableStyle}>
                             <thead>
                                 <tr>
-                                    <th style={{ ...thStyle, width: '10%' }}>ID</th>
-                                    <th style={{ ...thStyle, width: '35%' }}>Tên danh mục</th>
-                                    <th style={{ ...thStyle, width: '40%' }}>Mô tả</th>
-                                    <th style={{ ...thStyle, width: '15%', textAlign: 'center' }}>Hành động</th>
+                                    <th style={{ ...manageCategoryStyle.thStyle, width: '10%' }}>ID</th>
+                                    <th style={{ ...manageCategoryStyle.thStyle, width: '35%' }}>Tên danh mục</th>
+                                    <th style={{ ...manageCategoryStyle.thStyle, width: '40%' }}>Mô tả</th>
+                                    <th style={{ ...manageCategoryStyle.thStyle, width: '15%', textAlign: 'center' }}>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {categories.length > 0 ? (
                                     categories.map((c) => (
-                                        <tr key={c.id} style={{ borderBottom: '1px solid #E5E7EB' }}>
-                                            <td style={{ ...tdStyle, color: '#6B7280', fontWeight: '500' }}>#{c.id}</td>
-                                            <td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>{c.name}</td>
-                                            <td style={{ ...tdStyle, color: '#4B5563' }}>
+                                        <tr key={c.id} style={manageCategoryStyle.trStyle}>
+                                            <td style={{ ...manageCategoryStyle.tdStyle, color: '#6B7280', fontWeight: '500' }}>#{c.id}</td>
+                                            <td style={{ ...manageCategoryStyle.tdStyle, fontWeight: '500', color: '#1D559F' }}>{c.name}</td>
+                                            <td style={{ ...manageCategoryStyle.tdStyle, color: '#4B5563' }}>
                                                 {c.description || <span style={{ fontStyle: 'italic', color: '#9CA3AF' }}>Không có mô tả</span>}
                                             </td>
-                                            <td style={{ ...tdStyle, textAlign: 'center' }}>
+                                            <td style={{ ...manageCategoryStyle.tdStyle, textAlign: 'center' }}>
                                                 <div className="d-flex justify-content-center gap-2">
                                                     <EditButton onClick={() => handleOpenModal(c)} />
                                                     <DeleteButton onClick={() => handleDelete(c.id)} />
@@ -207,10 +191,10 @@ const ManageCategory = () => {
             </div>
 
             {/* MODAL THÊM / SỬA */}
-            <Modal show={showModal} onHide={() => setShowModal(false)} centered contentClassName="border-0 shadow-lg" style={{ borderRadius: '4px' }}>
+            <Modal show={showModal} onHide={() => setShowModal(false)} centered contentClassName="border-0 shadow-lg" style={manageCategoryStyle.modalStyle}>
                 <Form onSubmit={handleSaveCategory}>
                     <Modal.Header closeButton className="border-0 pb-0">
-                        <Modal.Title className="fs-5 fw-bold" style={{ color: '#111827', fontFamily: 'Inter, sans-serif' }}>
+                        <Modal.Title className="fs-5 fw-bold" style={manageCategoryStyle.modalTitleStyle}>
                             {currentCategory.id ? 'Cập nhật danh mục' : 'Thêm danh mục mới'}
                         </Modal.Title>
                     </Modal.Header>
@@ -218,27 +202,27 @@ const ManageCategory = () => {
                         {error && <Alert variant="danger" style={{ borderRadius: '4px', fontSize: '0.875rem' }}>{error}</Alert>}
                         
                         <Form.Group className="mb-3">
-                            <Form.Label style={labelStyle}>Tên danh mục <span className="text-danger">*</span></Form.Label>
+                            <Form.Label style={manageCategoryStyle.labelStyle}>Tên danh mục <span className="text-danger">*</span></Form.Label>
                             <Form.Control 
                                 type="text" 
                                 placeholder="Nhập tên..." 
                                 required
                                 value={currentCategory.name}
                                 onChange={(e) => setCurrentCategory({...currentCategory, name: e.target.value})}
-                                style={inputStyle}
+                                style={manageCategoryStyle.inputStyle}
                                 autoFocus
                             />
                         </Form.Group>
                         
                         <Form.Group>
-                            <Form.Label style={labelStyle}>Mô tả</Form.Label>
+                            <Form.Label style={manageCategoryStyle.labelStyle}>Mô tả</Form.Label>
                             <Form.Control 
                                 as="textarea" 
                                 rows={3}
                                 placeholder="Nhập mô tả (không bắt buộc)..." 
                                 value={currentCategory.description || ''}
                                 onChange={(e) => setCurrentCategory({...currentCategory, description: e.target.value})}
-                                style={inputStyle}
+                                style={manageCategoryStyle.inputStyle}
                             />
                         </Form.Group>
                     </Modal.Body>
@@ -246,14 +230,14 @@ const ManageCategory = () => {
                         <Button 
                             variant="none" 
                             onClick={() => setShowModal(false)}
-                            style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', color: '#4B5563', borderRadius: '4px', padding: '8px 16px', fontSize: '0.875rem', fontWeight: '500', whiteSpace: 'nowrap' }}
+                            style={manageCategoryStyle.cancelBtnStyle}
                         >
                             Hủy
                         </Button>
                         <Button 
                             type="submit" 
                             disabled={!currentCategory.name.trim() || modalLoading}
-                            style={{ backgroundColor: '#1D559F', color: '#FFFFFF', border: 'none', borderRadius: '4px', padding: '8px 16px', fontSize: '0.875rem', fontWeight: '500', whiteSpace: 'nowrap' }}
+                            style={manageCategoryStyle.saveBtnStyle}
                         >
                             {modalLoading ? <Spinner size="sm" animation="border" className="me-2" /> : null}
                             Lưu thông tin

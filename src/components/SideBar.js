@@ -1,157 +1,148 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import './SideBar.css';
-import { MdOutlineDashboard, MdOutlineDocumentScanner, MdDashboard, MdDocumentScanner, MdCategory, MdOutlineCategory, MdPayments, MdOutlinePayments, MdOutlineLogout, MdOutlineMessage, MdMessage, MdLocalLibrary } from 'react-icons/md';
-import { FaBookReader } from 'react-icons/fa';
+import {
+    MdOutlineDashboard, MdOutlineDocumentScanner, MdDashboard, MdDocumentScanner,
+    MdCategory, MdOutlineCategory, MdPayments, MdOutlinePayments, MdOutlineLogout,
+    MdOutlineMessage, MdMessage
+} from 'react-icons/md';
+import { FaBookOpen, FaBookReader } from 'react-icons/fa';
 import { BiBookReader } from 'react-icons/bi';
+import {sidebarStyles} from '../style/SideBarStyle';
+import { IoMdAddCircleOutline } from 'react-icons/io';
 
 const SideBar = () => {
-  // Sử dụng useLocation để xác định trang hiện tại và hiển thị style active
-  const location = useLocation();
-  const currentPath = location.pathname;
+    const location = useLocation();
+    const currentPath = location.pathname;
 
-  const navItems = [
-    {
-      label: 'Bảng điều khiển',
-      icon: <MdOutlineDashboard size={24}/>,
-      selected: currentPath === '/librarian',
-      link: '/librarian',
-      selectedIcon: <MdDashboard size={24} />
+    const [hoveredNavIndex, setHoveredNavIndex] = useState(null);
+    const [isBtnHovered, setIsBtnHovered] = useState(false);
+    const [isFooterHovered, setIsFooterHovered] = useState(false);
 
-    },{
-      label: 'Quản lý tài liệu',
-      icon: <MdOutlineDocumentScanner size={24} />,
-      selected: currentPath === '/librarian/manage-document',
-      link: '/librarian/manage-document',
-      selectedIcon: <MdDocumentScanner size={24} />
-    },
-    {
-      label: 'Quản lý danh mục',
-      icon: <MdOutlineCategory size={24} />,
-      selected: currentPath === '/librarian/category',
-      link: '/librarian/category',
-      selectedIcon: <MdCategory size={24} />
-    },
-    {
-      label: 'Thống kê mượn trả',
-      icon: <BiBookReader size={24} />,
-      selected: currentPath === '/librarian/stats',
-      link: '/librarian/stats',
-      selectedIcon: <FaBookReader size={23} />
-    },
-    {
-      label: 'Thống kê thanh toán',
-      icon: <MdOutlinePayments size={24} />,
-      selected: currentPath === '/librarian/payment-stats',
-      link: '/librarian/payment-stats',
-      selectedIcon: <MdPayments size={24} />
-    },
-    {
-      label: 'Tin nhắn',
-      icon: <MdOutlineMessage size={24} />,
-      selected: currentPath === '/librarian/messages',
-      link: '/librarian/messages',
-      selectedIcon: <MdMessage size={24} />
-    }
-  ]
+    const navItems = [
+        {
+            label: 'Bảng điều khiển',
+            icon: <MdOutlineDashboard size={24} />,
+            selected: currentPath === '/librarian',
+            link: '/librarian',
+            selectedIcon: <MdDashboard size={24} />
+        },
+        {
+            label: 'Quản lý tài liệu',
+            icon: <MdOutlineDocumentScanner size={24} />,
+            selected: currentPath === '/librarian/manage-document',
+            link: '/librarian/manage-document',
+            selectedIcon: <MdDocumentScanner size={24} />
+        },
+        {
+            label: 'Quản lý danh mục',
+            icon: <MdOutlineCategory size={24} />,
+            selected: currentPath === '/librarian/category',
+            link: '/librarian/category',
+            selectedIcon: <MdCategory size={24} />
+        },
+        {
+            label: 'Thống kê mượn trả',
+            icon: <BiBookReader size={24} />,
+            selected: currentPath === '/librarian/stats',
+            link: '/librarian/stats',
+            selectedIcon: <FaBookReader size={23} />
+        },
+        {
+            label: 'Thống kê thanh toán',
+            icon: <MdOutlinePayments size={24} />,
+            selected: currentPath === '/librarian/payment-stats',
+            link: '/librarian/payment-stats',
+            selectedIcon: <MdPayments size={24} />
+        },
+        {
+            label: 'Tin nhắn',
+            icon: <MdOutlineMessage size={24} />,
+            selected: currentPath === '/librarian/messages',
+            link: '/librarian/messages',
+            selectedIcon: <MdMessage size={24} />
+        }
+    ];
 
-  return (
-    <nav className="sidebar-container">
-      {/* Header & Profile */}
-      {/* <div className="sidebar-header" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-        <h2 className="sidebar-logo">eLibrary</h2>
-      </div> */}
+    return (
+        <nav style={sidebarStyles.sidebarContainerStyle}>
+            <div style={sidebarStyles.sidebarHeaderLogoAreaStyle}>
+                <div style={sidebarStyles.logoIconWrapperStyle}>
+                    <FaBookOpen size={22} style={{ color: 'white' }}/>
+                </div>
+                <h2 style={sidebarStyles.sidebarLogoStyle}>
+                    <span style={{ color: '#1D559F' }}>eLibrary</span>
+                </h2>
+            </div>
 
-<div 
-        className="sidebar-header" 
-        style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          padding: '24px 20px',
-          borderBottom: '1px solid #e2e8f0', // Đường kẻ ngang mờ ngăn cách với menu
-          marginBottom: '20px'
-        }}
-      >
-        {/* Khung Icon Logo */}
-        <div 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            backgroundColor: '#4f46e5', // Màu xanh Indigo chủ đạo
-            color: 'white',
-            width: '38px', 
-            height: '38px', 
-            borderRadius: '10px',
-            marginRight: '12px',
-            boxShadow: '0 4px 10px rgba(79, 70, 229, 0.3)' // Đổ bóng nhẹ cho icon
-          }}
-        >
-          <MdLocalLibrary size={22} />
-        </div>
-        
-        {/* Chữ Logo cách điệu */}
-        <h2 
-          className="sidebar-logo" 
-          style={{ 
-            margin: 0, 
-            fontSize: '1.6rem', 
-            fontWeight: '800', 
-            letterSpacing: '-0.5px' 
-          }}
-        >
-          <span style={{ color: '#1e293b' }}>e</span>
-          <span style={{ color: '#4f46e5' }}>Library</span>
-        </h2>
-      </div>
+            <ul style={sidebarStyles.navMenuStyle}>
+                {navItems.map((item, index) => {
+                    const isActive = item.selected;
+                    const isHovered = hoveredNavIndex === index;
 
-      {/* Main Navigation */}
-      <ul className="nav-menu">
-        {navItems.map((item, index) => (
-          <li key={index} className="nav-item">
-            <Link
-              to={item.link}
-              className={`nav-link ${item.selected ? 'active' : ''}`}
-            >
-              {item.selected ? item.selectedIcon : item.icon}
-              {item.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+                    let currentLinkStyle = isActive ? sidebarStyles.navLinkActiveStyle : sidebarStyles.navLinkNormalStyle;
+                    if (isHovered && !isActive) {
+                        currentLinkStyle = { ...currentLinkStyle, backgroundColor: '#e5e7eb', color: '#111827' };
+                    }
 
-      {/* Action Button (Tách Thêm tài liệu ra thành nút nổi bật giống Add New Book) */}
-      <div className="action-section">
-        <Link to="/librarian/add-document" className="btn-primary">
-          Thêm tài liệu
-        </Link>
-      </div>
+                    return (
+                        <li key={index} style={sidebarStyles.navItemStyle}>
+                            <Link
+                                to={item.link}
+                                style={currentLinkStyle}
+                                onMouseEnter={() => setHoveredNavIndex(index)}
+                                onMouseLeave={() => setHoveredNavIndex(null)}
+                            >
+                                {isActive ? item.selectedIcon : item.icon}
+                                {item.label}
+                            </Link>
+                        </li>
+                    );
+                })}
+            </ul>
 
-      <div className="sidebar-header">
-        <div className="user-profile">
-          {/* Bạn có thể thay src bằng link ảnh avatar thật */}
-          <img 
-            src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" 
-            alt="Librarian Avatar" 
-            className="user-avatar" 
-          />
-          <div className="user-info">
-            <h4>Librarian Portal</h4>
-            <p>Management Suite</p>
-          </div>
-        </div>
-      </div>
+            <div style={sidebarStyles.actionSectionStyle}>
+                <Link
+                    to="/librarian/add-document"
+                    style={{
+                        ...sidebarStyles.btnPrimaryStyle,
+                        backgroundColor: isBtnHovered ? '#1d4ed8' : '#2563eb'
+                    }}
+                    onMouseEnter={() => setIsBtnHovered(true)}
+                    onMouseLeave={() => setIsBtnHovered(false)}
+                >
+                    <IoMdAddCircleOutline size={20} className="me-1" />
+                    Thêm tài liệu
+                </Link>
+            </div>
 
-      <div className="divider"></div>
+            {/* <div style={sidebarStyles.sidebarHeaderProfileStyle}>
+                <div style={sidebarStyles.userProfileStyle}>
+                    <img
+                        src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"
+                        alt="Librarian Avatar"
+                        style={sidebarStyles.userAvatarStyle}
+                    />
+                    <div>
+                        <h4 style={sidebarStyles.userInfoH4Style}>Librarian Portal</h4>
+                        <p style={sidebarStyles.userInfoPStyle}>Management Suite</p>
+                    </div>
+                </div>
+            </div> */}
 
-      {/* Footer Navigation */}
-      <div className="sidebar-footer">
-        <Link to="/" className="nav-link">
-          <MdOutlineLogout />
-          Về trang chủ (Home)
-        </Link>
-      </div>
-    </nav>
-  );
+            <div style={sidebarStyles.dividerStyle}></div>
+            <div style={sidebarStyles.sidebarFooterStyle}>
+                <Link
+                    to="/"
+                    style={isFooterHovered ? { ...sidebarStyles.navLinkNormalStyle, backgroundColor: '#e5e7eb', color: '#111827' } : sidebarStyles.navLinkNormalStyle}
+                    onMouseEnter={() => setIsFooterHovered(true)}
+                    onMouseLeave={() => setIsFooterHovered(false)}
+                >
+                    <MdOutlineLogout size={24} />
+                    Về trang chủ (Home)
+                </Link>
+            </div>
+        </nav>
+    );
 };
+
 export default SideBar;

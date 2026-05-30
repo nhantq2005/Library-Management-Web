@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { Alert, Card, Spinner, Container, Badge, Row } from "react-bootstrap";
+import { Alert, Card, Spinner, Container, Badge, Row, Carousel } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Apis, { endpoints } from "../../configs/Apis";
 import moment from "moment";
@@ -7,6 +7,9 @@ import HomeStyles from "../../style/HomeStyles";
 import LoadMoreButton from "../../components/LoadMoreButton";
 import Footer from "../../components/Footer";
 import Header from "../../components/Header";
+import { FaBookOpen } from "react-icons/fa";
+import { MdAutorenew, MdFavoriteBorder } from "react-icons/md";
+import DocumentCard from "../../components/DocumentCard";
 
 const Home = () => {
     const [latestDocs, setLatestDocs] = useState([]);
@@ -24,6 +27,13 @@ const Home = () => {
     const latestScrollRef = useRef(null);
     const trendScrollRef = useRef(null);
 
+    const banners = [
+        require("../../assets/banner_1.jpg"),
+        require("../../assets/banner_2.jpg"),
+        require("../../assets/banner_3.jpg"),
+        require("../../assets/banner_4.jpg")
+    ];
+
     useEffect(() => {
         if (isSearching) {
             setSearchPage(1);
@@ -31,54 +41,74 @@ const Home = () => {
         }
     }, [kw, cateId, isSearching]);
 
-    useEffect(() => {
-        const fetchHomeData = async () => {
-            try {
-                if (isSearching) {
-                    if (searchPage === 1) setLoading(true);
-                    else setLoadingMoreSearch(true);
+    const loadLatestDocs = async () => {
+        try {
+            setLoading(true);
+            const res = await Apis.get(endpoints['latest-docs']);
+            setLatestDocs(res.data);
+        } catch (ex) {
+            console.error("Lỗi load sách mới:", ex);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                    let url = `${endpoints['documents']}?page=${searchPage}`;
-                    if (kw) url += `&kw=${kw}`;
-                    if (cateId) url += `&cateId=${cateId}`;
-                    
-                    let res = await Apis.get(url);
-                    
-                    if (res.data.length < 20) {
-                        setHasMoreSearch(false);
-                    } else {
-                        setHasMoreSearch(true);
-                    }
+    const loadTrendDocs = async () => {
+        try {
+            setLoading(true);
+            const res = await Apis.get(endpoints['trend-docs']);
+            setTrendDocs(res.data);
+        } catch (ex) {
+            console.error("Lỗi load sách ưa thích:", ex);
+        } finally {
+            setLoading(false);
+        }
+    };
 
-                    if (searchPage === 1) {
-                        setSearchDocs(res.data);
-                    } else {
-                        setSearchDocs(prev => [...prev, ...res.data]);
-                    }
+    const loadHomeData = async () => {
+        try {
+            if (isSearching) {
+                if (searchPage === 1) setLoading(true);
+                else setLoadingMoreSearch(true);
+
+                let url = `${endpoints['documents']}?page=${searchPage}`;
+                if (kw) url += `&kw=${kw}`;
+                if (cateId) url += `&cateId=${cateId}`;
+
+                let res = await Apis.get(url);
+
+                if (res.data.length < 20) {
+                    setHasMoreSearch(false);
                 } else {
-                    setLoading(true);
-                    const [resLatest, resTrend] = await Promise.all([
-                        Apis.get(endpoints['latest-docs']),
-                        Apis.get(endpoints['trend-docs'])
-                    ]);
-                    setLatestDocs(resLatest.data);
-                    setTrendDocs(resTrend.data);
+                    setHasMoreSearch(true);
                 }
-            } catch (ex) {
-                console.error("Lỗi load tài liệu:", ex);
-            } finally {
-                setLoading(false);
-                setLoadingMoreSearch(false);
-            }
-        };
 
-        fetchHomeData();
-    }, [searchPage, kw, cateId, isSearching]); 
+                if (searchPage === 1) {
+                    setSearchDocs(res.data);
+                } else {
+                    setSearchDocs(prev => [...prev, ...res.data]);
+                }
+            } else {
+                setLoading(true);
+                loadLatestDocs();
+                loadTrendDocs();
+            }
+        } catch (ex) {
+            console.error("Lỗi load tài liệu:", ex);
+        } finally {
+            setLoading(false);
+            setLoadingMoreSearch(false);
+        }
+    };
+
+    useEffect(() => {
+        loadHomeData();
+    }, [searchPage, kw, cateId, isSearching]);
 
     useEffect(() => {
         const handleWheel = (e) => {
             if (e.deltaY !== 0) {
-                e.preventDefault(); 
+                e.preventDefault();
                 e.currentTarget.scrollLeft += e.deltaY;
             }
         };
@@ -93,158 +123,104 @@ const Home = () => {
             if (latestElem) latestElem.removeEventListener('wheel', handleWheel);
             if (trendElem) trendElem.removeEventListener('wheel', handleWheel);
         };
-    }, [latestDocs, trendDocs, isSearching]); 
-
-    const renderDocumentCard = (doc, isGrid = false) => (
-        <div 
-            key={doc.id} 
-            style={isGrid ? { height: '100%' } : HomeStyles.cardWrapper} 
-            className={isGrid ? "col-12 col-sm-6 col-md-4 col-lg-3 mb-4" : ""}
-        >
-            <Card
-                onClick={() => nav(`/documents/${doc.id}`)}
-                style={HomeStyles.card}
-                onMouseOver={e => {
-                    e.currentTarget.style.transform = 'translateY(-6px)';
-                    e.currentTarget.style.boxShadow = '0 12px 30px rgba(0, 0, 0, 0.08)';
-                    e.currentTarget.style.borderColor = '#e2e8f0';
-                }}
-                onMouseOut={e => {
-                    e.currentTarget.style.transform = 'none';
-                    e.currentTarget.style.boxShadow = HomeStyles.card.boxShadow;
-                    e.currentTarget.style.borderColor = HomeStyles.card.border.split(' ')[2];
-                }}
-            >
-                <div style={HomeStyles.badgeWrapper}>
-                    <Badge bg="primary" style={HomeStyles.badge}>
-                        {doc.category?.name || "Tài liệu"}
-                    </Badge>
-                </div>
-
-                <Card.Img
-                    variant="top"
-                    src={doc.image}
-                    style={HomeStyles.cardImage}
-                />
-
-                <Card.Body style={HomeStyles.cardBody}>
-                    <Card.Title title={doc.title} style={HomeStyles.cardTitle}>
-                        {doc.title}
-                    </Card.Title>
-
-                    <Card.Text style={HomeStyles.authorText}>
-                        <i className="fa-regular fa-pen-to-square me-1"></i>
-                        {doc.authorSet?.map(a => a.name).join(', ') || 'Đang cập nhật'}
-                    </Card.Text>
-
-                    <div style={HomeStyles.statsContainer}>
-                        <span style={HomeStyles.statText}>
-                            <i className="fa-regular fa-eye me-1"></i>{doc.viewCount || 0}
-                        </span>
-                        {doc.quantity > 0 ? (
-                            <span style={{...HomeStyles.statText, color: '#10b981', fontWeight: '700'}}>
-                                Còn: {doc.quantity}
-                            </span>
-                        ) : (
-                            <span style={{...HomeStyles.statText, color: '#ef4444', fontWeight: '700'}}>
-                                Hết sách
-                            </span>
-                        )}
-                    </div>
-
-                    <div className="mt-auto">
-                        <div style={{ ...HomeStyles.priceText, color: doc.price ? '#e11d48' : '#10b981' }}>
-                            {doc.price ? `${doc.price?.toLocaleString()} đ` : 'Miễn phí'}
-                        </div>
-                        <div style={HomeStyles.dateText}>
-                            <i className="fa-regular fa-clock me-1"></i>
-                            {moment(doc.createdDate).format('DD/MM/YYYY')}
-                        </div>
-                    </div>
-                </Card.Body>
-            </Card>
-        </div>
-    );
+    }, [latestDocs, trendDocs, isSearching]);
 
     return (
-         <>
-        <Header />
-        <Container style={HomeStyles.container}>
+        <>
+            <Header />
+            <Container style={{ ...HomeStyles.container, paddingTop: '20px' }}>
+                {!isSearching && (
+                    <div className="mb-5" style={{ overflow: 'hidden' }}>
+                        <Carousel interval={1000} slide={true}>
+                            {banners.map((img, idx) => (
+                                <Carousel.Item key={idx}>
+                                    <img
+                                        className="d-block w-100"
+                                        src={img}
+                                        alt={`Banner ${idx + 1}`}
+                                        style={{ height: '400px', width: '100%', objectFit: 'cover', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                                    />
+                                </Carousel.Item>
+                            ))}
+                        </Carousel>
+                    </div>
+                )}
 
-            {loading && searchPage === 1 ? (
-                <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
-                    <Spinner animation="grow" variant="primary" />
-                </div>
-            ) : isSearching ? (
-                
-                <div className="mb-5">
-                    <h3 style={HomeStyles.headerTitle} className="mb-4 text-primary">
-                        <i className="fa-solid fa-magnifying-glass me-2"></i>
-                        Kết quả tìm kiếm ({searchDocs.length} tài liệu)
-                    </h3>
-                    
-                    {searchDocs.length === 0 ? (
-                        <Alert variant="light" className="text-center border">Không tìm thấy tài liệu phù hợp!</Alert>
-                    ) : (
-                        <>
-                            <Row>
-                                {searchDocs.map(doc => renderDocumentCard(doc, true))}
-                            </Row>
-                            
-                            {hasMoreSearch && (
-                                <LoadMoreButton 
-                                    onClick={() => setSearchPage(prev => prev + 1)} 
-                                    isLoading={loadingMoreSearch} 
-                                />
+                {loading && searchPage === 1 ? (
+                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+                        <Spinner animation="grow" variant="primary" />
+                    </div>
+                ) : isSearching ? (
+
+                    <div className="mb-5">
+                        <h3 style={HomeStyles.headerTitle} className="mb-4 text-primary">
+                            <i className="fa-solid fa-magnifying-glass me-2"></i>
+                            Kết quả tìm kiếm ({searchDocs.length} tài liệu)
+                        </h3>
+
+                        {searchDocs.length === 0 ? (
+                            <Alert variant="light" className="text-center border">Không tìm thấy tài liệu phù hợp!</Alert>
+                        ) : (
+                            <>
+                                <Row>
+                                    {searchDocs.map(doc => <DocumentCard key={doc.id} doc={doc} isSearchResult={true} />)}
+                                </Row>
+
+                                {hasMoreSearch && (
+                                    <LoadMoreButton
+                                        onClick={() => setSearchPage(prev => prev + 1)}
+                                        isLoading={loadingMoreSearch}
+                                    />
+                                )}
+                            </>
+                        )}
+                    </div>
+
+                ) : (
+                    <>
+                        <div className="mb-5">
+                            <h3 style={HomeStyles.headerTitle} className="mb-4">
+                                <MdAutorenew size={30} className="me-2" />
+                                Sách mới nhất <span style={{ color: '#ef4444' }}></span>
+                            </h3>
+                            {latestDocs.length === 0 ? (
+                                <Alert variant="light" className="text-center border">Chưa có dữ liệu sách mới.</Alert>
+                            ) : (
+                                <div ref={latestScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
+                                    {latestDocs.map(doc => <DocumentCard key={doc.id} doc={doc} />)}
+                                </div>
                             )}
-                        </>
-                    )}
+                        </div>
+
+                        <div className="mb-5">
+                            <h3 style={HomeStyles.headerTitle} className="mb-4">
+                                <MdFavoriteBorder size={30} className="me-2" />
+                                Sách ưa thích nhất <span style={{ color: '#10b981' }}></span>
+                            </h3>
+                            {trendDocs.length === 0 ? (
+                                <Alert variant="light" className="text-center border">Chưa có dữ liệu sách ưa thích.</Alert>
+                            ) : (
+                                <div ref={trendScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
+                                    {trendDocs.map(doc => <DocumentCard key={doc.id} doc={doc} />)}
+                                </div>
+                            )}
+                        </div>
+                    </>
+                )}
+
+                <div className="mb-5" style={{ background: '#F3F6FA', borderRadius: 12, padding: '32px 28px', boxShadow: '0 2px 12px rgba(26,85,159,0.04)', display: 'flex', alignItems: 'center', gap: 32 }}>
+                    <FaBookOpen style={{ fontSize: '2rem', color: '#1D559F' }} size={150} />
+                    <div>
+                        <h2 style={{ color: '#1D559F', fontWeight: 800, fontSize: '2rem', marginBottom: 8, letterSpacing: '-0.02em' }}>eLibrary - Hệ thống quản lý thư viện hiện đại</h2>
+                        <p style={{ color: '#374151', fontSize: '1.1rem', marginBottom: 0 }}>
+                            Chào mừng bạn đến với eLibrary! Chúng tôi cung cấp nền tảng quản lý tài liệu, sách và hỗ trợ mượn/trả hiện đại, thân thiện, bảo mật cao. Hệ thống giúp bạn dễ dàng tìm kiếm, lưu trữ, chia sẻ và quản lý tài liệu mọi lúc, mọi nơi. Đội ngũ thủ thư luôn sẵn sàng hỗ trợ bạn trực tuyến.
+                        </p>
+                    </div>
                 </div>
 
-            ) : (
-                <>
-                    <div className="mb-5">
-                        <h3 style={HomeStyles.headerTitle} className="mb-4">
-                            Sách mới nhất <span style={{ color: '#ef4444' }}></span>
-                        </h3>
-                        {latestDocs.length === 0 ? (
-                            <Alert variant="light" className="text-center border">Chưa có dữ liệu sách mới.</Alert>
-                        ) : (
-                            <div ref={latestScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
-                                {latestDocs.map(doc => renderDocumentCard(doc))}
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="mb-5">
-                        <h3 style={HomeStyles.headerTitle} className="mb-4">
-                            Sách ưa thích nhất <span style={{ color: '#10b981' }}></span>
-                        </h3>
-                        {trendDocs.length === 0 ? (
-                            <Alert variant="light" className="text-center border">Chưa có dữ liệu sách ưa thích.</Alert>
-                        ) : (
-                            <div ref={trendScrollRef} className="hide-scrollbar" style={HomeStyles.scrollContainer}>
-                                {trendDocs.map(doc => renderDocumentCard(doc))}
-                            </div>
-                        )}
-                    </div>
-                </>
-            )}
-
-             <div className="mb-5" style={{ background: '#F3F6FA', borderRadius: 12, padding: '32px 28px', boxShadow: '0 2px 12px rgba(26,85,159,0.04)', display: 'flex', alignItems: 'center', gap: 32 }}>
-                <img src="/logo192.png" alt="eLibrary" style={{ width: 80, height: 80, borderRadius: 16, boxShadow: '0 2px 8px rgba(26,85,159,0.08)' }} />
-                <div>
-                    <h2 style={{ color: '#1D559F', fontWeight: 800, fontSize: '2rem', marginBottom: 8, letterSpacing: '-0.02em' }}>eLibrary - Hệ thống quản lý thư viện hiện đại</h2>
-                    <p style={{ color: '#374151', fontSize: '1.1rem', marginBottom: 0}}>
-                        Chào mừng bạn đến với eLibrary! Chúng tôi cung cấp nền tảng quản lý tài liệu, sách và hỗ trợ mượn/trả hiện đại, thân thiện, bảo mật cao. Hệ thống giúp bạn dễ dàng tìm kiếm, lưu trữ, chia sẻ và quản lý tài liệu mọi lúc, mọi nơi. Đội ngũ thủ thư luôn sẵn sàng hỗ trợ bạn trực tuyến.
-                    </p>
-                </div>
-            </div>
-
-            
-        </Container>
+            </Container>
             <Footer />
-            </>
+        </>
     );
 };
 

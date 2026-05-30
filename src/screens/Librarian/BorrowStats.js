@@ -6,9 +6,7 @@ import { Bar } from 'react-chartjs-2';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import LoadMoreButton from '../../components/LoadMoreButton';
 import { Cookies } from 'react-cookie';
-import {containerStyle, headerTitle, headerDesc, overdueAlert, chartCard, chartCardTitle, chartSelect,
-    chartLoading, chartNoData, tableCard, tableTitle, inputStyle, searchInputGroup, searchInputText,
-    thStyle, tdStyle, badgeStyle, tableNoData, tableNoDataIcon} from '../../style/BorrowStatsStyle';
+import {borrowStatsStyles} from '../../style/BorrowStatsStyle';
 import { IoSearchSharp } from 'react-icons/io5';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
@@ -124,19 +122,19 @@ const BorrowStats = () => {
     };
 
     return (
-        <div style={containerStyle}>
+        <div style={borrowStatsStyles.containerStyle}>
             {/* PHẦN 1: HEADER & CẢNH BÁO */}
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 className="mb-1" style={headerTitle}>
+                    <h3 className="mb-1" style={borrowStatsStyles.headerTitle}>
                         Thống kê mượn trả
                     </h3>
-                    <p className="mb-0" style={headerDesc}>
+                    <p className="mb-0" style={borrowStatsStyles.headerDesc}>
                         Quản lý hoạt động mượn tài liệu và theo dõi quá hạn.
                     </p>
                 </div>
                 {overdueDocs.length > 0 && (
-                    <div style={overdueAlert}>
+                    <div style={borrowStatsStyles.overdueAlert}>
                         <RiErrorWarningLine size={18} />
                         Cảnh báo: Có {overdueDocs.length} phiếu mượn đang quá hạn!
                     </div>
@@ -146,13 +144,13 @@ const BorrowStats = () => {
             {/* PHẦN 2: BIỂU ĐỒ THỐNG KÊ */}
             <Row className="mb-4">
                 <Col md={12}>
-                    <div style={chartCard}>
+                    <div style={borrowStatsStyles.chartCard}>
                         <div className="d-flex justify-content-between align-items-center mb-4">
-                            <h5 className="mb-0" style={chartCardTitle}>Biểu đồ lượt mượn tài liệu</h5>
+                            <h5 className="mb-0" style={borrowStatsStyles.chartCardTitle}>Biểu đồ lượt mượn tài liệu</h5>
                             <Form.Select
                                 value={statYear}
                                 onChange={(e) => setStatYear(e.target.value)}
-                                style={chartSelect}
+                                style={borrowStatsStyles.chartSelect}
                             >
                                 <option value="2024">Năm 2024</option>
                                 <option value="2025">Năm 2025</option>
@@ -161,13 +159,13 @@ const BorrowStats = () => {
                         </div>
                         <div style={{ height: '350px' }}>
                             {isChartLoading ? (
-                                <div style={chartLoading}> {/* Now accurately resolves to the imported style object */}
+                                <div style={borrowStatsStyles.chartLoading}>
                                     <Spinner animation="border" style={{ color: '#1D559F' }} />
                                 </div>
                             ) : chartData.length > 0 ? (
                                 <Bar data={barChartData} options={barChartOptions} />
                             ) : (
-                                <div style={chartNoData}>
+                                <div style={borrowStatsStyles.chartNoData}>
                                     Không có dữ liệu thống kê cho năm này
                                 </div>
                             )}
@@ -177,19 +175,19 @@ const BorrowStats = () => {
             </Row>
 
             {/* PHẦN 3: DANH SÁCH PHIẾU MƯỢN */}
-            <div style={tableCard}>
-                <h5 className="mb-4" style={tableTitle}>Danh sách phiếu mượn</h5>
+            <div style={borrowStatsStyles.tableCard}>
+                <h5 className="mb-4" style={borrowStatsStyles.tableTitle}>Danh sách phiếu mượn</h5>
                 <div className="d-flex gap-3 mb-4 flex-wrap">
-                    <InputGroup style={searchInputGroup}>
+                    <InputGroup style={borrowStatsStyles.searchInputGroup}>
                         <InputGroup.Text
                             className="border-0 px-3"
-                            style={searchInputText}
+                            style={borrowStatsStyles.searchInputText}
                         >
                             <IoSearchSharp />
                         </InputGroup.Text>
                         <Form.Control
                             className="border-0 shadow-none ps-1 py-2"
-                            style={{ ...inputStyle, backgroundColor: '#F9FAFB', fontSize: '0.875rem', color: '#111827' }}
+                            style={{ ...borrowStatsStyles.inputStyle, backgroundColor: '#F9FAFB', fontSize: '0.875rem', color: '#111827' }}
                             placeholder="Tìm theo tên tài liệu..."
                             value={searchInput}
                             onChange={e => setSearchInput(e.target.value)}
@@ -199,7 +197,7 @@ const BorrowStats = () => {
                     <Form.Select
                         value={statusFilter}
                         onChange={handleFilterStatus}
-                        style={{ maxWidth: '200px', ...inputStyle }}
+                        style={{ maxWidth: '200px', ...borrowStatsStyles.inputStyle }}
                     >
                         <option value="">Tất cả trạng thái</option>
                         <option value="PENDING">Đang chờ</option>
@@ -219,36 +217,36 @@ const BorrowStats = () => {
                         <Table hover responsive className="align-middle mb-0" style={{ borderTop: '1px solid #E5E7EB' }}>
                             <thead>
                                 <tr>
-                                    <th style={{ ...thStyle, width: '10%' }}>Mã phiếu</th>
-                                    <th style={thStyle}>Người mượn</th>
-                                    <th style={thStyle}>Tài liệu</th>
-                                    <th style={thStyle}>Ngày mượn</th>
-                                    <th style={thStyle}>Ngày trả (Dự kiến)</th>
-                                    <th style={thStyle}>Trạng thái</th>
+                                    <th style={{ ...borrowStatsStyles.thStyle, width: '10%' }}>Mã phiếu</th>
+                                    <th style={borrowStatsStyles.thStyle}>Người mượn</th>
+                                    <th style={borrowStatsStyles.thStyle}>Tài liệu</th>
+                                    <th style={borrowStatsStyles.thStyle}>Ngày mượn</th>
+                                    <th style={borrowStatsStyles.thStyle}>Ngày trả (Dự kiến)</th>
+                                    <th style={borrowStatsStyles.thStyle}>Trạng thái</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {borrows.length > 0 ? (
                                     borrows.map((b) => (
                                         <tr key={b.id}>
-                                            <td style={{ ...tdStyle, fontWeight: '500', color: '#1D559F' }}>#{b.id}</td>
-                                            <td style={{ ...tdStyle, fontWeight: '500' }}>{b.name || 'N/A'}</td>
-                                            <td style={{ ...tdStyle, fontWeight: '500' }}>{b.documentTitle || 'N/A'}</td>
-                                            <td style={{ ...tdStyle, color: '#4B5563' }}>{b.borrowedDate ? new Date(b.borrowedDate).toLocaleDateString('vi-VN') : '---'}</td>
-                                            <td style={{ ...tdStyle, color: '#4B5563' }}>{b.returnDate ? new Date(b.returnDate).toLocaleDateString('vi-VN') : '---'}</td>
-                                            <td style={tdStyle}>
-                                                {b.status === 'PENDING' && <span style={{ ...badgeStyle, backgroundColor: '#FEF08A', color: '#854D0E' }}>Đang chờ</span>}
-                                                {b.status === 'BORROWING' && <span style={{ ...badgeStyle, backgroundColor: '#DBEAFE', color: '#1E40AF' }}>Đang mượn</span>}
-                                                {b.status === 'RETURNED' && <span style={{ ...badgeStyle, backgroundColor: '#DCFCE7', color: '#166534' }}>Đã trả</span>}
-                                                {b.status === 'OVERDUE' && <span style={{ ...badgeStyle, backgroundColor: '#FEE2E2', color: '#991B1B' }}>Quá hạn</span>}
-                                                {!['PENDING', 'BORROWING', 'RETURNED', 'OVERDUE'].includes(b.status) && <span style={{ ...badgeStyle, backgroundColor: '#F3F4F6', color: '#4B5563' }}>{b.status}</span>}
+                                            <td style={{ ...borrowStatsStyles.tdStyle, fontWeight: '500', color: '#1D559F' }}>#{b.id}</td>
+                                            <td style={{ ...borrowStatsStyles.tdStyle, fontWeight: '500' }}>{b.name || 'N/A'}</td>
+                                            <td style={{ ...borrowStatsStyles.tdStyle, fontWeight: '500' }}>{b.documentTitle || 'N/A'}</td>
+                                            <td style={{ ...borrowStatsStyles.tdStyle, color: '#4B5563' }}>{b.borrowedDate ? new Date(b.borrowedDate).toLocaleDateString('vi-VN') : '---'}</td>
+                                            <td style={{ ...borrowStatsStyles.tdStyle, color: '#4B5563' }}>{b.returnDate ? new Date(b.returnDate).toLocaleDateString('vi-VN') : '---'}</td>
+                                            <td style={borrowStatsStyles.tdStyle}>
+                                                {b.status === 'PENDING' && <span style={{ ...borrowStatsStyles.badgeStyle, backgroundColor: '#FEF08A', color: '#854D0E' }}>Đang chờ</span>}
+                                                {b.status === 'BORROWING' && <span style={{ ...borrowStatsStyles.badgeStyle, backgroundColor: '#DBEAFE', color: '#1E40AF' }}>Đang mượn</span>}
+                                                {b.status === 'RETURNED' && <span style={{ ...borrowStatsStyles.badgeStyle, backgroundColor: '#DCFCE7', color: '#166534' }}>Đã trả</span>}
+                                                {b.status === 'OVERDUE' && <span style={{ ...borrowStatsStyles.badgeStyle, backgroundColor: '#FEE2E2', color: '#991B1B' }}>Quá hạn</span>}
+                                                {!['PENDING', 'BORROWING', 'RETURNED', 'OVERDUE'].includes(b.status) && <span style={{ ...borrowStatsStyles.badgeStyle, backgroundColor: '#F3F4F6', color: '#4B5563' }}>{b.status}</span>}
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan="6" className="text-center py-5 text-muted" style={tableNoData}>
-                                            <div className="mb-2" style={tableNoDataIcon}>📭</div>
+                                        <td colSpan="6" className="text-center py-5 text-muted" style={borrowStatsStyles.tableNoData}>
+                                            <div className="mb-2" style={borrowStatsStyles.tableNoDataIcon}>📭</div>
                                             Không tìm thấy phiếu mượn nào phù hợp.
                                         </td>
                                     </tr>

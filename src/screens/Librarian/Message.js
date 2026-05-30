@@ -5,26 +5,11 @@ import { ref, push, onValue, query, orderByChild } from "firebase/database";
 import { database } from "../../utils/FirebaseConfig";
 
 // Import các style từ file MessageStyle.js tách rời
-import {
-  mainContainer,
-  sidebarContainer,
-  sidebarHeader,
-  sidebarBody,
-  chatAreaWrapper,
-  cardStyle,
-  headerStyle,
-  chatBodyStyle,
-  bubbleRow,
-  bubble,
-  senderNameStyle,
-  footerStyle,
-  inputStyle,
-  sendButtonStyle
-} from "../../style/MessageStyle";
+import { messageStyle } from "../../style/MessageStyle";
 
 const Message = () => {
-  const [userList, setUserList] = useState([]); 
-  const [activeUserId, setActiveUserId] = useState(null); 
+  const [userList, setUserList] = useState([]);
+  const [activeUserId, setActiveUserId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messageEndRef = useRef(null);
@@ -87,23 +72,23 @@ const Message = () => {
 
     const messagesRef = ref(database, `chats/${threadId}/messages`);
     push(messagesRef, {
-        senderId: "LIBRARIAN",
-        senderName: "Admin Thư viện",
-        content: input,
-        timestamp: Date.now()
+      senderId: "LIBRARIAN",
+      senderName: "Admin Thư viện",
+      content: input,
+      timestamp: Date.now()
     });
-    
+
     setInput("");
   };
 
   return (
-    <div style={mainContainer}>
+    <div style={messageStyle.mainContainer}>
       {/* Sidebar: Danh sách user đã chat */}
-      <div style={sidebarContainer}>
-        <div style={sidebarHeader}>
+      <div style={messageStyle.sidebarContainer}>
+        <div style={messageStyle.sidebarHeader}>
           Người dùng đã nhắn
         </div>
-        <div style={sidebarBody}>
+        <div style={messageStyle.sidebarBody}>
           {userList.length === 0 && <div style={{ color: '#9CA3AF', padding: 24 }}>Chưa có cuộc trò chuyện nào.</div>}
           {userList.map(u => (
             <div
@@ -133,9 +118,9 @@ const Message = () => {
       </div>
 
       {/* Main chat area */}
-      <div style={chatAreaWrapper}>
-        <Card style={cardStyle}>
-          <Card.Header style={headerStyle}>
+      <div style={messageStyle.chatAreaWrapper}>
+        <Card style={messageStyle.cardStyle}>
+          <Card.Header style={messageStyle.headerStyle}>
             <div className="d-flex align-items-center gap-3">
               <div style={{ width: "36px", height: "36px", backgroundColor: "#EFF6FF", color: "#1D559F", borderRadius: "4px" }} className="d-flex align-items-center justify-content-center fw-bold">💬</div>
               <div>
@@ -148,20 +133,25 @@ const Message = () => {
             </div>
           </Card.Header>
 
-          <Card.Body style={chatBodyStyle}>
+          <Card.Body style={messageStyle.chatBodyStyle}>
             {messages.length === 0 && <div style={{ color: '#9CA3AF', textAlign: 'center' }}>Chưa có tin nhắn.</div>}
             {messages.map((msg) => {
               const isMe = msg.senderId === "LIBRARIAN";
               return (
-                <div key={msg.id} style={bubbleRow(isMe)}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: isMe ? "flex-end" : "flex-start" }}>
-                    {!isMe && <span style={senderNameStyle}>{msg.senderName}</span>}
-                    <div style={bubble(isMe)}>
-                      <p style={{ margin: 0, lineHeight: "1.5" }}>{msg.content}</p>
+                <div key={msg.id} style={messageStyle.bubbleRow(isMe)}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: isMe ? "flex-end" : "flex-start", maxWidth: "100%" }}>
+                    
+                    {!isMe && <span style={messageStyle.senderNameStyle}>{msg.senderName}</span>}
+                    
+                    {/* KHÔNG dùng thẻ <p> ở đây nữa, đưa trực tiếp text vào div */}
+                    <div style={messageStyle.bubble(isMe)}>
+                      {msg.content}
                     </div>
-                    <span style={{ fontSize: "0.65rem", color: "#9CA3AF", marginTop: "4px" }}>
-                        {msg.timestamp ? moment(msg.timestamp).format("HH:mm") : ""}
+                    
+                    <span style={{ fontSize: "0.7rem", color: "#9CA3AF", marginTop: "6px" }}>
+                      {msg.timestamp ? moment(msg.timestamp).format("HH:mm") : ""}
                     </span>
+                    
                   </div>
                 </div>
               );
@@ -169,27 +159,27 @@ const Message = () => {
             <div ref={messageEndRef} />
           </Card.Body>
 
-          <Card.Footer style={footerStyle}>
+          <Card.Footer style={messageStyle.footerStyle}>
             <Form onSubmit={handleSend} style={{ margin: 0 }}>
               <div className="d-flex w-100 align-items-stretch">
                 <Form.Control
                   placeholder="Nhập tin nhắn..."
                   value={input}
                   onChange={e => setInput(e.target.value)}
-                  style={inputStyle}
+                  style={messageStyle.inputStyle}
                   disabled={!activeUserId}
                   autoComplete="off"
                 />
                 <Button
-  type="submit"
-  style={{
-    ...sendButtonStyle,
-    backgroundColor: (!input.trim() || !activeUserId) ? "#A5B4FC" : sendButtonStyle.backgroundColor
-  }}
-  disabled={!input.trim() || !activeUserId}
->
-  Gửi
-</Button>
+                  type="submit"
+                  style={{
+                    ...messageStyle.sendButtonStyle,
+                    backgroundColor: (!input.trim() || !activeUserId) ? "#A5B4FC" : messageStyle.sendButtonStyle.backgroundColor
+                  }}
+                  disabled={!input.trim() || !activeUserId}
+                >
+                  Gửi
+                </Button>
               </div>
             </Form>
           </Card.Footer>
