@@ -1,7 +1,7 @@
 {
   "name": "elibrary-web",
   "version": "0.1.0",
-  "homepage": "https://nhantq2005.github.io/Library-Management-Web/",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.0",
