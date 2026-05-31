@@ -6,6 +6,7 @@ import LoadMoreButton from "../../components/LoadMoreButton";
 import EditButton from "../../components/EditButton";
 import DeleteButton from "../../components/DeleteButton";
 import { manageDocumentStyle } from "../../style/ManageDocumentStyle";
+import cookies from "react-cookies";
 
 const ManageDocument = () => {
     const [docs, setDocs] = useState([]);
@@ -73,7 +74,7 @@ const ManageDocument = () => {
     const deleteDocument = async (id) => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tài liệu này không?")) {
             try {
-                const res = await authApi(localStorage.getItem("token")).delete(endpoints['delete-document'](id));
+                const res = await authApi(cookies.load("token")).delete(endpoints['delete-document'](id));
                 setDocs(prevDocs => prevDocs.filter(doc => doc.id !== id));
                 if (res.status === 204) {
                     alert("Xóa thành công!");

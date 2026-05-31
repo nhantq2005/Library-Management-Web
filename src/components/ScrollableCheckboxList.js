@@ -22,7 +22,7 @@ const ScrollableCheckboxList = ({
                             type="checkbox"
                             label={item.name}
                             value={item.id}
-                            checked={selectedItems.includes(item.id)}
+                            checked={(selectedItems || []).includes(item.id)}
                             onChange={(e) => onChange(e, fieldName)}
                             className="mb-1 text-muted"
                         />

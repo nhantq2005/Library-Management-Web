@@ -5,7 +5,7 @@ import Apis, { authApi, endpoints } from '../../configs/Apis';
 import AddModal from '../../components/AddModal';
 import FileUploadBox from '../../components/FileUploadBox';
 import ScrollableCheckboxList from '../../components/ScrollableCheckboxList';
-import { Cookies } from 'react-cookie';
+import cookies from 'react-cookies';
 import LabelWithAddButton from '../../components/LabelWithAddButton';
 import { addUpdateDocStyle } from '../../style/AddUpdateDocumentStyle';
 
@@ -73,7 +73,22 @@ const AddUpdateDocument = () => {
     const loadDocument = async () => {
         try {
             const res = await Apis.get(endpoints['document-details'](id));
-            setFormData(res.data);
+            const data = res.data || {};
+            
+            // Xử lý map dữ liệu từ JSON trả về sang State formData
+            setFormData({
+                title: data.title || '',
+                description: data.description || '',
+                publishYear: data.publishYear || new Date().getFullYear(),
+                price: data.price || 0,
+                quantity: data.quantity || 1,
+                isPremium: data.isPremium || false,
+                // Lấy ID từ object category
+                categoryId: data.category ? data.category.id : '',
+                // Lặp qua mảng authors/tags để lấy mảng ID
+                authorIds: data.authors ? data.authors.map(author => author.id) : [],
+                tagIds: data.tags ? data.tags.map(tag => tag.id) : []
+            });
         } catch (err) {
             console.error("Lỗi tải thông tin tài liệu:", err);
             setError("Không thể tải thông tin tài liệu.");
@@ -124,7 +139,7 @@ const AddUpdateDocument = () => {
         if (!inputValue.trim()) return;
         setModalLoading(true);
         try {
-            const token = Cookies.load('token');
+            const token = cookies.load('token');
             const payload = { name: inputValue };
             let res;
 
@@ -171,23 +186,25 @@ const AddUpdateDocument = () => {
             if (formData.authorIds.length > 0) form.append('authorIds', formData.authorIds.join(','));
             if (formData.tagIds.length > 0) form.append('tagIds', formData.tagIds.join(','));
 
-            if (imageRef.current.files[0]) {
+if (imageRef.current.files[0]) {
                 form.append('image', imageRef.current.files[0]);
             } else if (!isUpdate) {
-                setError('Vui lòng chọn ảnh bìa tài liệu'); setLoading(false); return;
-            } else {
-                form.append('image', new Blob(), '');
+                setError('Vui lòng chọn ảnh bìa tài liệu'); 
+                setLoading(false); 
+                return;
             }
+            // ĐÃ XÓA KHỐI ELSE GÂY LỖI Ở ĐÂY
 
+            // Xử lý File nội dung
             if (fileRef.current.files[0]) {
                 form.append('file', fileRef.current.files[0]);
             } else if (!isUpdate) {
-                setError('Vui lòng chọn file nội dung tài liệu (.pdf, .doc)'); setLoading(false); return;
-            } else {
-                form.append('file', new Blob(), '');
+                setError('Vui lòng chọn file nội dung tài liệu (.pdf, .doc)'); 
+                setLoading(false); 
+                return;
             }
 
-            const token = Cookies.load('token');
+            const token = cookies.load('token');
             const res = isUpdate
                 ? await authApi(token).put(`/secure/documents/${id}`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
                 : await authApi(token).post('/secure/documents', form, { headers: { 'Content-Type': 'multipart/form-data' } });

@@ -14,7 +14,6 @@ const CartSection = ({
 }) => {
     const isBuy = type === 'buy';
 
-    // Style constants
     const cardStyle = {
         background: '#fff',
         borderRadius: 10,

@@ -3,14 +3,14 @@ import moment from "moment";
 import LoadMoreButton from './LoadMoreButton';
 import MyDocumentsStyles from '../style/MyDocumentsStyles';
 
-const DocumentTable = ({ 
-    docs, 
-    type, 
-    emptyMessage, 
-    loading, 
-    page, 
-    onLoadMore, 
-    onRowClick 
+const DocumentTable = ({
+    docs,
+    type,
+    emptyMessage,
+    loading,
+    page,
+    onLoadMore,
+    onRowClick
 }) => {
     if (docs.length === 0 && !loading) {
         return <div className="text-center py-4 text-muted">{emptyMessage}</div>;
@@ -89,9 +89,9 @@ const DocumentTable = ({
 
             <div className="d-flex justify-content-center mt-3">
                 {page > 0 && (
-                    <LoadMoreButton 
-                        onClick={onLoadMore} 
-                        isLoading={loading} 
+                    <LoadMoreButton
+                        onClick={onLoadMore}
+                        isLoading={loading}
                     />
                 )}
             </div>

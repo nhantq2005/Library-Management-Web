@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { Alert, Card, Spinner, Container, Badge, Row, Carousel } from "react-bootstrap";
+import { Alert, Spinner, Container, Row, Carousel } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Apis, { endpoints } from "../../configs/Apis";
-import moment from "moment";
+// import moment from "moment";
 import HomeStyles from "../../style/HomeStyles";
 import LoadMoreButton from "../../components/LoadMoreButton";
 import Footer from "../../components/Footer";
@@ -23,7 +23,7 @@ const Home = () => {
     const kw = q.get("kw") || "";
     const cateId = q.get("cateId") || "";
     const isSearching = kw !== "" || cateId !== "";
-    const nav = useNavigate();
+    // const nav = useNavigate();
     const latestScrollRef = useRef(null);
     const trendScrollRef = useRef(null);
 
@@ -138,7 +138,13 @@ const Home = () => {
                                         className="d-block w-100"
                                         src={img}
                                         alt={`Banner ${idx + 1}`}
-                                        style={{ height: '400px', width: '100%', objectFit: 'cover', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
+                                        style={{
+                                            height: '450px',
+                                            // width: '100%',
+                                            objectFit: 'cover',
+                                            borderRadius: '16px',
+                                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                                        }}
                                     />
                                 </Carousel.Item>
                             ))}

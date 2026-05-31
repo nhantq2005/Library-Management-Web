@@ -83,8 +83,6 @@ export const messageStyle = {
     border: isMe ? "none" : "1px solid #E5E7EB",
     fontSize: "0.95rem",
     lineHeight: "1.5",
-    
-    /* 3 thuộc tính quan trọng để fix lỗi rớt dòng và tràn chữ */
     wordWrap: "break-word", 
     overflowWrap: "anywhere", // Ép cắt ngang từ nếu chuỗi dài không có dấu cách (ví dụ: fhwhed...)
     whiteSpace: "pre-wrap", // Giữ nguyên khoảng trắng và định dạng xuống dòng của người dùng

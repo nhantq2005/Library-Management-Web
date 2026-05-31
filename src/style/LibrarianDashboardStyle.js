@@ -1,5 +1,4 @@
 export const librarianDashboardStyle = {
-
   dashboardMainContent: {
     padding: '24px',
     backgroundColor: '#f8fafc',

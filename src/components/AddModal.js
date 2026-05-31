@@ -1,8 +1,6 @@
 import { Button, Form, Modal, Spinner } from "react-bootstrap";
 
 const AddModal = ({ show, onHide, onCreate, inputValue, setInputValue, loading, title, label, placeholder }) => {
-    
-    // Sử dụng style hệ Lumina
     const inputStyle = { 
         backgroundColor: '#F9FAFB', 
         border: '1px solid #E5E7EB', 

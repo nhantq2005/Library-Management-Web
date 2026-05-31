@@ -14,7 +14,7 @@ export const endpoints = {
     'documents': '/documents',
     'categories': '/categories',
     'secure-categories': '/secure/categories',
-    'delete-document': (documentId) => `/documents/${documentId}`,
+    'delete-document': (documentId) => `/secure/documents/${documentId}`,
     "secure-borrows": "/secure/borrows",
     'secure-buy': '/secure/buy',
     'document-details': (docId) => `/documents/${docId}`,
