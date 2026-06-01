@@ -114,21 +114,6 @@ const SideBar = () => {
                     Thêm tài liệu
                 </Link>
             </div>
-
-            {/* <div style={sidebarStyles.sidebarHeaderProfileStyle}>
-                <div style={sidebarStyles.userProfileStyle}>
-                    <img
-                        src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"
-                        alt="Librarian Avatar"
-                        style={sidebarStyles.userAvatarStyle}
-                    />
-                    <div>
-                        <h4 style={sidebarStyles.userInfoH4Style}>Librarian Portal</h4>
-                        <p style={sidebarStyles.userInfoPStyle}>Management Suite</p>
-                    </div>
-                </div>
-            </div> */}
-
             <div style={sidebarStyles.dividerStyle}></div>
             <div style={sidebarStyles.sidebarFooterStyle}>
                 <Link

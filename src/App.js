@@ -33,9 +33,6 @@ const App = () => {
   const [user, dispatchUser] = useReducer(MyUserReducer, cookies.load('user') || null);
   const [cartBuy, dispatchCartBuy] = useReducer(MyCartBuyReducer, { totalQuantity: 0, totalAmount: 0 });
   const [cartBorrow, dispatchCartBorrow] = useReducer(MyCartBorrowReducer, { totalQuantity: 0 });
-    // const location = useLocation();
-    // const firstSegment = location.pathname.split("/")[1];
-    // const isHideMsgButton = ['librarian', 'message-client', 'login', 'register'].includes(firstSegment);
 
   return (
     <MyUserContext.Provider value={[user, dispatchUser]}>
@@ -69,7 +66,6 @@ const App = () => {
               </Route>
               <Route path="*" element={<PageNotFound />} />
             </Routes>
-            {/* {!isHideMsgButton && <ChatButton />} */}
             <ChatButton />
           </BrowserRouter>
 

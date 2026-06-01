@@ -30,11 +30,18 @@ export const endpoints = {
     'reviews': (docId) => `/documents/${docId}/reviews`,
     'add-review': (docId) => `/secure/documents/${docId}/reviews`,
     'VNPAY-payment': '/payment/create-payment',
+    'delete-review': (reviewId) => `/secure/reviews/${reviewId}`,
+    'delete-category': (categoryId) => `/secure/categories/${categoryId}`,
+    'update-category': (categoryId) => `/secure/categories/${categoryId}`,
+    'revenue-by-document': '/stats/secure/revenue-by-document',
+    'transaction-history': '/stats/secure/transaction-history',
 }
 
 export const authApi = (token) => {
     return axios.create({
-        baseURL: '/eLibrary-1.0-SNAPSHOT/api/',
+        // baseURL: 'http://3.211.26.167:8080/eLibrary-1.0-SNAPSHOT/api/',
+        baseURL: 'http://localhost:8080/eLibrary_war/api/',
+        
         headers: {
             'Authorization': `Bearer ${token}`
         }
@@ -42,5 +49,6 @@ export const authApi = (token) => {
 }
 
 export default axios.create({
-    baseURL: '/eLibrary-1.0-SNAPSHOT/api/'
+    // baseURL: 'http://3.211.26.167:8080/eLibrary-1.0-SNAPSHOT/api/'
+    baseURL: 'http://localhost:8080/eLibrary_war/api/'
 })

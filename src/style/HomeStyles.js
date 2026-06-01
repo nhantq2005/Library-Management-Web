@@ -23,13 +23,13 @@ const HomeStyles = {
     },
     cardWrapper: {
         flex: '0 0 auto',
-        width: '240px', // Thu gọn lại một chút cho thanh thoát
+        width: '240px', 
         scrollSnapAlign: 'start'
     },
     card: {
         height: '100%',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', // Bóng đổ cực mềm
-        border: '1px solid #f1f5f9', // Viền siêu mờ
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', 
+        border: '1px solid #f1f5f9', 
         borderRadius: '16px',
         cursor: 'pointer',
         backgroundColor: '#ffffff',
@@ -87,7 +87,7 @@ const HomeStyles = {
         alignItems: 'center',
         paddingBottom: '0.75rem',
         marginBottom: '0.75rem',
-        borderBottom: '1px dashed #e2e8f0' // Thêm dải phân cách nét đứt tinh tế
+        borderBottom: '1px dashed #e2e8f0' 
     },
     statText: {
         fontSize: '0.8rem',

@@ -3,7 +3,6 @@ import React from 'react';
 const PdfViewer = ({ fileId, totalPages = 15 }) => {
   const baseUrl = "https://res.cloudinary.com/duk4u0tsp/image/upload";
 
-  // Hàm chặn click chuột phải để hạn chế lưu ảnh
   const handleContextMenu = (e) => {
     e.preventDefault();
   };

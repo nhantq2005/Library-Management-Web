@@ -114,12 +114,10 @@ const MyDocuments = () => {
 
     useEffect(() => {
         if (pageBorrow > 0) loadBorrowedDocs();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pageBorrow, user]);
 
     useEffect(() => {
         if (pageBuy > 0) loadPurchasedDocs();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pageBuy, user]);
 
     const handleRowClick = (item) => {

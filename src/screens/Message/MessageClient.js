@@ -45,11 +45,10 @@ const MessageClient = () => {
         setInput("");
     };
 
-    // --- NEW MODERN LUMINA DESIGN STYLES ---
     const styles = {
         container: {
             padding: "24px 32px",
-            backgroundColor: "#F3F4F6", // Nền tối hơn chút để nổi bật khung chat trắng
+            backgroundColor: "#F3F4F6",
             minHeight: "100vh",
             fontFamily: "'Inter', sans-serif",
             display: "flex",
@@ -68,9 +67,9 @@ const MessageClient = () => {
             height: "calc(100vh - 110px)",
             backgroundColor: "#FFFFFF",
             border: "1px solid #E5E7EB",
-            borderRadius: "16px", // Bo góc mềm mại hiện đại
+            borderRadius: "16px",
             overflow: "hidden",
-            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)" // Đổ bóng nhẹ
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)"
         },
         chatArea: {
             flex: 1,
@@ -104,7 +103,6 @@ const MessageClient = () => {
             width: "fit-content",
             padding: "10px 16px",
 
-            // Sửa lại bo góc: Đều và mềm mại hơn (chỉ nhọn nhẹ ở góc dưới cùng phía người gửi)
             borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
 
             background: isMe ? "linear-gradient(135deg, #1D559F 0%, #154078 100%)" : "#FFFFFF",
@@ -113,7 +111,6 @@ const MessageClient = () => {
             fontSize: "0.925rem",
             lineHeight: "1.4",
 
-            // Ngăn chặn việc xuống hàng vô lý khi chuỗi ngắn, chỉ xuống hàng khi hết tối đa 70% width
             wordBreak: "break-word",
             whiteSpace: "pre-wrap",
 
@@ -129,7 +126,7 @@ const MessageClient = () => {
             alignItems: "center",
             gap: "12px",
             backgroundColor: "#F3F4F6",
-            borderRadius: "30px", // Biến thanh input thành kén tròn trịa
+            borderRadius: "30px",
             padding: "4px 8px 4px 16px",
             border: "1px solid #E5E7EB"
         },
@@ -145,7 +142,7 @@ const MessageClient = () => {
             backgroundColor: disabled ? "#9CA3AF" : "#1D559F",
             color: "#FFFFFF",
             border: "none",
-            borderRadius: "50%", // Nút tròn hiện đại
+            borderRadius: "50%",
             width: "40px",
             height: "40px",
             display: "flex",
@@ -161,16 +158,11 @@ const MessageClient = () => {
         <>
             <Header />
             <div style={styles.container}>
-                {/* <div>
-                <h3 style={styles.titleText}>
-                    Hỗ trợ & Trao đổi trực tiếp với Thủ thư
-                </h3>
-            </div> */}
+
 
                 <div style={styles.chatWrapper}>
                     <div style={styles.chatArea}>
 
-                        {/* Header Khung Chat */}
                         <div style={styles.header}>
                             <div className="d-flex align-items-center gap-3">
                                 <div style={{ position: "relative" }}>
@@ -190,7 +182,6 @@ const MessageClient = () => {
                             </div>
                         </div>
 
-                        {/* Body Khung Chat */}
                         <div style={styles.messageBody}>
                             <div className="text-center my-1">
                                 <span style={{ fontSize: "0.75rem", color: "#6B7280", backgroundColor: "#E5E7EB", padding: "4px 12px", borderRadius: "12px", fontWeight: "500" }}>
@@ -206,7 +197,6 @@ const MessageClient = () => {
                                             <div style={styles.bubble(isMe)}>
                                                 {msg.content}
                                             </div>
-                                            {/* Thêm padding/margin nhỏ để text thời gian cân xứng với góc bo */}
                                             <span style={{
                                                 fontSize: "0.7rem",
                                                 color: "#9CA3AF",
@@ -223,7 +213,6 @@ const MessageClient = () => {
                             <div ref={messageEndRef} />
                         </div>
 
-                        {/* Footer Input */}
                         <div style={styles.footer}>
                             <Form onSubmit={handleSend}>
                                 <div style={styles.inputContainer}>

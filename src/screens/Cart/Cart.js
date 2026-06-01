@@ -66,7 +66,7 @@ const Cart = () => {
                 let cartList = Object.values(cart).map(c => ({ id: c.id, quantity: c.quantity }));
                 let res = await authApi(token).post(endpoints['secure-borrows'], cartList);
                 if (res.status === 201 || res.status === 200) {
-                    alert("Mượn thành công!");
+                    alert("Mượn thành công!\nThời gian mượn là 20 ngày, hãy nhớ trả đúng hạn để tránh bị phạt nhé!");
                     cookies.remove(`cartBorrow_${user.id}`, { path: '/' });
                     setCartBorrow(null);
                     dispatchBorrow({ "type": "UPDATE", "userId": user.id });
@@ -104,7 +104,6 @@ const Cart = () => {
         }
     };
 
-    // Style constants
     const cardStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px', marginBottom: '24px' };
     const thStyle = { padding: '14px 20px', fontSize: '0.75rem', fontWeight: '600', color: '#6B7280', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '1px solid #E5E7EB', backgroundColor: '#F9FAFB' };
     const tdStyle = { padding: '16px 20px', fontSize: '0.875rem', color: '#111827', verticalAlign: 'middle', borderBottom: '1px solid #E5E7EB' };
@@ -129,7 +128,6 @@ const Cart = () => {
                     </div>
                 ) : (
                     <>
-                        {/* ================= KHU VỰC SÁCH CHỌN MUA ================= */}
                         <div style={cardStyle}>
                             <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '20px' }}>
                                 🛒 Sách Chọn Mua
@@ -190,7 +188,6 @@ const Cart = () => {
                                 </>
                             )}
                         </div>
-                        {/* ================= KHU VỰC SÁCH CHỌN MƯỢN ================= */}
                         <div style={cardStyle}>
                             <div className="d-flex justify-content-between align-items-center mb-4">
                                 <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', margin: 0 }}>

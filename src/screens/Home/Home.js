@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from "react";
 import { Alert, Spinner, Container, Row, Carousel } from "react-bootstrap";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Apis, { endpoints } from "../../configs/Apis";
-// import moment from "moment";
 import HomeStyles from "../../style/HomeStyles";
 import LoadMoreButton from "../../components/LoadMoreButton";
 import Footer from "../../components/Footer";
@@ -140,7 +139,6 @@ const Home = () => {
                                         alt={`Banner ${idx + 1}`}
                                         style={{
                                             height: '450px',
-                                            // width: '100%',
                                             objectFit: 'cover',
                                             borderRadius: '16px',
                                             boxShadow: '0 4px 12px rgba(0,0,0,0.08)',

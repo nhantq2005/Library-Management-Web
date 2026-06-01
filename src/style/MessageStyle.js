@@ -7,7 +7,7 @@ export const messageStyle = {
   },
 
   sidebarContainer: {
-    width: '25%', // Tăng nhẹ width để tên user không bị chèn ép
+    width: '25%',
     height: 'calc(100vh - 64px)',
     background: '#fff',
     borderRight: '1px solid #E5E7EB',
@@ -41,7 +41,7 @@ export const messageStyle = {
   cardStyle: {
     width: "100%",
     height: "calc(100vh - 64px)",
-    border: "none", // Bỏ viền thừa để phẳng hơn
+    border: "none",
     borderRadius: "0",
     boxShadow: "none",
     display: "flex",
@@ -63,7 +63,7 @@ export const messageStyle = {
     backgroundColor: "#FFFFFF",
     display: "flex",
     flexDirection: "column",
-    gap: "16px" // Khoảng cách giữa các tin nhắn
+    gap: "16px" 
   },
 
   bubbleRow: (isMe) => ({
@@ -72,10 +72,9 @@ export const messageStyle = {
     width: "100%"
   }),
   
-  // Đã sửa lỗi hiển thị chữ
   bubble: (isMe) => ({
-    maxWidth: "100%", // Giảm từ 85% xuống 70% để bong bóng không quá dài trên web
-    width: "fit-content", // Ôm sát nội dung tin nhắn ngắn
+    maxWidth: "100%",
+    width: "fit-content", 
     padding: "10px 16px",
     borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
     backgroundColor: isMe ? "#1D559F" : "#F3F4F6",
@@ -84,8 +83,8 @@ export const messageStyle = {
     fontSize: "0.95rem",
     lineHeight: "1.5",
     wordWrap: "break-word", 
-    overflowWrap: "anywhere", // Ép cắt ngang từ nếu chuỗi dài không có dấu cách (ví dụ: fhwhed...)
-    whiteSpace: "pre-wrap", // Giữ nguyên khoảng trắng và định dạng xuống dòng của người dùng
+    overflowWrap: "anywhere", 
+    whiteSpace: "pre-wrap",
     
     boxShadow: isMe ? "0 2px 8px rgba(29,85,159,0.15)" : "none"
   }),
@@ -117,10 +116,9 @@ export const messageStyle = {
     fontFamily: 'Inter, sans-serif'
   },
 
-  // Sửa lỗi chữ "Gửi" bị rớt dòng
   sendButtonStyle: {
-    minWidth: "90px", // Dùng minWidth thay vì width cứng
-    whiteSpace: "nowrap", // Ép chữ trên 1 dòng
+    minWidth: "90px", 
+    whiteSpace: "nowrap", 
     backgroundColor: "#1D559F",
     border: "none",
     borderTopLeftRadius: '0px',

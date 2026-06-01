@@ -1,13 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Table, Spinner, Button, Form, Modal, Alert } from 'react-bootstrap';
 import Apis, { authApi, endpoints } from '../../configs/Apis';
 import LoadMoreButton from '../../components/LoadMoreButton';
 import DeleteButton from '../../components/DeleteButton';
 import EditButton from '../../components/EditButton';
 import cookies from 'react-cookies';
-
-// 1. Chỉ import đúng object tổng
 import { manageCategoryStyle } from '../../style/ManageCategoryStyle';
+import { IoIosAdd } from 'react-icons/io';
 
 const ManageCategory = () => {
     const [categories, setCategories] = useState([]);
@@ -21,9 +20,8 @@ const ManageCategory = () => {
 
     const loadCategories = async () => {
         try {
-            if (page === 1) setLoading(true);
             let res = await Apis.get(`${endpoints['categories']}?page=${page}`);
-            
+
             if (res.data.length === 0 || res.data.length < 20) {
                 setHasMore(false);
             } else {
@@ -44,7 +42,7 @@ const ManageCategory = () => {
 
     useEffect(() => {
         loadCategories();
-    }, [page]);
+    }, [page, categories.length]);
 
     const handleOpenModal = (category = null) => {
         setError('');
@@ -68,14 +66,16 @@ const ManageCategory = () => {
             };
 
             if (currentCategory.id) {
-                const res = await authApi(cookies.load('token')).put(`/secure/categories/${currentCategory.id}`, payload);
+                const token = cookies.load('token');
+                const res = await authApi(token).put(endpoints['update-category'](currentCategory.id), payload);
                 if (res.status === 200) {
-                    setCategories(categories.map(c => c.id === currentCategory.id ? res.data : c));
+                    setCategories(prev => prev.map(c => c.id === currentCategory.id ? res.data : c));
                 }
             } else {
-                const res = await authApi(cookies.load('token')).post('/secure/categories', payload);
+                const token = cookies.load('token');
+                const res = await authApi(token).post(endpoints['secure-categories'], payload);
                 if (res.status === 201) {
-                    setCategories([res.data, ...categories]);
+                    setCategories(prev => [res.data, ...prev]);
                 }
             }
             setShowModal(false);
@@ -88,26 +88,26 @@ const ManageCategory = () => {
     };
 
     const handleDelete = async (id) => {
-        if (window.confirm("Bạn có chắc chắn muốn xóa danh mục này? Các tài liệu thuộc danh mục có thể bị ảnh hưởng.")) {
-            try {
-                const res = await authApi(cookies.load('token')).delete(`/secure/categories/${id}`);
-                if (res.status === 204) {
-                    setCategories(categories.filter(c => c.id !== id));
-                    alert("Xóa danh mục thành công!");
-                }
-            } catch (error) {
-                console.error("Lỗi khi xóa:", error);
-                alert("Có lỗi xảy ra! Không thể xóa danh mục này.");
+    if (window.confirm("Bạn có chắc chắn muốn xóa danh mục này? Các tài liệu thuộc danh mục có thể bị ảnh hưởng.")) {
+        try {
+            const token = cookies.load('token');
+            const res = await authApi(token).delete(endpoints['delete-category'](id));
+            
+            if (res.status === 204) {
+                alert("Xóa danh mục thành công!");
+               setCategories(prev => prev.filter(c => c.id !== id));
             }
+        } catch (error) {
+            console.error("Lỗi khi xóa:", error);
+            alert(error?.response?.data?.message || "Có lỗi xảy ra! Không thể xóa danh mục này.");
         }
-    };
+    }
+};
 
-    // 2. Gọi các style qua manageCategoryStyle.tên_style
     return (
         <div style={manageCategoryStyle.pageWrapperStyle}>
             <div style={manageCategoryStyle.cardStyle}>
-                
-                {/* HEADER */}
+
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 className="mb-1" style={manageCategoryStyle.titleStyle}>
@@ -117,23 +117,20 @@ const ManageCategory = () => {
                             Thêm, sửa, xóa và quản lý các thể loại tài liệu.
                         </p>
                     </div>
-                    
-                    <Button 
-                        variant="none" 
+
+                    <Button
+                        variant="none"
                         className="d-flex align-items-center gap-2"
                         style={manageCategoryStyle.addBtnStyle}
                         onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#154078'; }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#1D559F'; }}
                         onClick={() => handleOpenModal()}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
+                        <IoIosAdd size={22} />
                         Thêm danh mục
                     </Button>
                 </div>
 
-                {/* BẢNG DỮ LIỆU */}
                 {loading && page === 1 ? (
                     <div className="d-flex justify-content-center py-5">
                         <Spinner animation="border" style={{ color: '#1D559F' }} />
@@ -179,10 +176,9 @@ const ManageCategory = () => {
                     </div>
                 )}
 
-                {/* TẢI THÊM */}
                 {hasMore && categories.length > 0 && (
                     <div className="mt-4">
-                        <LoadMoreButton 
+                        <LoadMoreButton
                             onClick={() => setPage(prev => prev + 1)}
                             isLoading={loading}
                         />
@@ -190,7 +186,6 @@ const ManageCategory = () => {
                 )}
             </div>
 
-            {/* MODAL THÊM / SỬA */}
             <Modal show={showModal} onHide={() => setShowModal(false)} centered contentClassName="border-0 shadow-lg" style={manageCategoryStyle.modalStyle}>
                 <Form onSubmit={handleSaveCategory}>
                     <Modal.Header closeButton className="border-0 pb-0">
@@ -200,42 +195,42 @@ const ManageCategory = () => {
                     </Modal.Header>
                     <Modal.Body className="pt-3 pb-4">
                         {error && <Alert variant="danger" style={{ borderRadius: '4px', fontSize: '0.875rem' }}>{error}</Alert>}
-                        
+
                         <Form.Group className="mb-3">
                             <Form.Label style={manageCategoryStyle.labelStyle}>Tên danh mục <span className="text-danger">*</span></Form.Label>
-                            <Form.Control 
-                                type="text" 
-                                placeholder="Nhập tên..." 
+                            <Form.Control
+                                type="text"
+                                placeholder="Nhập tên..."
                                 required
                                 value={currentCategory.name}
-                                onChange={(e) => setCurrentCategory({...currentCategory, name: e.target.value})}
+                                onChange={(e) => setCurrentCategory({ ...currentCategory, name: e.target.value })}
                                 style={manageCategoryStyle.inputStyle}
                                 autoFocus
                             />
                         </Form.Group>
-                        
+
                         <Form.Group>
                             <Form.Label style={manageCategoryStyle.labelStyle}>Mô tả</Form.Label>
-                            <Form.Control 
-                                as="textarea" 
+                            <Form.Control
+                                as="textarea"
                                 rows={3}
-                                placeholder="Nhập mô tả (không bắt buộc)..." 
+                                placeholder="Nhập mô tả (không bắt buộc)..."
                                 value={currentCategory.description || ''}
-                                onChange={(e) => setCurrentCategory({...currentCategory, description: e.target.value})}
+                                onChange={(e) => setCurrentCategory({ ...currentCategory, description: e.target.value })}
                                 style={manageCategoryStyle.inputStyle}
                             />
                         </Form.Group>
                     </Modal.Body>
                     <Modal.Footer className="border-0 pt-0 d-flex flex-nowrap justify-content-end gap-2 w-100">
-                        <Button 
-                            variant="none" 
+                        <Button
+                            variant="none"
                             onClick={() => setShowModal(false)}
                             style={manageCategoryStyle.cancelBtnStyle}
                         >
                             Hủy
                         </Button>
-                        <Button 
-                            type="submit" 
+                        <Button
+                            type="submit"
                             disabled={!currentCategory.name.trim() || modalLoading}
                             style={manageCategoryStyle.saveBtnStyle}
                         >

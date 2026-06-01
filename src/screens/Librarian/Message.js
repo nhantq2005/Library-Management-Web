@@ -3,8 +3,6 @@ import { Button, Form, Card } from "react-bootstrap";
 import moment from "moment";
 import { ref, push, onValue, query, orderByChild } from "firebase/database";
 import { database } from "../../utils/FirebaseConfig";
-
-// Import các style từ file MessageStyle.js tách rời
 import { messageStyle } from "../../style/MessageStyle";
 
 const Message = () => {
@@ -83,7 +81,6 @@ const Message = () => {
 
   return (
     <div style={messageStyle.mainContainer}>
-      {/* Sidebar: Danh sách user đã chat */}
       <div style={messageStyle.sidebarContainer}>
         <div style={messageStyle.sidebarHeader}>
           Người dùng đã nhắn
@@ -117,7 +114,6 @@ const Message = () => {
         </div>
       </div>
 
-      {/* Main chat area */}
       <div style={messageStyle.chatAreaWrapper}>
         <Card style={messageStyle.cardStyle}>
           <Card.Header style={messageStyle.headerStyle}>
@@ -143,7 +139,6 @@ const Message = () => {
                     
                     {!isMe && <span style={messageStyle.senderNameStyle}>{msg.senderName}</span>}
                     
-                    {/* KHÔNG dùng thẻ <p> ở đây nữa, đưa trực tiếp text vào div */}
                     <div style={messageStyle.bubble(isMe)}>
                       {msg.content}
                     </div>

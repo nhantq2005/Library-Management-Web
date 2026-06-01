@@ -16,11 +16,9 @@ const Auth = ({ page }) => {
       <Container className="flex-grow-1 d-flex align-items-center justify-content-center py-5">
         <Card className="border-0 shadow-sm" style={{ width: '100%', maxWidth: '550px', borderRadius: '4px' }}>
           <Card.Body className="p-4 p-sm-5">
-            {/* Back Button */}
             <Button variant="link" className="px-0 mb-3 text-decoration-none text-dark" style={{ fontSize: '1rem' }} onClick={() => navigate(-1)}>
               <FaArrowLeft className="me-2" /> Quay lại
             </Button>
-            {/* Logo & Header */}
             <div className="text-center mb-4">
               <div
                 className="d-inline-flex align-items-center justify-content-center mb-3"

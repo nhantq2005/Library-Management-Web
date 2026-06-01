@@ -101,7 +101,6 @@ const login = async (e) => {
               placeholder={info.placeholder}
               value={user[info.field] || ""}
               onChange={(e) => setUser({ ...user, [info.field]: e.target.value })}
-              // isInvalid={errors}
               style={info.type === "password" ? { letterSpacing: '2px' } : {}}
             />
             {info.type === "password" && (

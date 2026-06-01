@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Row, Col, Table, Form, Spinner } from 'react-bootstrap';
-import { authApi } from '../../configs/Apis';
+import { authApi, endpoints } from '../../configs/Apis';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Pie } from 'react-chartjs-2';
 import LoadMoreButton from '../../components/LoadMoreButton';
 import cookies from 'react-cookies';
-import {paymentStatsStyle} from '../../style/PaymentStatsStyle';
+import { paymentStatsStyle } from '../../style/PaymentStatsStyle';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -22,18 +22,17 @@ const PaymentStats = () => {
     const [error, setError] = useState("");
 
     const loadRevenueStats = async () => {
-        const token = cookies.load('token'); // Lấy token
-        if (!token) return; // Nếu không có token thì dừng luôn
+        const token = cookies.load('token'); 
+        if (!token) return; 
 
         setStatsLoading(true);
         try {
-            let url = '/stats/secure/revenue-by-document';
+            let url = endpoints['revenue-by-document'];
             let queryParams = [];
             if (fromDate) queryParams.push(`fromDate=${fromDate}`);
             if (toDate) queryParams.push(`toDate=${toDate}`);
             if (queryParams.length > 0) url += `?${queryParams.join('&')}`;
 
-            // Truyền biến token vào authApi
             const res = await authApi(token).get(url);
             setStatsData(res.data || []);
         } catch (error) {
@@ -46,17 +45,15 @@ const PaymentStats = () => {
     };
 
     const loadTransactionHistory = async () => {
-        const token = cookies.load('token'); // Lấy token
-        if (!token) return; // Nếu không có token thì dừng luôn
+        const token = cookies.load('token');
+        if (!token) return;
 
         setTxLoading(true);
         try {
-            let url = `/stats/secure/transaction-history?page=${page}`;
+            let url = endpoints['transaction-history'] + `?page=${page}`;
             if (statusFilter) {
                 url += `&status=${statusFilter}`;
             }
-
-            // Truyền biến token vào authApi
             const res = await authApi(token).get(url);
 
             const responseData = Array.isArray(res.data) ? res.data : [];
@@ -71,22 +68,17 @@ const PaymentStats = () => {
         }
     };
 
-    // Effects
     useEffect(() => {
         loadRevenueStats();
-        // eslint-disable-next-line
     }, [fromDate, toDate]);
 
     useEffect(() => {
         loadTransactionHistory();
-        // eslint-disable-next-line
     }, [page, statusFilter]);
 
-    // Derived values
     const totalRevenue = statsData.reduce((sum, item) => sum + (item[3] || 0), 0);
     const totalTransactionsCount = statsData.reduce((sum, item) => sum + (item[2] || 0), 0);
 
-    // Pie chart config
     const pieLabels = statsData.slice(0, 5).map(item => item[1]);
     const pieAmounts = statsData.slice(0, 5).map(item => item[3]);
     const pieChartData = {
@@ -107,7 +99,6 @@ const PaymentStats = () => {
 
     return (
         <div style={{ padding: '32px 40px', backgroundColor: '#F9FAFB', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
-            {/* Title */}
             <div className="mb-4">
                 <h3 style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem', marginBottom: '4px' }}>
                     Thống kê thanh toán
@@ -117,7 +108,6 @@ const PaymentStats = () => {
                 </p>
             </div>
 
-            {/* Summary widgets */}
             <Row className="mb-4">
                 <Col md={6} lg={4}>
                     <div style={paymentStatsStyle.cardStyle} className="h-100">
@@ -141,9 +131,7 @@ const PaymentStats = () => {
                 </Col>
             </Row>
 
-            {/* Revenue table & pie chart */}
             <Row className="mb-4">
-                {/* Revenue table */}
                 <Col lg={7} className="mb-3 mb-lg-0">
                     <div style={paymentStatsStyle.cardStyle} className="h-100 d-flex flex-column">
                         <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
@@ -201,7 +189,6 @@ const PaymentStats = () => {
                     </div>
                 </Col>
 
-                {/* Pie chart */}
                 <Col lg={5}>
                     <div style={paymentStatsStyle.cardStyle} className="h-100 d-flex flex-column justify-content-between">
                         <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '24px' }}>Tỷ lệ đóng góp doanh thu (Top 5)</h5>
@@ -227,7 +214,6 @@ const PaymentStats = () => {
                 </Col>
             </Row>
 
-            {/* Transaction history */}
             <div style={paymentStatsStyle.cardStyle}>
                 <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                     <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', margin: 0 }}>Nhật ký giao dịch mua tài liệu</h5>
@@ -268,9 +254,9 @@ const PaymentStats = () => {
                                     {transactions.map((tx, idx) => (
                                         <tr key={idx}>
                                             <td style={{ ...paymentStatsStyle.tdStyle, color: '#6B7280' }}>{tx.transactionDate ? new Date(tx.transactionDate).toLocaleString('vi-VN') : '---'}</td>
-                                           <td style={{ ...paymentStatsStyle.tdStyle, fontWeight: '500' }}>{tx.username || 'Ẩn danh'}</td>
-<td style={{ ...paymentStatsStyle.tdStyle, fontWeight: '500', color: '#1D559F' }}>{tx.documentTitle || 'Tài liệu không còn tồn tại'}</td>
-<td style={paymentStatsStyle.tdStyle}>
+                                            <td style={{ ...paymentStatsStyle.tdStyle, fontWeight: '500' }}>{tx.username || 'Ẩn danh'}</td>
+                                            <td style={{ ...paymentStatsStyle.tdStyle, fontWeight: '500', color: '#1D559F' }}>{tx.documentTitle || 'Tài liệu không còn tồn tại'}</td>
+                                            <td style={paymentStatsStyle.tdStyle}>
                                                 <span style={{ ...paymentStatsStyle.badgeStyle, backgroundColor: '#F3F4F6', color: '#4B5563' }}>{tx.paymentMethod || 'VNPay'}</span>
                                             </td>
                                             <td style={{ ...paymentStatsStyle.tdStyle, textAlign: 'right', fontWeight: '600' }}>{(tx.amount || 0).toLocaleString('vi-VN')} đ</td>

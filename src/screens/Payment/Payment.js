@@ -11,16 +11,12 @@ const Payment = () => {
     const [paymentMethod, setPaymentMethod] = useState('VNPAY');
     const [user,] = useContext(MyUserContext);
     const [cartBuy,] = useContext(MyCartBuyContext);
-    // const [totalAmount, setTotalAmount] = useState(cartBuy?.totalAmount || 0); // Lấy totalAmount từ context
-
-    // Lấy chi tiết các item từ cookie để hiển thị danh sách "Tóm tắt đơn hàng" (không gọi hàm)
     let cartItems = [];
     if (user && user.id) {
         const cart = cookies.load(`cartBuy_${user.id}`) || {};
         cartItems = Object.values(cart);
     }
     
-    // LẤY TOTAL AMOUNT TRỰC TIẾP TỪ REDUCER
    const totalAmount = cartBuy?.totalAmount > 0 
         ? cartBuy.totalAmount 
         : cartItems.reduce((sum, item) => sum + (item.price || 0), 0);
@@ -31,15 +27,12 @@ const Payment = () => {
         setLoading(true);
         try {
             console.log("Khởi tạo thanh toán với số tiền:", totalAmount);
-            
-            // Ép kiểu totalAmount sang chuỗi (String) để khớp với Map<String, String> ở Backend
+        
             const res = await Apis.post(endpoints['VNPAY-payment'], { 
                 amount: totalAmount.toString() 
             });
             
-            // Sửa res.ok thành res.status === 200 (vì dùng Axios)
             if (res.status === 200 && res.data && res.data.paymentUrl) {
-                // Chuyển hướng người dùng sang trang thanh toán của VNPay
                 window.location.href = res.data.paymentUrl;
             } else {
                 alert("Không thể khởi tạo thanh toán. Vui lòng thử lại!");
@@ -56,12 +49,10 @@ const Payment = () => {
         }
     };
 
-    // --- LUMINA DESIGN STYLES ---
     const cardStyle = { backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '24px' };
     const inputStyle = { backgroundColor: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '4px', padding: '10px 14px', fontSize: '0.875rem', color: '#111827', boxShadow: 'none', fontFamily: 'Inter, sans-serif' };
     const labelStyle = { fontSize: '0.75rem', fontWeight: '600', color: '#4B5563', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '8px', fontFamily: 'Inter, sans-serif' };
     
-    // Style cho các ô chọn phương thức thanh toán
     const methodBoxStyle = (method) => ({
         border: paymentMethod === method ? '1px solid #1D559F' : '1px solid #E5E7EB',
         backgroundColor: paymentMethod === method ? '#EFF6FF' : '#FFFFFF',
@@ -78,7 +69,6 @@ const Payment = () => {
         <div style={{ padding: '32px 40px', backgroundColor: '#F9FAFB', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
             <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
                 
-                {/* Header */}
                 <div className="mb-4 d-flex justify-content-between align-items-center">
                     <div>
                         <h3 style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem', marginBottom: '4px' }}>
@@ -98,14 +88,12 @@ const Payment = () => {
                 </div>
 
                 <Row className="g-4">
-                    {/* CỘT TRÁI: Phương thức thanh toán */}
                     <Col lg={7}>
                         <div style={cardStyle} className="mb-4">
                             <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '24px' }}>
                                 1. Phương thức thanh toán
                             </h5>
                             <div className="d-flex flex-column gap-3">
-                                {/* Option VNPay */}
                                 <div 
                                     style={methodBoxStyle('VNPAY')} 
                                     onClick={() => setPaymentMethod('VNPAY')}
@@ -169,7 +157,6 @@ const Payment = () => {
                         </div>
                     </Col>
 
-                    {/* CỘT PHẢI: Tóm tắt đơn hàng */}
                     <Col lg={5}>
                         <div style={{ ...cardStyle, position: 'sticky', top: '32px' }}>
                             <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '24px' }}>
@@ -189,7 +176,6 @@ const Payment = () => {
                                 ))}
                             </div>
 
-                            {/* Tính tiền */}
                             <div className="d-flex justify-content-between align-items-center mb-2">
                                 <span style={{ color: '#4B5563', fontSize: '0.875rem' }}>Tạm tính</span>
                                 <span style={{ color: '#111827', fontWeight: '500', fontSize: '0.875rem' }}>{totalAmount.toLocaleString('vi-VN')} đ</span>
@@ -209,7 +195,6 @@ const Payment = () => {
                                 </div>
                             </div>
 
-                            {/* Nút thanh toán */}
                             <Button 
                                 onClick={handlePayment}
                                 disabled={loading || cartItems.length === 0}

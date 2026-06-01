@@ -61,7 +61,6 @@ const Header = () => {
         <>
             <style>
                 {`
-                    /* Xóa mũi tên mặc định của Dropdown User để UI gọn hơn */
                     .user-dropdown-header > .dropdown-toggle::after { display: none !important; }
                     .nav-item-hover:hover { background-color: #F3F4F6; border-radius: 4px; }
                 `}

@@ -5,39 +5,35 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 import { Bar } from 'react-chartjs-2';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import LoadMoreButton from '../../components/LoadMoreButton';
-import { Cookies } from 'react-cookie';
+import cookies from 'react-cookies';
 import {borrowStatsStyles} from '../../style/BorrowStatsStyle';
 import { IoSearchSharp } from 'react-icons/io5';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const BorrowStats = () => {
-    // State cho Danh sách mượn trả
     const [borrows, setBorrows] = useState([]);
     const [loading, setLoading] = useState(false);
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
 
-    // State cho Bộ lọc
     const [kw, setKw] = useState('');
     const [searchInput, setSearchInput] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
 
-    // State cho Biểu đồ & Thống kê
     const [chartData, setChartData] = useState([]);
     const [overdueDocs, setOverdueDocs] = useState([]);
     const [statYear, setStatYear] = useState(new Date().getFullYear());
-    const [isChartLoading, setIsChartLoading] = useState(false); // Renamed to prevent conflict
+    const [isChartLoading, setIsChartLoading] = useState(false);
 
     useEffect(() => {
         const loadStats = async () => {
             setIsChartLoading(true);
             try {
-                let resStats = await authApi(new Cookies().get('token')).get(`/stats/secure/borrowing?year=${statYear}`);
+                let resStats = await authApi(cookies.load('token')).get(`/stats/secure/borrowing?year=${statYear}`);
                 setChartData(resStats.data);
 
-                // API lấy danh sách sách quá hạn chưa trả
-                let resOverdue = await authApi(new Cookies().get('token')).get('/stats/secure/overdue-documents');
+                let resOverdue = await authApi(cookies.load('token')).get('/stats/secure/overdue-documents');
                 setOverdueDocs(resOverdue.data);
             } catch (error) {
                 console.error("Lỗi tải thống kê:", error);
@@ -48,7 +44,6 @@ const BorrowStats = () => {
         loadStats();
     }, [statYear]);
 
-    // 2. GỌI API LẤY DANH SÁCH PHIẾU MƯỢN (CÓ LỌC)
     const loadBorrows = async () => {
         try {
             if (page === 1) setLoading(true);
@@ -57,7 +52,7 @@ const BorrowStats = () => {
             if (kw) url += `&kw=${kw}`;
             if (statusFilter) url += `&status=${statusFilter}`;
 
-            let res = await authApi(new Cookies().get('token')).get(url);
+            let res = await authApi(cookies.load('token')).get(url);
 
             if (res.data.length === 0 || res.data.length < 20) {
                 setHasMore(false);
@@ -79,7 +74,6 @@ const BorrowStats = () => {
 
     useEffect(() => {
         loadBorrows();
-        // eslint-disable-next-line
     }, [page, kw, statusFilter]);
 
     useEffect(() => {
@@ -103,7 +97,7 @@ const BorrowStats = () => {
             {
                 label: 'Số lượt mượn',
                 data: chartData.slice(0, 10).map(item => item[2]),
-                backgroundColor: '#1D559F', // Đổi màu chart sang Lumina Primary
+                backgroundColor: '#1D559F', 
                 borderColor: '#154078',
                 borderWidth: 1,
                 borderRadius: 4,
@@ -123,7 +117,7 @@ const BorrowStats = () => {
 
     return (
         <div style={borrowStatsStyles.containerStyle}>
-            {/* PHẦN 1: HEADER & CẢNH BÁO */}
+
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <h3 className="mb-1" style={borrowStatsStyles.headerTitle}>
@@ -141,7 +135,6 @@ const BorrowStats = () => {
                 )}
             </div>
 
-            {/* PHẦN 2: BIỂU ĐỒ THỐNG KÊ */}
             <Row className="mb-4">
                 <Col md={12}>
                     <div style={borrowStatsStyles.chartCard}>
@@ -174,7 +167,6 @@ const BorrowStats = () => {
                 </Col>
             </Row>
 
-            {/* PHẦN 3: DANH SÁCH PHIẾU MƯỢN */}
             <div style={borrowStatsStyles.tableCard}>
                 <h5 className="mb-4" style={borrowStatsStyles.tableTitle}>Danh sách phiếu mượn</h5>
                 <div className="d-flex gap-3 mb-4 flex-wrap">
@@ -207,7 +199,6 @@ const BorrowStats = () => {
                     </Form.Select>
                 </div>
 
-                {/* BẢNG DỮ LIỆU */}
                 {loading && page === 1 ? (
                     <div className="d-flex justify-content-center py-5">
                         <Spinner animation="border" style={{ color: '#1D559F' }} />

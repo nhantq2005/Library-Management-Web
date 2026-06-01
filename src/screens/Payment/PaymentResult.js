@@ -15,14 +15,12 @@ const PaymentResult = () => {
     const [, dispatchBuy] = useContext(MyCartBuyContext);
     const status = searchParams.get('status');
 
-    // Dùng useRef để đánh dấu xem API đã được gọi chưa, tránh gọi 2 lần do StrictMode của React
     const hasProcessedRef = useRef(false);
 
     useEffect(() => {
         const processPayment = async () => {
-            // Chỉ chạy luồng lưu data nếu status = success, có thông tin user và chưa từng xử lý
             if (status === 'success' && user?.id && !hasProcessedRef.current) {
-                hasProcessedRef.current = true; // Đánh dấu là đã xử lý
+                hasProcessedRef.current = true;
                 
                 const token = cookies.load('token');
                 let cart = cookies.load(`cartBuy_${user.id}`) || null;
@@ -31,16 +29,13 @@ const PaymentResult = () => {
                     try {
                         let cartList = Object.values(cart).map(c => ({ id: c.id, quantity: 1 }));
                         
-                        // Gọi API lưu lịch sử mua hàng
                         let res = await authApi(token).post(endpoints['secure-buy'], cartList);
                         
                         if (res.status === 201 || res.status === 200) {
                             console.log("Lưu lịch sử giao dịch thành công!");
                             
-                            // Xóa cookie giỏ hàng
                             cookies.remove(`cartBuy_${user.id}`, { path: '/' });
                             
-                            // Cập nhật lại số lượng giỏ hàng trên UI (header)
                             dispatchBuy({ "type": "UPDATE", "userId": user.id });
                         }
                     } catch (ex) {
@@ -53,7 +48,6 @@ const PaymentResult = () => {
         processPayment();
     }, [status, user, dispatchBuy]);
 
-    // --- LUMINA DESIGN SYSTEM STYLES ---
     const containerStyle = {
         backgroundColor: '#F9FAFB',
         minHeight: '100vh',

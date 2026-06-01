@@ -7,6 +7,7 @@ import EditButton from "../../components/EditButton";
 import DeleteButton from "../../components/DeleteButton";
 import { manageDocumentStyle } from "../../style/ManageDocumentStyle";
 import cookies from "react-cookies";
+import { IoIosAdd, IoIosSearch } from "react-icons/io";
 
 const ManageDocument = () => {
     const [docs, setDocs] = useState([]);
@@ -70,7 +71,6 @@ const ManageDocument = () => {
         loadDocuments();
     }, [page, kwParam]);
 
-    // 3. XỬ LÝ XÓA TÀI LIỆU
     const deleteDocument = async (id) => {
         if (window.confirm("Bạn có chắc chắn muốn xóa tài liệu này không?")) {
             try {
@@ -90,7 +90,6 @@ const ManageDocument = () => {
         <div style={manageDocumentStyle.pageWrapperStyle}>
             <div style={manageDocumentStyle.cardStyle}>
                 
-                {/* HEADER */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 className="mb-1" style={manageDocumentStyle.titleStyle}>
@@ -109,22 +108,17 @@ const ManageDocument = () => {
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#1D559F'; }}
                         onClick={() => navigate('/librarian/add-document')}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                        </svg>
+                        <IoIosAdd size={22} />
                         Thêm tài liệu mới
                     </Button>
                 </div>
 
-                {/* KHU VỰC Ô TÌM KIẾM */}
                 <InputGroup className="mb-4" style={manageDocumentStyle.searchGroupStyle}>
                     <InputGroup.Text 
                         className="border-0 px-3" 
                         style={manageDocumentStyle.searchIconStyle}
                     >
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
+                        <IoIosSearch size={20} />
                     </InputGroup.Text>
                     <Form.Control
                         className="border-0 shadow-none ps-1 py-2"
@@ -135,7 +129,6 @@ const ManageDocument = () => {
                     />
                 </InputGroup>
 
-                {/* PHẦN BẢNG DỮ LIỆU */}
                 {loading && page === 1 ? (
                     <div className="d-flex justify-content-center py-5">
                         <Spinner animation="border" style={manageDocumentStyle.spinnerColor} />
@@ -222,7 +215,6 @@ const ManageDocument = () => {
                     </div>
                 )}
 
-                {/* NÚT TẢI THÊM */}
                 {hasMore && docs.length > 0 && (
                     <div className="mt-4">
                         <LoadMoreButton

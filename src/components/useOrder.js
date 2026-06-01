@@ -32,7 +32,7 @@ const useOrder = () => {
             return;
         }
 
-        // XỬ LÝ NÚT MUA
+
         if (actionType === 'BUY') {
             if (doc.id in cartBuy) {
                 alert(`Tài liệu "${doc.title}" đã có trong giỏ hàng mua của bạn. Mỗi người chỉ được mua 1 cuốn!`);
@@ -64,7 +64,7 @@ const useOrder = () => {
             dispatchBuy({ "type": "UPDATE", "userId": user.id });
             alert("Đã thêm tài liệu vào giỏ ĐỂ MUA!");
 
-        // XỬ LÝ NÚT MƯỢN
+  
         } else if (actionType === 'BORROW') {
             if (doc.id in cartBorrow) {
                 cartBorrow[doc.id]['quantity']++;

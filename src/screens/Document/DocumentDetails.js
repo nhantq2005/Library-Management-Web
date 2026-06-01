@@ -9,6 +9,7 @@ import useOrder from "../../components/useOrder";
 import DocumentDetailStyles from "../../style/DocumentDetailStyles";
 import ReviewItem from "../../components/Items/ReviewItem";
 import PdfViewer from "../View/PDFView";
+import MediaViewer from "../View/MediaViewer";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import CompareModal from "../../components/CompareModal";
@@ -152,31 +153,30 @@ const DocumentDetails = () => {
         }
 
         initLoad();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [documentId, user]);
 
-    const handleViewPdf = () => {
+    const handleViewContent = () => {
         if (!user) {
             alert("Bạn cần đăng nhập để xem tài liệu này!");
             nav(`/login?next=/documents/${documentId}`);
             return;
         }
         if (hasAccess) {
-            const pdfUrl = doc.fileUrl;
-            if (pdfUrl) {
+            const contentUrl = doc.fileUrl;
+
+            if (contentUrl) {
                 setIsViewing(true);
             } else {
-                alert("Rất tiếc, tài liệu này hiện chưa được cập nhật file PDF trên hệ thống!");
+                alert("Rất tiếc, tài liệu này hiện chưa được cập nhật file nội dung trên hệ thống!");
             }
         } else {
-            alert("Bạn cần phải MƯỢN hoặc MUA tài liệu này trước thì mới có thể xem nội dung (File PDF)!");
+            alert("Bạn cần phải MƯỢN hoặc MUA tài liệu này trước thì mới có thể xem nội dung!");
         }
     };
 
     const extractCloudinaryFileId = (url) => {
         if (!url) return null;
         try {
-            // Cắt chuỗi lấy phần sau chữ '/upload/' và bỏ đuôi '.pdf'
             const parts = url.split('/upload/');
             if (parts.length > 1) {
                 return parts[1].replace('.pdf', '');
@@ -192,7 +192,13 @@ const DocumentDetails = () => {
     if (loading) return <div className="text-center py-5 mt-5"><Spinner animation="border" style={{ color: '#1D559F' }} /></div>;
     if (doc === null && !loading) return <h3 className="text-center mt-5" style={{ color: '#DC2626', fontWeight: '600' }}>Không tìm thấy thông tin tài liệu!</h3>;
 
-    // Nếu đang xem PDF thì chỉ hiện PDFView và nút quay lại
+    const fileType = doc?.fileType?.toLowerCase() || '';
+    const isDirectMedia = ['mp3', 'wav', 'm4a', 'aac', 'ogg', 'mp4', 'mov', 'webm', 'avi', 'mkv'].includes(fileType);
+
+    if (isViewing && isDirectMedia && doc?.fileUrl) {
+        return <MediaViewer src={doc.fileUrl} title={doc.title} fileType={doc.fileType} onBack={() => setIsViewing(false)} />;
+    }
+
     if (isViewing && fileId) {
         return (
             <div style={{ backgroundColor: '#222', minHeight: '100vh', padding: '32px 0' }}>
@@ -206,7 +212,6 @@ const DocumentDetails = () => {
         );
     }
 
-    // ...existing code...
     return (
         <>
         <Header />
@@ -245,7 +250,24 @@ const DocumentDetails = () => {
                                 <div className="mb-4 d-flex flex-column gap-2" style={{ fontSize: '0.875rem' }}>
                                     <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>TÁC GIẢ:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.authors && doc.authors.length > 0 ? doc.authors.map(a => a.name).join(', ') : 'Đang cập nhật'}</Col></Row>
                                     <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>NĂM XUẤT BẢN:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.publishYear || 'Đang cập nhật'}</Col></Row>
-                                    <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>NGÀY ĐĂNG TẢI:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.createdDate ? moment(doc.createdDate).format('DD/MM/YYYY HH:mm') : 'Đang cập nhật'}</Col></Row>
+                                    <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>NGÀY ĐĂNG TẢI:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.createdDate ? moment(doc.createdDate).format('DD/MM/YYYY') : 'Đang cập nhật'}</Col></Row>
+                                    <Row><Col sm={3} style={DocumentDetailStyles.infoLabel}>LOẠI FILE:</Col><Col sm={9} style={DocumentDetailStyles.infoValue}>{doc.fileType ? doc.fileType.toUpperCase() : 'Đang cập nhật'}</Col></Row>
+                                    <Row>
+                                        <Col sm={3} style={DocumentDetailStyles.infoLabel}>NHÃN:</Col>
+                                        <Col sm={9} style={DocumentDetailStyles.infoValue}>
+                                            {doc.tags && doc.tags.length > 0 ? (
+                                                <div className="d-flex flex-wrap gap-2">
+                                                    {doc.tags.map(tag => (
+                                                        <span key={tag.id} style={DocumentDetailStyles.badge('#F3F4F6', '#4B5563')}>
+                                                            {tag.name}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                'Đang cập nhật'
+                                            )}
+                                        </Col>
+                                    </Row>
                                 </div>
                                 <hr style={DocumentDetailStyles.hr} />
                                 <div className="mb-4">
@@ -264,10 +286,14 @@ const DocumentDetails = () => {
                                     ) : (
                                         <Button
                                             variant="none"
-                                            onClick={handleViewPdf}
+                                            onClick={handleViewContent}
                                             style={hasAccess ? DocumentDetailStyles.btnViewAllowed : DocumentDetailStyles.btnViewLocked}
                                         >
-                                            {hasAccess ? "📄 Xem file PDF" : "🔒 Xem file PDF (Đã khóa)"}
+                                            {hasAccess
+                                                ? isDirectMedia
+                                                    ? `▶ Phát ${fileType.toUpperCase() || 'nội dung'}`
+                                                    : '📄 Xem file PDF'
+                                                : '🔒 Xem file nội dung (Đã khóa)'}
                                         </Button>
                                     )}
                                     {!hasAccess && !checkingAccess && (
@@ -291,7 +317,7 @@ const DocumentDetails = () => {
                                 </div>
                                 {!hasAccess && !checkingAccess && (
                                     <div className="mt-3 text-muted" style={DocumentDetailStyles.noteText}>
-                                        * Bạn cần thêm sách vào giỏ (Mượn/Mua) và hoàn tất thanh toán để mở khóa tính năng đọc trực tuyến (File PDF).
+                                        * Bạn cần thêm sách vào giỏ (Mượn/Mua) và hoàn tất thanh toán để mở khóa tính năng xem trực tuyến (PDF) hoặc mở file Cloudinary (audio/video).
                                     </div>
                                 )}
                             </div>

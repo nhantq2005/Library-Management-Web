@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Form, Button, Row, Col, Spinner, Alert, InputGroup, Modal } from 'react-bootstrap';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { Form, Button, Row, Col, Spinner, Alert, InputGroup } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import Apis, { authApi, endpoints } from '../../configs/Apis';
 import AddModal from '../../components/AddModal';
@@ -70,12 +70,10 @@ const AddUpdateDocument = () => {
         }
     };
 
-    const loadDocument = async () => {
+    const loadDocument = useCallback(async () => {
         try {
             const res = await Apis.get(endpoints['document-details'](id));
             const data = res.data || {};
-            
-            // Xử lý map dữ liệu từ JSON trả về sang State formData
             setFormData({
                 title: data.title || '',
                 description: data.description || '',
@@ -83,9 +81,7 @@ const AddUpdateDocument = () => {
                 price: data.price || 0,
                 quantity: data.quantity || 1,
                 isPremium: data.isPremium || false,
-                // Lấy ID từ object category
                 categoryId: data.category ? data.category.id : '',
-                // Lặp qua mảng authors/tags để lấy mảng ID
                 authorIds: data.authors ? data.authors.map(author => author.id) : [],
                 tagIds: data.tags ? data.tags.map(tag => tag.id) : []
             });
@@ -95,7 +91,7 @@ const AddUpdateDocument = () => {
         } finally {
             setFetching(false);
         }
-    };
+    }, [id]);
 
     useEffect(() => {
         loadCategories();
@@ -106,7 +102,7 @@ const AddUpdateDocument = () => {
         } else {
             setFetching(false);
         }
-    }, [isUpdate]);
+    }, [isUpdate, loadDocument]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -186,21 +182,18 @@ const AddUpdateDocument = () => {
             if (formData.authorIds.length > 0) form.append('authorIds', formData.authorIds.join(','));
             if (formData.tagIds.length > 0) form.append('tagIds', formData.tagIds.join(','));
 
-if (imageRef.current.files[0]) {
+            if (imageRef.current.files[0]) {
                 form.append('image', imageRef.current.files[0]);
             } else if (!isUpdate) {
-                setError('Vui lòng chọn ảnh bìa tài liệu'); 
-                setLoading(false); 
+                setError('Vui lòng chọn ảnh bìa tài liệu');
+                setLoading(false);
                 return;
             }
-            // ĐÃ XÓA KHỐI ELSE GÂY LỖI Ở ĐÂY
-
-            // Xử lý File nội dung
             if (fileRef.current.files[0]) {
                 form.append('file', fileRef.current.files[0]);
             } else if (!isUpdate) {
-                setError('Vui lòng chọn file nội dung tài liệu (.pdf, .doc)'); 
-                setLoading(false); 
+                setError('Vui lòng chọn file nội dung tài liệu (.pdf, .doc, video hoặc audio)');
+                setLoading(false);
                 return;
             }
 
@@ -236,12 +229,12 @@ if (imageRef.current.files[0]) {
                             {isUpdate ? 'Chỉnh sửa thông tin tài liệu hiện có.' : 'Điền đầy đủ thông tin bên dưới để xuất bản tài liệu vào hệ thống.'}
                         </p>
                     </div>
-                    <Button 
-                        variant="none" 
-                        className="d-flex align-items-center gap-2" 
-                        onClick={() => navigate(-1)} 
-                        style={addUpdateDocStyle.backBtnStyle} 
-                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB'; }} 
+                    <Button
+                        variant="none"
+                        className="d-flex align-items-center gap-2"
+                        onClick={() => navigate(-1)}
+                        style={addUpdateDocStyle.backBtnStyle}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#F9FAFB'; }}
                         onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#FFFFFF'; }}
                     >
                         Quay lại
@@ -313,22 +306,22 @@ if (imageRef.current.files[0]) {
                             </Form.Group>
                         </Col>
                         <Col md={6}>
-                            <Form.Group 
-                                className="mb-4 p-3 h-100" 
-                                style={{ 
-                                    ...addUpdateDocStyle.premiumBoxBaseStyle, 
-                                    backgroundColor: formData.isPremium ? '#EFF6FF' : '#F9FAFB', 
-                                    border: formData.isPremium ? '1px solid #1D559F' : '1px solid #E5E7EB' 
+                            <Form.Group
+                                className="mb-4 p-3 h-100"
+                                style={{
+                                    ...addUpdateDocStyle.premiumBoxBaseStyle,
+                                    backgroundColor: formData.isPremium ? '#EFF6FF' : '#F9FAFB',
+                                    border: formData.isPremium ? '1px solid #1D559F' : '1px solid #E5E7EB'
                                 }}
                             >
                                 <div className="d-flex justify-content-between align-items-center h-100">
-                                    <Form.Check 
-                                        type="switch" 
-                                        id="premium-switch" 
-                                        name="isPremium" 
-                                        label={<span className="fw-semibold ms-2" style={{ color: formData.isPremium ? '#1D559F' : '#4B5563', fontSize: '0.875rem' }}>Premium (Có phí)</span>} 
-                                        checked={formData.isPremium} 
-                                        onChange={handleChange} 
+                                    <Form.Check
+                                        type="switch"
+                                        id="premium-switch"
+                                        name="isPremium"
+                                        label={<span className="fw-semibold ms-2" style={{ color: formData.isPremium ? '#1D559F' : '#4B5563', fontSize: '0.875rem' }}>Premium (Có phí)</span>}
+                                        checked={formData.isPremium}
+                                        onChange={handleChange}
                                     />
                                     <div className="d-flex align-items-center gap-2">
                                         <Form.Control type="number" name="price" placeholder="Nhập giá..." min="0" value={formData.price} onChange={handleChange} disabled={!formData.isPremium} style={{ ...addUpdateDocStyle.inputStyle, padding: '8px 12px', width: '130px' }} />
@@ -346,7 +339,15 @@ if (imageRef.current.files[0]) {
                             <FileUploadBox label="📸 Ảnh bìa tài liệu" accept="image/*" fileRef={imageRef} isRequired={!isUpdate} helperText={isUpdate ? 'Bỏ trống nếu muốn giữ nguyên ảnh cũ. Hỗ trợ: JPG, PNG' : 'Định dạng hỗ trợ: JPG, PNG, WEBP'} />
                         </Col>
                         <Col md={6}>
-                            <FileUploadBox label="📄 File nội dung" accept=".pdf,.doc,.docx" fileRef={fileRef} isRequired={!isUpdate} helperText={isUpdate ? 'Bỏ trống nếu muốn giữ nguyên file cũ. Hỗ trợ: PDF, DOCX' : 'Định dạng hỗ trợ: PDF, DOCX'} />
+                            <FileUploadBox
+                                label="📄 File nội dung"
+                                accept=".pdf,.doc,.docx,.mp4,.mov,.webm,.avi,.mkv,.mp3,.wav,.m4a,.aac,.ogg"
+                                fileRef={fileRef}
+                                isRequired={!isUpdate}
+                                helperText={isUpdate
+                                    ? 'Bỏ trống nếu muốn giữ nguyên file cũ. Hỗ trợ: PDF, DOCX, MP4, MOV, WEBM, AVI, MKV, MP3, WAV, M4A, AAC, OGG'
+                                    : 'Định dạng hỗ trợ: PDF, DOCX, MP4, MOV, WEBM, AVI, MKV, MP3, WAV, M4A, AAC, OGG'}
+                            />
                         </Col>
                     </Row>
 
