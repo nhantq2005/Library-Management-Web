@@ -1,6 +1,6 @@
 import { Button, Spinner } from "react-bootstrap";
 
-const LoadMoreButton = ({ onClick, isLoading }) => {
+const LoadMoreButton = ({ onClick, isLoading, label = 'Tải thêm trang tiếp theo...' }) => {
     return (
         <div className="d-flex justify-content-center mt-4 mb-2">
             <Button
@@ -25,7 +25,7 @@ const LoadMoreButton = ({ onClick, isLoading }) => {
                 onClick={onClick}
                 disabled={isLoading}
             >
-                {isLoading ? <Spinner animation="border" size="sm" /> : 'Tải thêm trang tiếp theo...'}
+                {isLoading ? <Spinner animation="border" size="sm" /> : label}
             </Button>
         </div>
     );

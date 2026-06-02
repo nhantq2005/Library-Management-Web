@@ -38,8 +38,7 @@ const ManageDocument = () => {
         return () => clearTimeout(timer);
     }, [searchInput, kwParam, setSearchParams]);
 
-    useEffect(() => {
-        const loadDocuments = async () => {
+    const loadDocuments = async () => {
             try {
                 if (page === 1) setLoading(true);
 
@@ -49,6 +48,7 @@ const ManageDocument = () => {
                 }
 
                 let res = await Apis.get(url);
+                console.log("Tài liệu đã tải:", res.data);
                 
                 if (res.data.length === 0) {
                     setHasMore(false);
@@ -68,7 +68,11 @@ const ManageDocument = () => {
             }
         };
 
+
+    useEffect(() => {
+        
         loadDocuments();
+        
     }, [page, kwParam]);
 
     const deleteDocument = async (id) => {

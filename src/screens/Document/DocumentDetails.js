@@ -132,6 +132,21 @@ const DocumentDetails = () => {
         }
     }
 
+    const deleteReview = async (review) => {
+        try{
+            const res = await authApi(cookies.load('token')).delete(endpoints['delete-review'](documentId));
+            if(res.status === 204){
+                alert("Xóa đánh giá thành công!");
+                loadReviews();
+            } else {
+                alert("Không thể xóa đánh giá lúc này!");
+            }
+        } catch (error) {
+            console.error("Lỗi khi xóa đánh giá:", error);
+            alert("Đã xảy ra lỗi khi xóa đánh giá!");
+        }
+    };
+
     useEffect(() => {
         const initLoad = async () => {
             const cookieName = user
@@ -375,7 +390,7 @@ const DocumentDetails = () => {
 
                     <div className="d-flex flex-column gap-4">
                         {reviews.map((rev) => (
-                            <ReviewItem key={rev.id} review={rev} />
+                            <ReviewItem key={rev.id} review={rev} onDelete={deleteReview} />
                         ))}
                         {reviews.length === 0 && (
                             <div className="text-center py-4 text-muted" style={DocumentDetailStyles.emptyReviewText}>

@@ -9,6 +9,12 @@ import cookies from 'react-cookies';
 import LabelWithAddButton from '../../components/LabelWithAddButton';
 import { addUpdateDocStyle } from '../../style/AddUpdateDocumentStyle';
 
+const mergeUniqueById = (prevItems, nextItems) => {
+    const map = new Map(prevItems.map(item => [item.id, item]));
+    nextItems.forEach(item => map.set(item.id, item));
+    return Array.from(map.values());
+};
+
 const AddUpdateDocument = () => {
     const navigate = useNavigate();
     const { id } = useParams();
@@ -22,6 +28,12 @@ const AddUpdateDocument = () => {
     const [categories, setCategories] = useState([]);
     const [authors, setAuthors] = useState([]);
     const [tags, setTags] = useState([]);
+    const [authorPage, setAuthorPage] = useState(1);
+    const [tagPage, setTagPage] = useState(1);
+    const [hasMoreAuthors, setHasMoreAuthors] = useState(true);
+    const [hasMoreTags, setHasMoreTags] = useState(true);
+    const [loadingMoreAuthors, setLoadingMoreAuthors] = useState(false);
+    const [loadingMoreTags, setLoadingMoreTags] = useState(false);
 
     const [modalConfig, setModalConfig] = useState({ show: false, type: '', title: '', label: '', placeholder: '' });
     const [inputValue, setInputValue] = useState('');
@@ -52,23 +64,35 @@ const AddUpdateDocument = () => {
         }
     };
 
-    const loadAuthors = async () => {
+    const loadAuthors = useCallback(async (page = 1, append = false) => {
         try {
-            const res = await Apis.get(endpoints['authors']);
-            setAuthors(res.data);
+            if (append) setLoadingMoreAuthors(true);
+            const res = await Apis.get(`${endpoints['authors']}?page=${page}`);
+            const data = res.data || [];
+
+            setHasMoreAuthors(data.length >= 20);
+            setAuthors(prev => mergeUniqueById(prev, data));
         } catch (err) {
             console.error("Lỗi tải tác giả:", err);
+        } finally {
+            setLoadingMoreAuthors(false);
         }
-    };
+    }, []);
 
-    const loadTags = async () => {
+    const loadTags = useCallback(async (page = 1, append = false) => {
         try {
-            const res = await Apis.get(endpoints['tags']);
-            setTags(res.data);
+            if (append) setLoadingMoreTags(true);
+            const res = await Apis.get(`${endpoints['tags']}?page=${page}`);
+            const data = res.data || [];
+
+            setHasMoreTags(data.length >= 20);
+            setTags(prev => mergeUniqueById(prev, data));
         } catch (err) {
             console.error("Lỗi tải nhãn:", err);
+        } finally {
+            setLoadingMoreTags(false);
         }
-    };
+    }, []);
 
     const loadDocument = useCallback(async () => {
         try {
@@ -85,6 +109,14 @@ const AddUpdateDocument = () => {
                 authorIds: data.authors ? data.authors.map(author => author.id) : [],
                 tagIds: data.tags ? data.tags.map(tag => tag.id) : []
             });
+
+            if (data.authors && data.authors.length > 0) {
+                setAuthors(prev => mergeUniqueById(data.authors, prev));
+            }
+
+            if (data.tags && data.tags.length > 0) {
+                setTags(prev => mergeUniqueById(data.tags, prev));
+            }
         } catch (err) {
             console.error("Lỗi tải thông tin tài liệu:", err);
             setError("Không thể tải thông tin tài liệu.");
@@ -95,14 +127,14 @@ const AddUpdateDocument = () => {
 
     useEffect(() => {
         loadCategories();
-        loadAuthors();
-        loadTags();
+        loadAuthors(1);
+        loadTags(1);
         if (isUpdate) {
             loadDocument();
         } else {
             setFetching(false);
         }
-    }, [isUpdate, loadDocument]);
+    }, [isUpdate, loadDocument, loadAuthors, loadTags]);
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -116,6 +148,18 @@ const AddUpdateDocument = () => {
             ...prev,
             [field]: checked ? [...prev[field], value] : prev[field].filter(item => item !== value)
         }));
+    };
+
+    const handleLoadMoreAuthors = async () => {
+        const nextPage = authorPage + 1;
+        setAuthorPage(nextPage);
+        await loadAuthors(nextPage, true);
+    };
+
+    const handleLoadMoreTags = async () => {
+        const nextPage = tagPage + 1;
+        setTagPage(nextPage);
+        await loadTags(nextPage, true);
     };
 
     const openModal = (type) => {
@@ -279,6 +323,10 @@ const AddUpdateDocument = () => {
                                 onChange={handleCheckboxChange}
                                 fieldName="authorIds"
                                 emptyMessage="Chưa có tác giả"
+                                onLoadMore={hasMoreAuthors ? handleLoadMoreAuthors : undefined}
+                                isLoadingMore={loadingMoreAuthors}
+                                hasMore={hasMoreAuthors}
+                                loadMoreLabel="Tải thêm tác giả"
                             />
 
                             <ScrollableCheckboxList
@@ -288,6 +336,10 @@ const AddUpdateDocument = () => {
                                 onChange={handleCheckboxChange}
                                 fieldName="tagIds"
                                 emptyMessage="Chưa có nhãn"
+                                onLoadMore={hasMoreTags ? handleLoadMoreTags : undefined}
+                                isLoadingMore={loadingMoreTags}
+                                hasMore={hasMoreTags}
+                                loadMoreLabel="Tải thêm tag"
                             />
                         </Col>
                     </Row>
@@ -341,12 +393,12 @@ const AddUpdateDocument = () => {
                         <Col md={6}>
                             <FileUploadBox
                                 label="📄 File nội dung"
-                                accept=".pdf,.doc,.docx,.mp4,.mov,.webm,.avi,.mkv,.mp3,.wav,.m4a,.aac,.ogg"
+                                accept=".pdf,.doc,.docx,.mp4,.mov,.mp3,.wav,.m4a"
                                 fileRef={fileRef}
                                 isRequired={!isUpdate}
                                 helperText={isUpdate
-                                    ? 'Bỏ trống nếu muốn giữ nguyên file cũ. Hỗ trợ: PDF, DOCX, MP4, MOV, WEBM, AVI, MKV, MP3, WAV, M4A, AAC, OGG'
-                                    : 'Định dạng hỗ trợ: PDF, DOCX, MP4, MOV, WEBM, AVI, MKV, MP3, WAV, M4A, AAC, OGG'}
+                                    ? 'Bỏ trống nếu muốn giữ nguyên file cũ. Hỗ trợ:PDF, DOCX, MP4, MOV, MP3, WAV, M4A'
+                                    : 'Định dạng hỗ trợ: PDF, DOCX, MP4, MOV,MP3, WAV, M4A'}
                             />
                         </Col>
                     </Row>
