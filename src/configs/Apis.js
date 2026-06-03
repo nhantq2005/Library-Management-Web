@@ -14,6 +14,8 @@ export const endpoints = {
     'documents': '/documents',
     'categories': '/categories',
     'secure-categories': '/secure/categories',
+    'add-document': '/secure/documents',
+    'update-document': (documentId) => `/secure/documents/${documentId}`,
     'delete-document': (documentId) => `/secure/documents/${documentId}`,
     "secure-borrows": "/secure/borrows",
     'secure-buy': '/secure/buy',
@@ -30,11 +32,12 @@ export const endpoints = {
     'reviews': (docId) => `/documents/${docId}/reviews`,
     'add-review': (docId) => `/secure/documents/${docId}/reviews`,
     'VNPAY-payment': '/payment/create-payment',
-    'delete-review': (reviewId) => `/secure/reviews/${reviewId}`,
+    'delete-review': (docId) => `/secure/documents/${docId}/reviews`,
     'delete-category': (categoryId) => `/secure/categories/${categoryId}`,
     'update-category': (categoryId) => `/secure/categories/${categoryId}`,
     'revenue-by-document': '/stats/secure/revenue-by-document',
     'transaction-history': '/stats/secure/transaction-history',
+    'add-category': '/secure/categories',
 }
 
 export const authApi = (token) => {

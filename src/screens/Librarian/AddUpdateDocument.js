@@ -18,7 +18,7 @@ const mergeUniqueById = (prevItems, nextItems) => {
 const AddUpdateDocument = () => {
     const navigate = useNavigate();
     const { id } = useParams();
-    const isUpdate = !!id;
+    let isUpdate;
 
     const [loading, setLoading] = useState(false);
     const [fetching, setFetching] = useState(isUpdate);
@@ -53,6 +53,12 @@ const AddUpdateDocument = () => {
 
     const imageRef = useRef();
     const fileRef = useRef();
+
+    if (id !== undefined && id !== null && id !== "") {
+        isUpdate = true;
+    } else {
+        isUpdate = false;
+    }
 
     const loadCategories = async () => {
         try {
@@ -184,15 +190,15 @@ const AddUpdateDocument = () => {
             let res;
 
             if (modalConfig.type === 'CATEGORY') {
-                res = await authApi(token).post('/secure/categories', payload);
+                res = await authApi(token).post(endpoints['add-category'], payload);
                 setCategories([...categories, res.data]);
                 setFormData({ ...formData, categoryId: res.data.id });
             } else if (modalConfig.type === 'AUTHOR') {
-                res = await authApi(token).post('/secure/authors', payload);
+                res = await authApi(token).post(endpoints['add-author'], payload);
                 setAuthors([...authors, res.data]);
                 setFormData({ ...formData, authorIds: [...formData.authorIds, res.data.id] });
             } else if (modalConfig.type === 'TAG') {
-                res = await authApi(token).post('/secure/tags', payload);
+                res = await authApi(token).post(endpoints['add-tag'], payload);
                 setTags([...tags, res.data]);
                 setFormData({ ...formData, tagIds: [...formData.tagIds, res.data.id] });
             }
@@ -243,8 +249,8 @@ const AddUpdateDocument = () => {
 
             const token = cookies.load('token');
             const res = isUpdate
-                ? await authApi(token).put(`/secure/documents/${id}`, form, { headers: { 'Content-Type': 'multipart/form-data' } })
-                : await authApi(token).post('/secure/documents', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+                ? await authApi(token).put(endpoints['update-document'](id), form, { headers: { 'Content-Type': 'multipart/form-data' } })
+                : await authApi(token).post(endpoints['add-document'], form, { headers: { 'Content-Type': 'multipart/form-data' } });
 
             if (res.status === 201 || res.status === 200) {
                 setSuccess(`${isUpdate ? 'Cập nhật' : 'Thêm'} tài liệu thành công!`);

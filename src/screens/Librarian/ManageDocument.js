@@ -70,7 +70,6 @@ const ManageDocument = () => {
 
 
     useEffect(() => {
-        
         loadDocuments();
         
     }, [page, kwParam]);

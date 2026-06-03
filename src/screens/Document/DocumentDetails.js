@@ -37,7 +37,7 @@ const DocumentDetails = () => {
     const [isViewing, setIsViewing] = useState(false);
     const [showCompare, setShowCompare] = useState(false);
 
-    const loadDocumentDetail = async () => {
+    const loadDocumentDetail = React.useCallback(async () => {
         try {
             setLoading(true);
             let res = await Apis.get(endpoints['document-details'](documentId));
@@ -47,9 +47,9 @@ const DocumentDetails = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [documentId]);
 
-    const loadReviews = async (page = 1, append = false) => {
+    const loadReviews = React.useCallback(async (page = 1, append = false) => {
         try {
             let url = endpoints['reviews'](documentId) + `?page=${page}`;
             const res = await Apis.get(url);
@@ -63,7 +63,7 @@ const DocumentDetails = () => {
         } catch (error) {
             console.error("Lỗi tải đánh giá", error);
         }
-    }
+    }, [documentId]);
 
     const loadMoreReviews = async () => {
         setLoadingMoreReviews(true);
@@ -100,7 +100,7 @@ const DocumentDetails = () => {
         }
     }
 
-    const checkAccess = async () => {
+    const checkAccess = React.useCallback(async () => {
         if (!user) return;
         const token = cookies.load('token');
         if (!token) return;
@@ -122,15 +122,15 @@ const DocumentDetails = () => {
         } finally {
             setCheckingAccess(false);
         }
-    };
+    }, [user, documentId]);
 
-    const increaseViewCount = async () => {
+    const increaseViewCount = React.useCallback(async () => {
         try {
             await Apis.post(endpoints['increase-view'](documentId));
         } catch (error) {
             console.error("Lỗi khi cộng view", error);
         }
-    }
+    }, [documentId]);
 
     const deleteReview = async (review) => {
         try{
@@ -168,7 +168,7 @@ const DocumentDetails = () => {
         }
 
         initLoad();
-    }, [documentId, user]);
+    }, [documentId, user, loadDocumentDetail, checkAccess, increaseViewCount, loadReviews]);
 
     const handleViewContent = () => {
         if (!user) {
@@ -221,7 +221,7 @@ const DocumentDetails = () => {
                     <Button variant="light" className="mb-3" onClick={() => setIsViewing(false)}>
                         &larr; Quay lại chi tiết tài liệu
                     </Button>
-                    <PdfViewer fileId={fileId} totalPages={15} />
+                    <PdfViewer fileId={fileId} totalPages={doc?.pageCount || doc?.totalPages} />
                 </Container>
             </div>
         );

@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-const PdfViewer = ({ fileId, totalPages = 15 }) => {
+const PdfViewer = ({ fileId, totalPages }) => {
   const baseUrl = "https://res.cloudinary.com/duk4u0tsp/image/upload";
+  const autoDetect = !totalPages || totalPages <= 0;
+  const [pages, setPages] = useState(autoDetect ? [1] : Array.from({ length: totalPages }, (_, i) => i + 1));
+  const [ended, setEnded] = useState(false);
 
   const handleContextMenu = (e) => {
     e.preventDefault();
@@ -33,8 +36,7 @@ const PdfViewer = ({ fileId, totalPages = 15 }) => {
         alignItems: 'center',
         gap: 32,
       }}>
-        {Array.from({ length: totalPages }, (_, index) => {
-          const pageNum = index + 1;
+        {pages.map((pageNum) => {
           return (
             <div
               key={pageNum}
@@ -76,7 +78,23 @@ const PdfViewer = ({ fileId, totalPages = 15 }) => {
                     border: '1px solid #f3f4f6',
                     transition: 'box-shadow 0.2s',
                   }}
-                  onError={e => { e.target.style.display = 'none'; }}
+                  onLoad={() => {
+                    if (autoDetect && !ended) {
+                      setPages(prev => {
+                        const last = prev[prev.length - 1];
+                        if (pageNum === last && !prev.includes(last + 1)) {
+                          return [...prev, last + 1];
+                        }
+                        return prev;
+                      });
+                    }
+                  }}
+                  onError={() => {
+                    if (autoDetect) {
+                      setEnded(true);
+                      setPages(prev => prev.filter(p => p !== pageNum));
+                    }
+                  }}
                   draggable={false}
                 />
                 <div style={{

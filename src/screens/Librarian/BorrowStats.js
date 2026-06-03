@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Spinner, Form, InputGroup, Row, Col } from 'react-bootstrap';
-import { authApi } from '../../configs/Apis';
+import { authApi, endpoints } from '../../configs/Apis';
 import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
 import { RiErrorWarningLine } from 'react-icons/ri';
@@ -48,7 +48,7 @@ const BorrowStats = () => {
         try {
             if (page === 1) setLoading(true);
 
-            let url = `/secure/borrows?page=${page}`;
+            let url = endpoints['secure-borrows']+`?page=${page}`;
             if (kw) url += `&kw=${kw}`;
             if (statusFilter) url += `&status=${statusFilter}`;
 
