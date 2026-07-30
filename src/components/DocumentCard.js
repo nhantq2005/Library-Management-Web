@@ -45,7 +45,7 @@ const DocumentCard = ({doc, isGrid = false}) => {
 
                     <Card.Text style={HomeStyles.authorText}>
                         <i className="fa-regular fa-pen-to-square me-1"></i>
-                        {doc.authorSet?.map(a => a.name).join(', ') || 'Đang cập nhật'}
+                        {doc.authors?.map(a => a.name).join(', ') || 'Đang cập nhật'}
                     </Card.Text>
 
                     <div style={HomeStyles.statsContainer}>
