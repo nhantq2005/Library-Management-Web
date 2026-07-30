@@ -45,9 +45,6 @@ const MediaViewer = ({ src, title, fileType, onBack }) => {
                             Định dạng này chưa được hỗ trợ để phát trực tiếp.
                         </div>
                     )}
-                    <div className="mt-3" style={{ color: '#64748B', fontSize: '0.875rem' }}>
-                        Player này chỉ ẩn nút tải xuống trong giao diện.
-                    </div>
                 </div>
             </Container>
         </div>

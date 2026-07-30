@@ -10,41 +10,41 @@ import Footer from '../../components/Footer';
 const PaymentResult = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-    
+
     const [user,] = useContext(MyUserContext);
     const [, dispatchBuy] = useContext(MyCartBuyContext);
     const status = searchParams.get('status');
 
     const hasProcessedRef = useRef(false);
 
-    useEffect(() => {
-        const processPayment = async () => {
-            if (status === 'success' && user?.id && !hasProcessedRef.current) {
-                hasProcessedRef.current = true;
-                
-                const token = cookies.load('token');
-                let cart = cookies.load(`cartBuy_${user.id}`) || null;
+    const processPayment = async () => {
+        if (status === 'success' && user?.id && !hasProcessedRef.current) {
+            hasProcessedRef.current = true;
 
-                if (cart && Object.keys(cart).length > 0) {
-                    try {
-                        let cartList = Object.values(cart).map(c => ({ id: c.id, quantity: 1 }));
-                        
-                        let res = await authApi(token).post(endpoints['secure-buy'], cartList);
-                        
-                        if (res.status === 201 || res.status === 200) {
-                            console.log("Lưu lịch sử giao dịch thành công!");
-                            
-                            cookies.remove(`cartBuy_${user.id}`, { path: '/' });
-                            
-                            dispatchBuy({ "type": "UPDATE", "userId": user.id });
-                        }
-                    } catch (ex) {
-                        console.error("Lỗi khi lưu lịch sử giao dịch:", ex);
+            const token = cookies.load('token');
+            let cart = cookies.load(`cartBuy_${user.id}`) || null;
+
+            if (cart && Object.keys(cart).length > 0) {
+                try {
+                    let cartList = Object.values(cart).map(c => ({ id: c.id, quantity: 1 }));
+
+                    let res = await authApi(token).post(endpoints['secure-buy'], cartList);
+
+                    if (res.status === 201 || res.status === 200) {
+                        console.log("Lưu lịch sử giao dịch thành công!");
+
+                        cookies.remove(`cartBuy_${user.id}`, { path: '/' });
+
+                        dispatchBuy({ "type": "UPDATE", "userId": user.id });
                     }
+                } catch (ex) {
+                    console.error("Lỗi khi lưu lịch sử giao dịch:", ex);
                 }
             }
-        };
+        }
+    };
 
+    useEffect(() => {
         processPayment();
     }, [status, user, dispatchBuy]);
 
@@ -86,75 +86,75 @@ const PaymentResult = () => {
 
     return (
         <>
-        <Header />
-        <div style={containerStyle}>
-            <div style={cardStyle}>
-                
-                {status === 'success' && (
-                    <>
-                        <div style={iconWrapperStyle('#DCFCE7', '#166534')}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                            </svg>
-                        </div>
-                        <h3 style={titleStyle}>Thanh toán thành công!</h3>
-                        <p style={descStyle}>
-                            Cảm ơn bạn đã mua tài liệu. Hệ thống đã ghi nhận lịch sử giao dịch và tài liệu đã được thêm vào kho lưu trữ cá nhân của bạn.
-                        </p>
-                    </>
-                )}
+            <Header />
+            <div style={containerStyle}>
+                <div style={cardStyle}>
 
-                {status === 'failed' && (
-                    <>
-                        <div style={iconWrapperStyle('#FEE2E2', '#DC2626')}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </div>
-                        <h3 style={titleStyle}>Thanh toán thất bại</h3>
-                        <p style={descStyle}>
-                            Giao dịch của bạn đã bị hủy hoặc không thành công. Vui lòng kiểm tra lại tài khoản hoặc thử phương thức thanh toán khác.
-                        </p>
-                    </>
-                )}
+                    {status === 'success' && (
+                        <>
+                            <div style={iconWrapperStyle('#DCFCE7', '#166534')}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                </svg>
+                            </div>
+                            <h3 style={titleStyle}>Thanh toán thành công!</h3>
+                            <p style={descStyle}>
+                                Cảm ơn bạn đã mua tài liệu. Hệ thống đã ghi nhận lịch sử giao dịch và tài liệu đã được thêm vào kho lưu trữ cá nhân của bạn.
+                            </p>
+                        </>
+                    )}
 
-                {status === 'invalid_signature' && (
-                    <>
-                        <div style={iconWrapperStyle('#FEF08A', '#CA8A04')}>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-                            </svg>
-                        </div>
-                        <h3 style={titleStyle}>Lỗi bảo mật!</h3>
-                        <p style={descStyle}>
-                            Dữ liệu thanh toán không hợp lệ hoặc đã bị can thiệp. Hệ thống đã từ chối giao dịch này để đảm bảo an toàn.
-                        </p>
-                    </>
-                )}
+                    {status === 'failed' && (
+                        <>
+                            <div style={iconWrapperStyle('#FEE2E2', '#DC2626')}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </div>
+                            <h3 style={titleStyle}>Thanh toán thất bại</h3>
+                            <p style={descStyle}>
+                                Giao dịch của bạn đã bị hủy hoặc không thành công. Vui lòng kiểm tra lại tài khoản hoặc thử phương thức thanh toán khác.
+                            </p>
+                        </>
+                    )}
 
-                <Button 
-                    variant="none"
-                    onClick={() => navigate('/')}
-                    style={{
-                        backgroundColor: '#1D559F',
-                        color: '#FFFFFF',
-                        border: 'none',
-                        borderRadius: '4px',
-                        padding: '12px 24px',
-                        fontWeight: '500',
-                        fontSize: '0.875rem',
-                        width: '100%',
-                        transition: 'all 0.2s ease'
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#154078'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#1D559F'; }}
-                >
-                    Trở về Trang Chủ
-                </Button>
+                    {status === 'invalid_signature' && (
+                        <>
+                            <div style={iconWrapperStyle('#FEF08A', '#CA8A04')}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                            </div>
+                            <h3 style={titleStyle}>Lỗi bảo mật!</h3>
+                            <p style={descStyle}>
+                                Dữ liệu thanh toán không hợp lệ hoặc đã bị can thiệp. Hệ thống đã từ chối giao dịch này để đảm bảo an toàn.
+                            </p>
+                        </>
+                    )}
 
+                    <Button
+                        variant="none"
+                        onClick={() => navigate('/')}
+                        style={{
+                            backgroundColor: '#1D559F',
+                            color: '#FFFFFF',
+                            border: 'none',
+                            borderRadius: '4px',
+                            padding: '12px 24px',
+                            fontWeight: '500',
+                            fontSize: '0.875rem',
+                            width: '100%',
+                            transition: 'all 0.2s ease'
+                        }}
+                        onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#154078'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#1D559F'; }}
+                    >
+                        Trở về Trang Chủ
+                    </Button>
+
+                </div>
             </div>
-        </div>
-        <Footer />
+            <Footer />
         </>
     );
 };

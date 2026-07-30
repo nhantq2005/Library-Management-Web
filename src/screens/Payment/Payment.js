@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { Row, Col, Form, Button, Spinner } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { MyUserContext, MyCartBuyContext } from '../../configs/Context'; // Import thêm MyCartBuyContext
+import { MyUserContext, MyCartBuyContext } from '../../configs/Context';
 import cookies from 'react-cookies';
 import Apis, { authApi, endpoints } from '../../configs/Apis';
 
