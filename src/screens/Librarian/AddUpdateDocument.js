@@ -7,7 +7,7 @@ import FileUploadBox from '../../components/FileUploadBox';
 import ScrollableCheckboxList from '../../components/ScrollableCheckboxList';
 import cookies from 'react-cookies';
 import LabelWithAddButton from '../../components/LabelWithAddButton';
-import { addUpdateDocStyle } from '../../style/AddUpdateDocumentStyle';
+import addUpdateDocStyle from '../../style/AddUpdateDocumentStyle';
 
 const mergeUniqueById = (prevItems, nextItems) => {
     const map = new Map(prevItems.map(item => [item.id, item]));

@@ -7,7 +7,7 @@ import {
 } from 'react-icons/md';
 import { FaBookOpen, FaBookReader } from 'react-icons/fa';
 import { BiBookReader } from 'react-icons/bi';
-import {sidebarStyles} from '../style/SideBarStyle';
+import sidebarStyles from '../style/SideBarStyle';
 import { IoMdAddCircleOutline } from 'react-icons/io';
 
 const SideBar = () => {

@@ -6,7 +6,7 @@ import { Bar } from 'react-chartjs-2';
 import { RiErrorWarningLine } from 'react-icons/ri';
 import LoadMoreButton from '../../components/LoadMoreButton';
 import cookies from 'react-cookies';
-import {borrowStatsStyles} from '../../style/BorrowStatsStyle';
+import borrowStatsStyles from '../../style/BorrowStatsStyle';
 import { IoSearchSharp } from 'react-icons/io5';
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);

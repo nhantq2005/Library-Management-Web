@@ -4,7 +4,7 @@ import {
   Legend, ArcElement, PointElement, LineElement,
 } from 'chart.js';
 import { Pie, Bar, Line } from 'react-chartjs-2';
-import { librarianDashboardStyle} from '../../style/LibrarianDashboardStyle';
+import librarianDashboardStyle from '../../style/LibrarianDashboardStyle';
 import { authApi, endpoints } from '../../configs/Apis';
 import cookies from 'react-cookies'
 

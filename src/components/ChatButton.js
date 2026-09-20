@@ -1,7 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { IoChatbubbleEllipsesOutline } from "react-icons/io5";
-import { chatButtonStyle } from "../style/ChatButtonStyle";
+import chatButtonStyle from '../style/ChatButtonStyle';
 
 const ChatButton = () => {
 	const [hover, setHover] = React.useState(false);

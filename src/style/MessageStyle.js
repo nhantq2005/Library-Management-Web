@@ -1,4 +1,4 @@
-export const messageStyle = {
+const messageStyle = {
   mainContainer: {
     display: 'flex',
     height: '100%',
@@ -133,3 +133,5 @@ export const messageStyle = {
     cursor: "pointer"
   }
 }
+
+export default messageStyle;

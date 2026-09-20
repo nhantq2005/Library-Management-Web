@@ -103,6 +103,40 @@ const HomeStyles = {
         fontSize: '0.75rem',
         color: '#94a3b8',
         fontWeight: '500'
+    },
+    bannerImage: {
+        height: '450px',
+        objectFit: 'cover',
+        borderRadius: '16px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
+    },
+    loadingContainer: {
+        minHeight: '60vh'
+    },
+    introBox: {
+        background: '#F3F6FA',
+        borderRadius: 12,
+        padding: '32px 28px',
+        boxShadow: '0 2px 12px rgba(26,85,159,0.04)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 32
+    },
+    introIcon: {
+        fontSize: '2rem',
+        color: '#1D559F'
+    },
+    introTitle: {
+        color: '#1D559F',
+        fontWeight: 800,
+        fontSize: '2rem',
+        marginBottom: 8,
+        letterSpacing: '-0.02em'
+    },
+    introText: {
+        color: '#374151',
+        fontSize: '1.1rem',
+        marginBottom: 0
     }
 };
 

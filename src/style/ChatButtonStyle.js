@@ -1,4 +1,4 @@
-export const chatButtonStyle = {
+const chatButtonStyle = {
     buttonStyle: {
         position: "fixed",
         right: "32px",
@@ -24,3 +24,5 @@ export const chatButtonStyle = {
         boxShadow: "0 6px 24px rgba(26, 54, 93, 0.22)"
     }
 }
+
+export default chatButtonStyle;

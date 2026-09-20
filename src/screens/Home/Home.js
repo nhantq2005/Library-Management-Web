@@ -137,12 +137,7 @@ const Home = () => {
                                         className="d-block w-100"
                                         src={img}
                                         alt={`Banner ${idx + 1}`}
-                                        style={{
-                                            height: '450px',
-                                            objectFit: 'cover',
-                                            borderRadius: '16px',
-                                            boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                                        }}
+                                        style={HomeStyles.bannerImage}
                                     />
                                 </Carousel.Item>
                             ))}
@@ -151,7 +146,7 @@ const Home = () => {
                 )}
 
                 {loading && searchPage === 1 ? (
-                    <div className="d-flex justify-content-center align-items-center" style={{ minHeight: '60vh' }}>
+                    <div className="d-flex justify-content-center align-items-center" style={HomeStyles.loadingContainer}>
                         <Spinner animation="grow" variant="primary" />
                     </div>
                 ) : isSearching ? (
@@ -167,7 +162,7 @@ const Home = () => {
                         ) : (
                             <>
                                 <Row>
-                                    {searchDocs.map(doc => <DocumentCard key={doc.id} doc={doc} isSearchResult={true} />)}
+                                    {searchDocs.map(doc => <DocumentCard key={doc.id} doc={doc} isGrid={true} />)}
                                 </Row>
 
                                 {hasMoreSearch && (
@@ -212,11 +207,11 @@ const Home = () => {
                     </>
                 )}
 
-                <div className="mb-5" style={{ background: '#F3F6FA', borderRadius: 12, padding: '32px 28px', boxShadow: '0 2px 12px rgba(26,85,159,0.04)', display: 'flex', alignItems: 'center', gap: 32 }}>
-                    <FaBookOpen style={{ fontSize: '2rem', color: '#1D559F' }} size={150} />
+                <div className="mb-5" style={HomeStyles.introBox}>
+                    <FaBookOpen style={HomeStyles.introIcon} size={150} />
                     <div>
-                        <h2 style={{ color: '#1D559F', fontWeight: 800, fontSize: '2rem', marginBottom: 8, letterSpacing: '-0.02em' }}>eLibrary - Hệ thống quản lý thư viện hiện đại</h2>
-                        <p style={{ color: '#374151', fontSize: '1.1rem', marginBottom: 0 }}>
+                        <h2 style={HomeStyles.introTitle}>eLibrary - Hệ thống quản lý thư viện hiện đại</h2>
+                        <p style={HomeStyles.introText}>
                             Chào mừng bạn đến với eLibrary! Chúng tôi cung cấp nền tảng quản lý tài liệu, sách và hỗ trợ mượn/trả hiện đại, thân thiện, bảo mật cao. Hệ thống giúp bạn dễ dàng tìm kiếm, lưu trữ, chia sẻ và quản lý tài liệu mọi lúc, mọi nơi. Đội ngũ thủ thư luôn sẵn sàng hỗ trợ bạn trực tuyến.
                         </p>
                     </div>

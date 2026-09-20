@@ -1,4 +1,4 @@
-export const borrowStatsStyles = {
+const borrowStatsStyles = {
   containerStyle: {
     padding: '32px 40px',
     backgroundColor: '#F9FAFB',
@@ -149,3 +149,5 @@ export const borrowStatsStyles = {
     marginBottom: '8px',
   }
 }
+
+export default borrowStatsStyles;

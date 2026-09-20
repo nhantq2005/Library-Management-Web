@@ -1,4 +1,4 @@
-export const manageCategoryStyle = {
+const manageCategoryStyle = {
     pageWrapperStyle: {
         padding: '32px 40px',
         backgroundColor: '#F9FAFB',
@@ -103,3 +103,5 @@ export const manageCategoryStyle = {
         whiteSpace: 'nowrap'
     }
 };
+
+export default manageCategoryStyle;

@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import LoadMoreButton from "../../components/LoadMoreButton";
 import EditButton from "../../components/EditButton";
 import DeleteButton from "../../components/DeleteButton";
-import { manageDocumentStyle } from "../../style/ManageDocumentStyle";
+import manageDocumentStyle from '../../style/ManageDocumentStyle';
 import cookies from "react-cookies";
 import { IoIosAdd, IoIosSearch } from "react-icons/io";
 

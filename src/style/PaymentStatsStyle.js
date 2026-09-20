@@ -1,4 +1,4 @@
-export const paymentStatsStyle = {
+const paymentStatsStyle = {
 
     cardStyle: {
         backgroundColor: '#FFFFFF',
@@ -45,3 +45,5 @@ export const paymentStatsStyle = {
         display: 'inline-block',
     }
 }
+
+export default paymentStatsStyle;

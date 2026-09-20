@@ -1,4 +1,4 @@
-export const headerStyle = {
+const headerStyle = {
     navbar: {
         backgroundColor: '#FFFFFF',
         borderBottom: '1px solid #E5E7EB',
@@ -150,3 +150,5 @@ export const headerStyle = {
         fontWeight: '500'
     }
 };
+
+export default headerStyle;

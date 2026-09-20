@@ -1,5 +1,6 @@
-import React, { useContext, useState } from 'react';
-import { Row, Col, Form, Button, Spinner } from 'react-bootstrap';
+import React, { useContext, useEffect, useState } from "react";
+import PaymentStyle from '../../style/PaymentStyle';
+import { Row, Col, Button, Form, Spinner, Alert } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 import { MyUserContext, MyCartBuyContext } from '../../configs/Context';
 import cookies from 'react-cookies';
@@ -92,22 +93,22 @@ const Payment = () => {
     });
 
     return (
-        <div style={{ padding: '32px 40px', backgroundColor: '#F9FAFB', minHeight: '100vh', fontFamily: 'Inter, sans-serif' }}>
-            <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+        <div style={PaymentStyle.pageWrapper}>
+            <div style={PaymentStyle.container}>
 
                 <div className="mb-4 d-flex justify-content-between align-items-center">
                     <div>
-                        <h3 style={{ color: '#111827', fontWeight: '600', letterSpacing: '-0.02em', fontSize: '1.5rem', marginBottom: '4px' }}>
+                        <h3 style={PaymentStyle.title}>
                             Thanh toán an toàn
                         </h3>
-                        <p className="mb-0" style={{ fontSize: '0.875rem', color: '#4B5563' }}>
+                        <p className="mb-0" style={PaymentStyle.subtitle}>
                             Vui lòng kiểm tra lại thông tin đơn hàng và chọn phương thức thanh toán.
                         </p>
                     </div>
                     <Button
                         variant="none"
                         onClick={() => navigate(-1)}
-                        style={{ backgroundColor: '#FFFFFF', border: '1px solid #E5E7EB', color: '#4B5563', borderRadius: '4px', padding: '8px 16px', fontSize: '0.875rem', fontWeight: '500' }}
+                        style={PaymentStyle.backBtn}
                     >
                         Quay lại giỏ hàng
                     </Button>
@@ -116,7 +117,7 @@ const Payment = () => {
                 <Row className="g-4">
                     <Col lg={7}>
                         <div style={cardStyle} className="mb-4">
-                            <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '24px' }}>
+                            <h5 style={PaymentStyle.sectionTitle}>
                                 1. Phương thức thanh toán
                             </h5>
                             <div className="d-flex flex-column gap-3">
@@ -124,13 +125,13 @@ const Payment = () => {
                                     style={methodBoxStyle('VNPAY')}
                                     onClick={() => setPaymentMethod('VNPAY')}
                                 >
-                                    <div style={{ width: '20px', height: '20px', borderRadius: '50%', border: paymentMethod === 'VNPAY' ? '5px solid #1D559F' : '1px solid #D1D5DB', backgroundColor: '#FFFFFF' }}></div>
-                                    <div className="d-flex align-items-center justify-content-center" style={{ width: '40px', height: '40px', backgroundColor: '#FFFFFF', borderRadius: '4px', border: '1px solid #E5E7EB', fontWeight: 'bold', color: '#005BAA', fontSize: '0.7rem' }}>
+                                    <div style={PaymentStyle.methodBox(paymentMethod === "VNPAY")}></div>
+                                    <div className="d-flex align-items-center justify-content-center" style={PaymentStyle.vnpayLogo}>
                                         VNPay
                                     </div>
                                     <div>
-                                        <div style={{ color: '#111827', fontWeight: '600', fontSize: '0.9rem' }}>Thanh toán qua VNPAY</div>
-                                        <div style={{ color: '#6B7280', fontSize: '0.8rem' }}>Quét mã QR hoặc dùng thẻ ATM/Visa/MasterCard</div>
+                                        <div style={PaymentStyle.methodTitle}>Thanh toán qua VNPAY</div>
+                                        <div style={PaymentStyle.methodSubtitle}>Quét mã QR hoặc dùng thẻ ATM/Visa/MasterCard</div>
                                     </div>
                                 </div>
                             </div>
@@ -138,10 +139,10 @@ const Payment = () => {
 
                         <div style={cardStyle}>
                             <div className="d-flex justify-content-between align-items-center mb-4">
-                                <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', margin: 0 }}>
+                                <h5 style={PaymentStyle.sectionHeaderTitle}>
                                     2. Thông tin cá nhân
                                 </h5>
-                                <span style={{ fontSize: '0.75rem', color: '#1D559F', fontWeight: '600', cursor: 'pointer' }}>
+                                <span style={PaymentStyle.editLink}>
                                     Chỉnh sửa hồ sơ
                                 </span>
                             </div>
@@ -152,7 +153,7 @@ const Payment = () => {
                                         type="text"
                                         value={user?.name || ''}
                                         readOnly
-                                        style={{ ...inputStyle, backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'not-allowed' }}
+                                        style={{...inputStyle, ...PaymentStyle.disabledInput}}
                                     />
                                 </Form.Group>
                                 <Row>
@@ -163,7 +164,7 @@ const Payment = () => {
                                                 type="email"
                                                 value={user?.email || ''}
                                                 readOnly
-                                                style={{ ...inputStyle, backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'not-allowed' }}
+                                                style={{...inputStyle, ...PaymentStyle.disabledInput}}
                                             />
                                         </Form.Group>
                                     </Col>
@@ -174,7 +175,7 @@ const Payment = () => {
                                                 type="text"
                                                 value={user?.role === "ROLE_STUDENT" ? "Sinh viên" : "Giảng viên"}
                                                 readOnly
-                                                style={{ ...inputStyle, backgroundColor: '#F3F4F6', color: '#6B7280', cursor: 'not-allowed' }}
+                                                style={{...inputStyle, ...PaymentStyle.disabledInput}}
                                             />
                                         </Form.Group>
                                     </Col>
@@ -184,18 +185,18 @@ const Payment = () => {
                     </Col>
 
                     <Col lg={5}>
-                        <div style={{ ...cardStyle, position: 'sticky', top: '32px' }}>
-                            <h5 style={{ color: '#111827', fontWeight: '600', fontSize: '1.1rem', marginBottom: '24px' }}>
+                        <div style={{...cardStyle, ...PaymentStyle.summaryCard}}>
+                            <h5 style={PaymentStyle.sectionTitle}>
                                 Tóm tắt đơn hàng
                             </h5>
-                            <div className="d-flex flex-column gap-3 mb-4" style={{ maxHeight: '300px', overflowY: 'auto', paddingRight: '4px' }}>
+                            <div className="d-flex flex-column gap-3 mb-4" style={PaymentStyle.itemList}>
                                 {cartItems.map((item) => (
-                                    <div key={item.id} className="d-flex justify-content-between align-items-start pb-3" style={{ borderBottom: '1px solid #E5E7EB' }}>
+                                    <div key={item.id} className="d-flex justify-content-between align-items-start pb-3" style={PaymentStyle.itemRow}>
                                         <div>
-                                            <div style={{ color: '#1D559F', fontWeight: '500', fontSize: '0.875rem', marginBottom: '4px' }}>{item.title}</div>
-                                            <div style={{ color: '#6B7280', fontSize: '0.75rem' }}>Số lượng: 1</div>
+                                            <div style={PaymentStyle.itemTitle}>{item.title}</div>
+                                            <div style={PaymentStyle.itemQuantity}>Số lượng: 1</div>
                                         </div>
-                                        <div style={{ fontWeight: '600', color: '#111827', fontSize: '0.875rem', whiteSpace: 'nowrap', marginLeft: '12px' }}>
+                                        <div style={PaymentStyle.itemPrice}>
                                             {item.price.toLocaleString('vi-VN')} đ
                                         </div>
                                     </div>
@@ -203,21 +204,21 @@ const Payment = () => {
                             </div>
 
                             <div className="d-flex justify-content-between align-items-center mb-2">
-                                <span style={{ color: '#4B5563', fontSize: '0.875rem' }}>Tạm tính</span>
-                                <span style={{ color: '#111827', fontWeight: '500', fontSize: '0.875rem' }}>{totalAmount.toLocaleString('vi-VN')} đ</span>
+                                <span style={PaymentStyle.summaryLabel}>Tạm tính</span>
+                                <span style={PaymentStyle.summaryValue}>{totalAmount.toLocaleString('vi-VN')} đ</span>
                             </div>
                             <div className="d-flex justify-content-between align-items-center mb-4">
-                                <span style={{ color: '#4B5563', fontSize: '0.875rem' }}>Giảm giá</span>
-                                <span style={{ color: '#059669', fontWeight: '500', fontSize: '0.875rem' }}>0 đ</span>
+                                <span style={PaymentStyle.summaryLabel}>Giảm giá</span>
+                                <span style={PaymentStyle.discountValue}>0 đ</span>
                             </div>
 
-                            <div className="d-flex justify-content-between align-items-center pt-3 mb-4" style={{ borderTop: '1px dashed #D1D5DB' }}>
-                                <span style={{ color: '#111827', fontWeight: '600', fontSize: '1rem' }}>Tổng cộng</span>
+                            <div className="d-flex justify-content-between align-items-center pt-3 mb-4" style={PaymentStyle.totalSection}>
+                                <span style={PaymentStyle.totalLabel}>Tổng cộng</span>
                                 <div className="text-end">
-                                    <div style={{ color: '#1D559F', fontWeight: '700', fontSize: '1.5rem' }}>
-                                        {totalAmount.toLocaleString('vi-VN')} <span style={{ fontSize: '1rem', fontWeight: '600' }}>đ</span>
+                                    <div style={PaymentStyle.totalAmount}>
+                                        {totalAmount.toLocaleString('vi-VN')} <span style={PaymentStyle.currency}>đ</span>
                                     </div>
-                                    <div style={{ color: '#6B7280', fontSize: '0.7rem' }}>(Đã bao gồm VAT nếu có)</div>
+                                    <div style={PaymentStyle.vatText}>(Đã bao gồm VAT nếu có)</div>
                                 </div>
                             </div>
 
@@ -242,8 +243,8 @@ const Payment = () => {
                                 Xác nhận thanh toán
                             </Button>
 
-                            <p className="text-center mt-3 mb-0" style={{ fontSize: '0.75rem', color: '#6B7280' }}>
-                                Bằng việc xác nhận thanh toán, bạn đồng ý với <a href="/" style={{ color: '#1D559F', textDecoration: 'none' }}>Điều khoản dịch vụ</a> của chúng tôi.
+                            <p className="text-center mt-3 mb-0" style={PaymentStyle.termsText}>
+                                Bằng việc xác nhận thanh toán, bạn đồng ý với <a href="/" style={PaymentStyle.termsLink}>Điều khoản dịch vụ</a> của chúng tôi.
                             </p>
                         </div>
                     </Col>

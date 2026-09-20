@@ -10,7 +10,7 @@ const navLinkBaseStyle = {
     transition: 'all 0.2s ease',
 };
 
-export const sidebarStyles = {
+const sidebarStyles = {
     sidebarContainerStyle: {
         width: '260px',
         height: '100vh',
@@ -138,3 +138,5 @@ export const sidebarStyles = {
         margin: '0 16px 16px 16px',
     }
 }
+
+export default sidebarStyles;

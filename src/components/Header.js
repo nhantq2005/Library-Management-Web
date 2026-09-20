@@ -8,7 +8,7 @@ import { MyCartBuyContext, MyCartBorrowContext, MyUserContext } from "../configs
 import { GiShoppingCart } from "react-icons/gi";
 import { RiBookShelfLine } from "react-icons/ri";
 import { TbCategory } from "react-icons/tb";
-import { headerStyle } from "../style/HeaderStyle";
+import headerStyle from '../style/HeaderStyle';
 import { MdOutlineManageAccounts } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
 

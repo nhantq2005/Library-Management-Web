@@ -1,4 +1,4 @@
-export const addUpdateDocStyle = {
+const addUpdateDocStyle = {
     pageWrapperStyle: {
         padding: '32px 40px',
         backgroundColor: '#F8FAFC',
@@ -102,3 +102,5 @@ export const addUpdateDocStyle = {
         color: '#1D559F'
     }
 };
+
+export default addUpdateDocStyle;

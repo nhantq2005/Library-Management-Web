@@ -5,7 +5,7 @@ import LoadMoreButton from '../../components/LoadMoreButton';
 import DeleteButton from '../../components/DeleteButton';
 import EditButton from '../../components/EditButton';
 import cookies from 'react-cookies';
-import { manageCategoryStyle } from '../../style/ManageCategoryStyle';
+import manageCategoryStyle from '../../style/ManageCategoryStyle';
 import { IoIosAdd } from 'react-icons/io';
 
 const ManageCategory = () => {

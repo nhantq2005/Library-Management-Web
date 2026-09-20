@@ -29,6 +29,8 @@ import Forbidden from './screens/Exception/Forbidden';
 
 import ChatButton from './components/ChatButton';
 
+import GlobalStyles from './style/GlobalStyles';
+
 const App = () => {
   const [user, dispatchUser] = useReducer(MyUserReducer, cookies.load('user') || null);
   const [cartBuy, dispatchCartBuy] = useReducer(MyCartBuyReducer, { totalQuantity: 0, totalAmount: 0 });
@@ -38,6 +40,8 @@ const App = () => {
     <MyUserContext.Provider value={[user, dispatchUser]}>
       <MyCartBuyContext.Provider value={[cartBuy, dispatchCartBuy]}>
         <MyCartBorrowContext.Provider value={[cartBorrow, dispatchCartBorrow]}>
+
+          <GlobalStyles />
 
           <BrowserRouter>
             <Routes>

@@ -5,7 +5,7 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearSca
 import { Pie } from 'react-chartjs-2';
 import LoadMoreButton from '../../components/LoadMoreButton';
 import cookies from 'react-cookies';
-import { paymentStatsStyle } from '../../style/PaymentStatsStyle';
+import paymentStatsStyle from '../../style/PaymentStatsStyle';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 

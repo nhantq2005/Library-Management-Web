@@ -1,4 +1,4 @@
-export const librarianDashboardStyle = {
+const librarianDashboardStyle = {
   dashboardMainContent: {
     padding: '24px',
     backgroundColor: '#f8fafc',
@@ -107,3 +107,5 @@ export const librarianDashboardStyle = {
     gridTemplateColumns: '1fr',
   }
 };
+
+export default librarianDashboardStyle;

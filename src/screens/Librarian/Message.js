@@ -3,7 +3,7 @@ import { Button, Form, Card } from "react-bootstrap";
 import moment from "moment";
 import { ref, push, onValue, query, orderByChild } from "firebase/database";
 import { database } from "../../utils/FirebaseConfig";
-import { messageStyle } from "../../style/MessageStyle";
+import messageStyle from '../../style/MessageStyle';
 
 const Message = () => {
   const [userList, setUserList] = useState([]);

@@ -1,4 +1,4 @@
-export const manageDocumentStyle = {
+const manageDocumentStyle = {
     pageWrapperStyle: {
         padding: '32px 40px',
         backgroundColor: '#F9FAFB',
@@ -136,3 +136,5 @@ export const manageDocumentStyle = {
         fontSize: '1.5rem'
     }
 };
+
+export default manageDocumentStyle;
